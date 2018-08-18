@@ -1,0 +1,4 @@
+node_modules/
+config.backend.json
+config.frontend.json
+config.json

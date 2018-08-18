@@ -1,0 +1,109 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: Roboto,sans-serif;
+  background: #151e33;
+  background: linear-gradient(-38deg,#161e32 0,#2b395a 100%);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  height: 100%;
+  max-width: 100vw;
+  color: white;
+}
+
+#app {
+  height: 100%;
+}
+
+.layout-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.layout-column {
+  display: flex;
+  flex-direction: column;
+}
+
+
+@mixin layout-align($dir) {
+  justify-content: $dir;
+  &-start {
+    align-items: flex-start;
+    justify-content: $dir;
+  }
+  &-end {
+    align-items: flex-end;
+    justify-content: $dir;
+  }
+  &-center {
+    align-items: center;
+    justify-content: $dir;
+  }
+  &-stretch {
+    align-items: stretch;
+    justify-content: $dir;
+  }
+  &-baseline {
+    align-items: baseline;
+    justify-content: $dir;
+  }
+}
+
+.layout-start {
+  @include layout-align(flex-start);
+}
+
+.layout-end {
+  @include layout-align(flex-end);
+}
+
+.layout-between {
+  @include layout-align(space-between);
+}
+
+.layout-stretch {
+  @include layout-align(stretch);
+}
+
+.layout-center {
+  @include layout-align(center);
+}
+
+.layout-around {
+  @include layout-align(space-around);
+}
+
+.layout-evenly {
+  @include layout-align(space-evenly);
+}
+
+.flex-100 {
+  flex-grow: 1;
+  flex-basis: 100%;
+}
+
+.flex-50 {
+  flex-grow: 0;
+  flex-basis: 50%;
+}
+
+.flex-25 {
+  flex-grow: 0;
+  flex-basis: 25%;
+}
+
+.flex-none {
+  flex-grow: 0;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.layout-padding {
+  padding: 8px;
+}
+
+
