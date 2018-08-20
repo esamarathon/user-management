@@ -4,14 +4,18 @@ import Vue from 'vue';
 import VueMaterial from 'vue-material';
 import 'vue-material/dist/vue-material.min.css';
 import 'vue-material/dist/theme/default-dark.css';
+import FlagsDropdown from 'flags-dropdown-vue';
 import './assets/base.scss';
 
 import App from './App';
 import router from './router';
+import ProfileConnection from './components/dashboard/ProfileConnection';
 
 import './assets/theme.scss';
 
 Vue.use(VueMaterial);
+Vue.component('ProfileConnection', ProfileConnection);
+Vue.component('flags-dropdown', FlagsDropdown);
 
 Vue.config.productionTip = false;
 
