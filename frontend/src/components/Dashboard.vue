@@ -21,28 +21,34 @@
     <div class="wrapper layout-row layout-start-stretch flex-100">
       <div class="navigation flex-none layout-padding">
         <md-list>
-          <md-list-item>
+          <md-list-item :to="{name:'Home'}">
+            <md-icon>home</md-icon>
+            <span class="md-list-item-text">Home</span>
+          </md-list-item>
+
+          <md-list-item :to="{name:'Profile'}">
             <md-icon>settings</md-icon>
             <span class="md-list-item-text">Profile</span>
           </md-list-item>
 
-          <md-list-item>
+          <md-list-item :to="{name:'Submissions'}">
             <md-icon>send</md-icon>
             <span class="md-list-item-text">Submissions</span>
           </md-list-item>
 
-          <md-list-item>
+          <md-list-item :to="{name:'Applications'}">
             <md-icon>how_to_reg</md-icon>
             <span class="md-list-item-text">Volunteer</span>
           </md-list-item>
 
-          <md-list-item>
-            <md-icon>info</md-icon>
-            <span class="md-list-item-text">Information</span>
+          <md-list-item :to="{name:'Admin'}">
+            <md-icon>lock</md-icon>
+            <span class="md-list-item-text">Administration</span>
           </md-list-item>
         </md-list>
       </div>
       <div class="content flex-100 layout-padding">
+        <router-view></router-view>
       </div>
     </div>
   </div>
@@ -53,14 +59,14 @@ export default {
   name: 'Dashboard',
   data: () => ({
     user: {
-      displayName: "CBenni",
-      logo: "https://static-cdn.jtvnw.net/jtv_user_pictures/cbenni-profile_image-99d37ad0e11bcb85-300x300.jpeg"
-    }
+      displayName: 'CBenni',
+      logo: 'https://static-cdn.jtvnw.net/jtv_user_pictures/cbenni-profile_image-99d37ad0e11bcb85-300x300.jpeg',
+    },
   }),
   methods: {
     logout() {
 
-    }
+    },
   },
 };
 </script>

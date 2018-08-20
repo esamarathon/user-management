@@ -9,10 +9,10 @@ export default {
   name: 'App',
   created() {
     // here we want to check if the JWT is valid etc. If it is, redirect to /dashboard. Else, redirect to /login
-      setTimeout(()=>{
-        this.$router.push({ name: 'Dashboard' });
-      }, 1500);
-  }
+    setTimeout(() => {
+      this.$router.push({ name: 'Dashboard' });
+    }, 1500);
+  },
 };
 </script>
 

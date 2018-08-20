@@ -8,7 +8,7 @@
     "npm-run-all": "^4.1.3"
   },
   "scripts": {
-    "install": "run-p -l install:*",
+    "install": "run-s -l install:*",
     "install:frontend": "cd frontend && yarn install",
     "install:backend": "cd backend && yarn install",
     "dev": "run-p -l dev:*",
