@@ -14,7 +14,7 @@
 import settings from '../../settings';
 import twitchLogo from '../../assets/twitch_logo.png';
 import discordLogo from '../../assets/discord_logo.png';
-import speedrunLogo from '../../assets/speedrun_com_logo.png';
+import speedrunLogo from '../../assets/speedrun_com_logo_flat.png';
 
 const config = {
   twitch: {

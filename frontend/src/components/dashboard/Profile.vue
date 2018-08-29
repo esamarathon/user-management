@@ -38,8 +38,15 @@ export default {
 @import url('flags-dropdown-vue/css/custom.css');
 @import url('flags-dropdown-vue/css/flags.min.css');
 
-.lang-dropdown-content {
-  background-color: #333;
-  z-index: 80;
+.lang-dropdown {
+  .flag-box {
+    border: none !important;
+    background-image: url('../../assets/dropdown-arrow.png') !important;
+  }
+
+  .lang-dropdown-content {
+    background-color: #333;
+    z-index: 80;
+  }
 }
 </style>
