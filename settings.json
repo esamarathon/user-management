@@ -1,0 +1,8 @@
+{
+  "auth": {
+    "secret": "memes"
+  },
+  "twitch": {
+    "clientID": "31wnt8q7vcvhyopwmsh6zd1jkuq27x"
+  }
+}

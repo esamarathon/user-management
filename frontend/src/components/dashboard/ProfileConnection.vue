@@ -1,11 +1,11 @@
 <template>
   <div class="layout-column">
     <div class="flex-none layout-row" v-if="info">
-      <md-button class="md-icon-button md-primary"><md-icon>close</md-icon></md-button>
+      <md-button class="md-icon-button md-dark"><md-icon>close</md-icon></md-button>
       <div class="button-align"><img class="logo" :src="config.logo"> Connected as {{info.displayName}}</div>
     </div>
     <div class="flex-none layout-row" v-if="!info">
-      <md-button class="md-primary"><img class="logo" :src="config.logo"> Connect with {{config.displayName}}</md-button>
+      <md-button class="md-dark"><img class="logo" :src="config.logo"> Connect with {{config.displayName}}</md-button>
     </div>
   </div>
 </template>
@@ -73,5 +73,9 @@ export default {
   text-decoration: none;
   vertical-align: top;
   white-space: nowrap;
+}
+
+.md-dark, .md-dark .md-icon.md-theme-default.md-icon-font {
+  color: white;
 }
 </style>

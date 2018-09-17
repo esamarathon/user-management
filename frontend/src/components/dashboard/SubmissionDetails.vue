@@ -2,6 +2,20 @@
   <div class="layout-column">
     <h1>Submission details for {{submission.name}}</h1>
     {{submission}}
+    <div class="submission-details layout-column">
+      <div class="details-row layout-row">
+        <div class="flex-25">Submission ID</div>
+        <div class="flex">{{submission.id}}</div>
+      </div>
+      <div class="details-row layout-row">
+        <div class="flex-25">Name</div>
+        <div class="flex">{{submission.name}}</div>
+      </div>
+      <div class="details-row layout-row">
+        <div class="flex-25">Status</div>
+        <div class="flex">{{submission.status}}</div>
+      </div>
+    </div>
   </div>
 </template>
 

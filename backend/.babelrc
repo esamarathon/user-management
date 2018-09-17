@@ -1,0 +1,10 @@
+{
+  "sourceMaps": "inline",
+  "presets": [
+    ["@babel/env", {
+      "targets": {
+        "node": "current"
+      }
+    }]
+  ]
+}

@@ -1,8 +1,8 @@
 <template>
   <div class="dashboard flex-100 layout-column">
     <div class="header layout-row layout-between layout-padding">
-      <div class="menu-button flex-none">
-        <md-menu md-direction="bottom-end">
+      <div class="menu-button flex-none layout-row">
+        <md-menu md-direction="bottom-end" class="menu-button">
           <md-button md-menu-trigger class="md-icon-button">
             <md-icon>menu</md-icon>
           </md-button>
@@ -10,6 +10,12 @@
             <md-menu-item @click="logout()">Log out</md-menu-item>
           </md-menu-content>
         </md-menu>
+        <md-field class="compact">
+          <label for="event">Event</label>
+          <md-select v-model="eventID" name="event" id="event">
+            <md-option v-for="possibleEvent in events" :value="possibleEvent.id" :key="possibleEvent.id">{{possibleEvent.name}}</md-option>
+          </md-select>
+        </md-field>
       </div>
       <div class="flex-none">
         <div class="user-info flex-none">
@@ -54,21 +60,7 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Dashboard',
-  data: () => ({
-    user: {
-      displayName: 'CBenni',
-      logo: 'https://static-cdn.jtvnw.net/jtv_user_pictures/cbenni-profile_image-99d37ad0e11bcb85-300x300.jpeg',
-    },
-  }),
-  methods: {
-    logout() {
-
-    },
-  },
-};
+<script src="./dashboard.js">
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -118,6 +110,11 @@ export default {
   }
 }
 
-.content {
+.menu-button {
+  margin-right: 12px;
+}
+
+.md-field.compact {
+  margin: 0;
 }
 </style>

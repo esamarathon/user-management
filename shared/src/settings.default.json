@@ -1,0 +1,25 @@
+{
+  "auth": {
+    "algorithm": "HS256",
+    "cookieOptions": {},
+    "domainFilter": ".*"
+  },
+	"logger": {
+		"level": "debug",
+		"name": "ESA-users"
+	},
+	"api": {
+    "baseurl": "http://127.0.0.1:8081/",
+    "port": 8081
+  },
+  "frontend": {
+    "baseurl": "http://127.0.0.1:8080/"
+  },
+  "twitch": {
+    "clientID": "",
+		"clientSecret": ""
+  },
+  "db": {
+    "url": "mongodb://localhost/esa_users"
+  }
+}

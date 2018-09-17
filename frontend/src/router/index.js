@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Loading from '../components/Loading';
-import Dashboard from '../components/Dashboard';
+import Loading from '../components/Loading.vue';
+import Login from '../components/Login.vue';
+import Dashboard from '../components/Dashboard.vue';
 import DashboardHome from '../components/dashboard/Home';
 import DashboardProfile from '../components/dashboard/Profile';
 import DashboardSubmissions from '../components/dashboard/Submissions';
@@ -17,6 +18,11 @@ export default new Router({
       path: '/',
       name: 'Loading',
       component: Loading,
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login,
     },
     {
       path: '/dashboard',
