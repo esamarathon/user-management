@@ -1,10 +1,10 @@
+import { getUser } from '../api';
+
+
 export default {
   name: 'Dashboard',
   data: () => ({
-    user: {
-      displayName: 'CBenni',
-      logo: 'https://static-cdn.jtvnw.net/jtv_user_pictures/cbenni-profile_image-99d37ad0e11bcb85-300x300.jpeg',
-    },
+    user: null,
     // this should probably be vuex
     eventID: null,
     events: [{
@@ -21,8 +21,11 @@ export default {
       name: 'ESAS19',
     }],
   }),
-  created() {
+  async created() {
     this.eventID = this.events[this.events.length - 1].id;
+
+    this.$store.state.user = await getUser();
+    console.log(this.user);
   },
   methods: {
     logout() {

@@ -37,7 +37,7 @@ export async function handleLogin(req, res, next) {
       const jwt = generateToken(token, { id: userResponse._id, login: userResponse.name, displayName: userResponse.display_name });
 
       // get user
-      let user = await models.User.findOne({ 'connections.twitch.id': userResponse.id }).exec();
+      let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
       if (!user) {
         user = new models.User({
           connections: {
@@ -52,7 +52,8 @@ export async function handleLogin(req, res, next) {
               refreshToken: tokenResponse.body.refresh_token,
               expiresAt: Date.now() + tokenResponse.body.expires_in * 1000
             }
-          }
+          },
+          flag: (req.header['CF-IPCountry'] || 'XX').toLowerCase()
         });
         console.log('Created new user', user);
       } else {
@@ -83,8 +84,19 @@ export function handleLogout(req, res) {
     const allowedOrigin = `${frontendUrl.protocol}//${frontendUrl.host}`;
     res.header('Access-Control-Allow-Origin', allowedOrigin);
     res.header('Access-Control-Allow-Credentials', true);
-    res.clearCookie('esa-jwt');
+    res.clearCookie('esa-jwt', settings.auth.cookieOptions);
   } else {
     res.status(400).jsonp({ error: 'Missing, mismatching or invalid token' });
   }
+}
+
+
+export async function getUser(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  console.log('Getting user with ID ', req.jwt.user.id);
+  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles').exec();
+  if (user) {
+    return res.json(user);
+  }
+  return res.status(404).end('User not found.');
 }

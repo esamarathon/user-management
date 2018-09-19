@@ -19,8 +19,8 @@
       </div>
       <div class="flex-none">
         <div class="user-info flex-none">
-          {{(user && user.displayName) || ''}}
-          <img class="profile-pic" :src="(user && user.logo) || ''">
+          {{(user && user.connections.twitch.displayName) || ''}}
+          <img class="profile-pic" :src="(user && user.connections.twitch.logo) || ''">
         </div>
       </div>
     </div>

@@ -1,55 +1,33 @@
 <template>
   <div class="layout-column profile-info">
     <h1>User profile</h1>
-    <div class="profile-details layout-column">
+    <div class="profile-details layout-column" v-if="user">
       <div class="details-row button-equivalent layout-row">
-        <div class="flex-25">Name</div>
-        <div class="flex">{{user.name}}</div>
+        <div class="flex-10">Name</div>
+        <div class="flex">{{user.connections.twitch.displayName}}</div>
       </div>
       <div class="details-row button-equivalent layout-row">
-        <div class="flex-25">E-Mail</div>
-        <div class="flex">{{user.email}}</div>
+        <div class="flex-10">E-Mail</div>
+        <div class="flex">{{user.connections.twitch.email}}</div>
       </div>
       <div class="details-row button-equivalent layout-row">
-        <div class="flex-25">Flag</div>
+        <div class="flex-10">Flag</div>
         <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
       </div>
       <div class="details-row layout-row">
-        <div class="flex-25"><profile-connection class="twitch-connect" type="twitch" :info="user.twitch"></profile-connection></div>
+        <div class="button-align"><img class="logo" src="../../assets/twitch_logo.png"> Connected as {{user.connections.twitch.displayName}}</div>
       </div>
       <div class="details-row layout-row">
-        <profile-connection class="discord-connect" type="discord" :info="user.discord"></profile-connection>
+        <md-button class="md-dark"><img class="logo" src="../../assets/discord_logo.png"> Connect with Discord</md-button>
       </div>
       <div class="details-row layout-row">
-        <profile-connection class="speedrun-connect" type="speedrun" :info="user.speedrun"></profile-connection>
+        <md-button class="md-dark"><img class="logo" src="../../assets/speedrun_com_logo_flat.png"> Connect with Speedrun.com</md-button>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Profile',
-  data: () => ({
-    user: { // this will be moved to vuex eventually
-      name: 'CBenni',
-      email: 'memes@cbenni.com',
-      flag: 'de',
-      twitch: {
-        id: '21018440',
-        name: 'cbenni',
-        displayName: 'CBenni',
-      },
-      discord: null,
-      speedrun: null,
-    },
-  }),
-  methods: {
-    flagSelected(selected) {
-      this.user.flag = selected.iso;
-    },
-  },
-};
+<script src="./profile.js">
 </script>
 
 <style lang="scss">
@@ -75,5 +53,36 @@ export default {
   &.button-equivalent {
     padding: 8px 16px;
   }
+}
+
+img.logo {
+  height: 24px;
+  margin-right: 8px;
+}
+
+.button-align {
+  padding: 0 8px;
+  height: 36px;
+  margin: 6px 8px;
+  user-select: none;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+  line-height: normal;
+  text-decoration: none;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.md-dark, .md-button.md-dark.md-theme-default, .md-dark .md-icon.md-theme-default.md-icon-font {
+  color: white;
 }
 </style>

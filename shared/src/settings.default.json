@@ -1,6 +1,6 @@
 {
   "auth": {
-    "algorithm": "HS256",
+    "algorithm": "RS256",
     "cookieOptions": {},
     "domainFilter": ".*"
   },

@@ -47,6 +47,7 @@ module.exports = {
     'import/prefer-default-export': 'off',
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'max-len': ['warn', 200]
+    'max-len': ['warn', 200],
+    'no-plusplus': ['warn', { "allowForLoopAfterthoughts": true }]
   }
 }

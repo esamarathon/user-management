@@ -96,6 +96,11 @@ body, html {
   flex-basis: 25%;
 }
 
+.flex-10 {
+  flex-grow: 0;
+  flex-basis: 10%;
+}
+
 .flex-none {
   flex-grow: 0;
   flex-shrink: 0;

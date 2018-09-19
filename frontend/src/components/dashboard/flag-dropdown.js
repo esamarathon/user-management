@@ -6,12 +6,8 @@ export default {
     countries: COUNTRIES,
   }),
   props: {
-    selected: {
-      type: String,
-      required: true,
-    },
+    selected: String,
   },
-  template: '#flag-dropdown',
   // A data object containing all data for this component.
   // Methods, we will bind these later on.
   methods: {
@@ -31,8 +27,8 @@ export default {
     jumpTo(event) {
       // console.log("JumpTo called!", event)
       const key = event.key.toUpperCase();
-      let index = 0;
-      for (;index < this.countries.length && this.countries[index].nicename[0] < key; ++index) {}
+      let index = 1; // skip the first element since thats "Not set"
+      for (;index < this.countries.length && this.countries[index].nicename[0] < key; ++index) { /* do nothing */ }
       this.$el.children[1].children[0].children[Math.min(index, this.countries.length - 1)].scrollIntoView({ behavior: 'smooth', block: 'start' });
     },
   },
