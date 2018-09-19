@@ -3,4 +3,4 @@ config.backend.json
 config.frontend.json
 config.json
 yarn-error.log
-private.pem
+*.pem
