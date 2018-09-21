@@ -111,4 +111,10 @@ body, html {
   padding: 8px;
 }
 
+.layout-wrap {
+  flex-wrap: wrap;
+}
 
+.md-dialog.big-dialog .md-dialog-container {
+  max-width: 700px;
+}

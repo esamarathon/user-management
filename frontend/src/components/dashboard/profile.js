@@ -5,7 +5,7 @@ export default {
   data: () => ({}),
   methods: {
     flagSelected(selected) {
-      this.$store.commit('updateFlag', selected.iso);
+      this.$store.commit('updateUser', { flag: selected.iso });
     },
   },
   computed: mapState(['user']),

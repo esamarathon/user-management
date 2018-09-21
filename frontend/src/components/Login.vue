@@ -33,7 +33,7 @@
     width: 300px;
   }
 }
-.md-button.twitch-login {
+.md-button.md-theme-default.twitch-login {
   background-color: #6441A4;
   color: white;
   border-radius: 5px;

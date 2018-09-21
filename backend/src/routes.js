@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import http from 'http';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -9,7 +8,9 @@ import expressPinoLogger from 'express-pino-logger';
 import cors from 'cors';
 
 import settings from './settings';
-import { handleLogin, handleLogout, getUser } from './api';
+import {
+  handleLogin, getUser, updateUser, getEvent
+} from './api';
 import { handleWebsocket } from './websocket';
 import logger from './logger';
 import { publicKey } from './auth';
@@ -33,10 +34,14 @@ app.use(jwt({
   requestProperty: 'jwt'
 }));
 
-app.get('/', getUser);
 app.get('/login', handleLogin);
-app.get('/logout', handleLogout);
 app.ws('/socket', handleWebsocket);
+
+app.get('/events/', getEvent);
+app.get('/event/:event/', getEvent);
+app.get('/user', getUser);
+app.post('/user', updateUser);
+app.get('/users', getUser);
 
 server.listen(settings.api.port);
 export { server, app };

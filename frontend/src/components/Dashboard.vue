@@ -13,7 +13,7 @@
         <md-field class="compact">
           <label for="event">Event</label>
           <md-select v-model="eventID" name="event" id="event">
-            <md-option v-for="possibleEvent in events" :value="possibleEvent.id" :key="possibleEvent.id">{{possibleEvent.name}}</md-option>
+            <md-option v-for="possibleEvent in $store.state.events" :value="possibleEvent.identifier" :key="possibleEvent.identifier">{{possibleEvent.name}}</md-option>
           </md-select>
         </md-field>
       </div>

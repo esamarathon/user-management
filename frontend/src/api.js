@@ -14,6 +14,29 @@ export async function makeRequest(endpoint, options) {
   throw new Error(`Call to ${endpoint} returned with status ${response.status}${response.body ? `: ${response.body}` : ''}`);
 }
 
+export function makePOST(endpoint, body, options) {
+  const opts = _.merge({
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+    },
+  }, options);
+  return makeRequest(endpoint, opts);
+}
+
 export function getUser() {
-  return makeRequest(`${settings.api.baseurl}`);
+  return makeRequest(`${settings.api.baseurl}user`);
+}
+
+export function getEvents() {
+  return makeRequest(`${settings.api.baseurl}events`);
+}
+
+export function getEvent(eventID) {
+  return makeRequest(`${settings.api.baseurl}event/${eventID}`);
+}
+
+export function updateUser(changes) {
+  return makePOST(`${settings.api.baseurl}user`, changes);
 }

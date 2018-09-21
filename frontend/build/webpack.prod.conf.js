@@ -1,16 +1,16 @@
 
-;
+
 const path = require('path');
-const utils = require('./utils');
 const webpack = require('webpack');
-const config = require('../config');
 const merge = require('webpack-merge');
-const baseWebpackConfig = require('./webpack.base.conf');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const baseWebpackConfig = require('./webpack.base.conf');
+const config = require('../config');
+const utils = require('./utils');
 
 const env = require('../config/prod.env');
 
@@ -86,9 +86,9 @@ const webpackConfig = merge(baseWebpackConfig, {
       minChunks(module) {
         // any required modules inside node_modules are extracted to vendor
         return (
-          module.resource &&
-          /\.js$/.test(module.resource) &&
-          module.resource.indexOf(
+          module.resource
+          && /\.js$/.test(module.resource)
+          && module.resource.indexOf(
             path.join(__dirname, '../node_modules'),
           ) === 0
         );
@@ -129,8 +129,8 @@ if (config.build.productionGzip) {
       asset: '[path].gz[query]',
       algorithm: 'gzip',
       test: new RegExp(
-        `\\.(${ 
-        config.build.productionGzipExtensions.join('|') 
+        `\\.(${
+          config.build.productionGzipExtensions.join('|')
         })$`,
       ),
       threshold: 10240,

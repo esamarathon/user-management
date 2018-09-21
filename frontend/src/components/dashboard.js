@@ -1,35 +1,36 @@
-import { getUser } from '../api';
+import { mapState } from 'vuex';
+import { getUser, getEvents } from '../api';
+import { jwt } from '../auth';
 
+function deleteCookie(name) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+}
 
 export default {
   name: 'Dashboard',
   data: () => ({
-    user: null,
     // this should probably be vuex
     eventID: null,
-    events: [{
-      id: 5,
-      name: 'ESAW18',
-    }, {
-      id: 6,
-      name: 'ESAS18',
-    }, {
-      id: 7,
-      name: 'ESAW19',
-    }, {
-      id: 8,
-      name: 'ESAS19',
-    }],
+    events: [],
   }),
   async created() {
-    this.eventID = this.events[this.events.length - 1].id;
+    if (!jwt) this.$router.push({ name: 'Login' });
 
-    this.$store.state.user = await getUser();
-    console.log(this.user);
+    getEvents().then((events) => {
+      this.$store.state.events = events;
+      this.eventID = events[events.length - 1].identifier;
+    });
+
+    getUser().then((user) => {
+      this.$store.state.user = user;
+      console.log(user);
+    });
   },
   methods: {
-    logout() {
-
+    async logout() {
+      deleteCookie('esa-jwt');
+      this.$router.push({ name: 'Login' });
     },
   },
+  computed: mapState(['user']),
 };

@@ -21,5 +21,14 @@
   },
   "db": {
     "url": "mongodb://localhost/esa_users"
-  }
+  },
+  "permissions": [
+    "Users",
+    "Schedule",
+    "Submissions",
+    "Volunteers",
+    "Donations",
+    "Roles",
+    "Admin"
+  ]
 }

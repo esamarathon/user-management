@@ -1,5 +1,6 @@
 import got from 'got';
 import URL from 'url';
+import _ from 'lodash';
 
 import logger from './logger';
 import { twitchGet } from './twitchAPI';
@@ -68,7 +69,6 @@ export async function handleLogin(req, res, next) {
       }
       await user.save();
 
-
       res.cookie('esa-jwt', jwt, settings.auth.cookieOptions);
 
       console.log('Redirecting to', redirectUrl);
@@ -78,25 +78,44 @@ export async function handleLogin(req, res, next) {
   } catch (err) { logger.error(err); next(err); }
 }
 
-export function handleLogout(req, res) {
-  if (req.token && req.cookies && req.cookies.token && req.token === req.cookies.token) {
-    const frontendUrl = URL.parse(settings.frontend.baseurl);
-    const allowedOrigin = `${frontendUrl.protocol}//${frontendUrl.host}`;
-    res.header('Access-Control-Allow-Origin', allowedOrigin);
-    res.header('Access-Control-Allow-Credentials', true);
-    res.clearCookie('esa-jwt', settings.auth.cookieOptions);
-  } else {
-    res.status(400).jsonp({ error: 'Missing, mismatching or invalid token' });
-  }
-}
-
 
 export async function getUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user with ID ', req.jwt.user.id);
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles').exec();
+  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id })
+  .populate('roles')
+  .populate('submissions')
+  .populate('applications')
+  .exec();
   if (user) {
     return res.json(user);
   }
   return res.status(404).end('User not found.');
+}
+
+const allowedUserModifications = ['flag'];
+export async function updateUser(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles').exec();
+  if (user) {
+    console.log('Request body: ', req.body);
+    const badChange = _.find(req.body, (value, property) => {
+      if (allowedUserModifications.includes(property)) {
+        _.set(user, property, value);
+      } else {
+        res.status(400).end(`Invalid property ${property}`);
+        return true;
+      }
+      return false;
+    });
+    if (badChange) return res;
+    user.save();
+    return res.json(user);
+  }
+  return res.status(404).end('User not found.');
+}
+
+export async function getEvent(req, res) {
+  if (req.params.event) return res.json(await models.Event.find({ identifier: req.params.event }));
+  return res.json(await models.Event.find());
 }
