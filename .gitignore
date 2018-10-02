@@ -1,6 +1,6 @@
 node_modules/
-config.backend.json
-config.frontend.json
-config.json
+settings.backend.json
+settings.frontend.json
+settings.json
 yarn-error.log
 *.pem
