@@ -5,9 +5,9 @@ import Login from '../components/Login.vue';
 import Dashboard from '../components/Dashboard.vue';
 import DashboardHome from '../components/dashboard/Home';
 import DashboardProfile from '../components/dashboard/Profile.vue';
-import DashboardSubmissions from '../components/dashboard/Submissions';
+import DashboardSubmissions from '../components/dashboard/Submissions.vue';
 import DashboardSubmissionDetails from '../components/dashboard/SubmissionDetails';
-import DashboardApplications from '../components/dashboard/Applications';
+import DashboardApplications from '../components/dashboard/Applications.vue';
 import DashboardAdmin from '../components/dashboard/Admin';
 
 Vue.use(Router);

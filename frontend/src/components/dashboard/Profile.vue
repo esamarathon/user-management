@@ -1,7 +1,7 @@
 <template>
   <div class="layout-column profile-info">
     <h1>User profile</h1>
-    <div class="profile-details layout-column" v-if="user">
+    <form class="profile-details layout-column" v-if="user">
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Name</div>
         <div class="flex">{{user.connections.twitch.displayName}}</div>
@@ -11,11 +11,21 @@
         <div class="flex">{{user.connections.twitch.email}}</div>
       </div>
       <div class="details-row button-equivalent layout-row">
+        <div class="flex-10">Twitter handle</div>
+        <md-field class="flex-10 very-compact md-dark">
+          <span class="md-prefix">@</span>
+          <md-input v-model="twitterHandle" v-on:change="twitterUpdated"></md-input>
+        </md-field>
+      </div>
+      <div class="details-row button-equivalent layout-row">
+        <div class="flex-10">Phone number</div>
+        <md-field class="flex-10 very-compact md-dark">
+          <md-input type="tel" autocomplete="tel" v-model="phoneNumber" v-on:change="phoneUpdated"></md-input>
+        </md-field>
+      </div>
+      <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Flag</div>
         <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
-      </div>
-      <div class="details-row layout-row">
-        <div class="button-align"><img class="logo" src="../../assets/twitch_logo.png"> Connected as {{user.connections.twitch.displayName}}</div>
       </div>
       <div class="details-row layout-row">
         <md-button class="md-dark"><img class="logo" src="../../assets/discord_logo.png"> Connect with Discord</md-button>
@@ -23,7 +33,7 @@
       <div class="details-row layout-row">
         <md-button class="md-dark"><img class="logo" src="../../assets/speedrun_com_logo_flat.png"> Connect with Speedrun.com</md-button>
       </div>
-    </div>
+    </form>
   </div>
 </template>
 
@@ -52,6 +62,10 @@
 .details-row {
   &.button-equivalent {
     padding: 8px 16px;
+
+    .flex-10 {
+      min-width: 200px;
+    }
   }
 }
 
@@ -82,7 +96,16 @@ img.logo {
   white-space: nowrap;
 }
 
-.md-dark, .md-button.md-dark.md-theme-default, .md-dark .md-icon.md-theme-default.md-icon-font {
-  color: white;
+.md-dark {
+  &.md-button.md-theme-default, .md-icon.md-theme-default.md-icon-font {
+    color: white;
+  }
+
+  &.md-field.md-theme-default, &.md-field.md-theme-default.md-focused, &.md-field.md-theme-default.md-has-value {
+    .md-prefix, .md-input {
+      color: white;
+      -webkit-text-fill-color: initial;
+    }
+  }
 }
 </style>

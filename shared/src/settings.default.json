@@ -2,7 +2,8 @@
   "auth": {
     "algorithm": "RS256",
     "cookieOptions": {},
-    "domainFilter": ".*"
+    "domainFilter": ".*",
+    "encryptionKey": null
   },
 	"logger": {
 		"level": "debug",

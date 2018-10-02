@@ -118,3 +118,21 @@ body, html {
 .md-dialog.big-dialog .md-dialog-container {
   max-width: 700px;
 }
+
+.md-field.compact {
+  margin: 0;
+}
+
+.md-field.very-compact {
+  margin: 0;
+  padding-top: 0;
+  min-height: 0;
+}
+
+.md-menu-content-small.md-menu-content {
+  z-index: 190;
+}
+
+.md-button.md-dark.md-icon-button .md-icon.md-theme-default.md-icon-font {
+  color: white;
+}

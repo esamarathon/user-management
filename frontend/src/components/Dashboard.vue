@@ -98,8 +98,12 @@
     background-color: transparent;
     color: white;
 
-    & * {
-      color: inherit !important;
+    .md-icon, .md-list-item-text {
+      color: white;
+    }
+
+    .router-link-exact-active .md-list-item-text {
+      color: var(--md-theme-default-primary-on-background, #448aff);
     }
   }
 }
@@ -112,9 +116,5 @@
 
 .menu-button {
   margin-right: 12px;
-}
-
-.md-field.compact {
-  margin: 0;
 }
 </style>

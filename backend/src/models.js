@@ -24,6 +24,10 @@ const SpeedrunConnection = new mongoose.Schema({
   token: String
 });
 
+const TwitterConnection = new mongoose.Schema({
+  handle: String
+});
+
 const Role = new mongoose.Schema({
   name: String,
   permissions: [String]
@@ -34,8 +38,11 @@ const User = new mongoose.Schema({
   connections: {
     twitch: TwitchConnection,
     discord: DiscordConnection,
-    speedrun: SpeedrunConnection
+    speedrun: SpeedrunConnection,
+    twitter: TwitterConnection
   },
+  phone_display: String, // first and last characters from the phone number
+  phone_encrypted: String, // SHA-256 encrypted phone number
   roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }],
   submissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'submission' }],
   appications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'application' }]
@@ -56,24 +63,34 @@ const Note = new mongoose.Schema({
 
 const Participant = new mongoose.Schema({
   name: String,
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   accepted: Boolean
+});
+
+const Team = new mongoose.Schema({
+  members: [Participant],
+  name: String
 });
 
 const Submission = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
   game: String,
   category: String,
-  estimate: Number,
-  isRace: Boolean,
-  participants: [Participant],
+  platform: String,
+  estimate: String,
+  runType: String, // 'solo', race', 'coop', 'relay'
+  teams: [Team],
+  comment: String,
+  description: String,
   status: String,
   notes: [Note]
 });
 
 const Application = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
-  role: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }],
-  status: String
+  role: { type: mongoose.Schema.Types.ObjectId, ref: 'role' },
+  status: String,
+  comment: String
 });
 
 const Link = new mongoose.Schema({
