@@ -1,5 +1,5 @@
+import _ from 'lodash';
 import { mapState } from 'vuex';
-import { getUser, getEvents } from '../api';
 import { jwt } from '../auth';
 
 function deleteCookie(name) {
@@ -11,20 +11,12 @@ export default {
   data: () => ({
     // this should probably be vuex
     eventID: null,
-    events: [],
   }),
   async created() {
     if (!jwt) this.$router.push({ name: 'Login' });
 
-    getEvents().then((events) => {
-      this.$store.state.events = events;
-      this.eventID = events[events.length - 1].identifier;
-    });
-
-    getUser().then((user) => {
-      this.$store.state.user = user;
-      console.log(user);
-    });
+    this.$store.dispatch('getEvents');
+    this.$store.dispatch('getUser');
   },
   methods: {
     async logout() {
@@ -32,5 +24,20 @@ export default {
       this.$router.push({ name: 'Login' });
     },
   },
-  computed: mapState(['user']),
+  computed: {
+    ...mapState(['user', 'events']),
+    currentEventID: {
+      get() {
+        return this.$store.state.currentEventID;
+      },
+      set(eventID) {
+        this.$store.dispatch('switchEvent', eventID);
+      },
+    },
+    eventList: {
+      get() {
+        return _.filter(this.events, event => event.status === 'public');
+      },
+    },
+  },
 };

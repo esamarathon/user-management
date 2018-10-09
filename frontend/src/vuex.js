@@ -1,14 +1,24 @@
 import _ from 'lodash';
+import { mergeNonArray } from './helpers';
 
-import { updateUser, getEvents, updateUserFlat } from './api';
+import {
+  updateUser, getEvents, updateUserFlat, getUser, updateEvent, getRoles, updateRole,
+} from './api';
 
 export default {
   state: {
     user: null,
     events: null,
     currentEventID: null,
+    roles: null,
   },
   mutations: {
+    setUser(state, user) {
+      state.user = user;
+    },
+    setRoles(state, roles) {
+      state.roles = roles;
+    },
     updateUser(state, changes) {
       _.merge(this.state.user, changes);
     },
@@ -24,19 +34,52 @@ export default {
     async saveApplication(state, application) {
       if (!this.state.user.applications) this.state.user.applications = [];
       const existingApplication = _.find(this.state.user.applications, { _id: application._id });
-      application.status = 'saved'; // eslint-disable-line no-param-reassign
       if (existingApplication) {
-        _.merge(existingApplication, application);
+        mergeNonArray(existingApplication, application);
       } else {
         state.user.applications.push(application);
       }
     },
+    async saveEvent(state, event) {
+      if (!state.events) state.events = [];
+      const existingEvent = _.find(state.events, { _id: event._id });
+      if (existingEvent) {
+        mergeNonArray(existingEvent, event);
+      } else {
+        state.events.push(event);
+      }
+    },
+    async saveRole(state, role) {
+      if (!state.roles) state.roles = [];
+      const existingRole = _.find(state.roles, { _id: role._id });
+      if (existingRole) {
+        mergeNonArray(existingRole, role);
+      } else {
+        state.roles.push(role);
+      }
+    },
     setEvents(state, events) {
       state.events = events;
-      state.currentEventID = events[events.length - 1].identifier;
+      if (!state.currentEventID) {
+        const possibleEvents = _.filter(events, event => event.status === 'public');
+        state.currentEventID = possibleEvents[possibleEvents.length - 1]._id;
+      }
+    },
+    setEventID(state, eventID) {
+      state.currentEventID = eventID;
     },
   },
   actions: {
+    async getUser({ commit }) {
+      const user = await getUser();
+      commit('setUser', user);
+      return user;
+    },
+    async getRoles({ commit }) {
+      const roles = await getRoles();
+      commit('setRoles', roles);
+      return roles;
+    },
     updateUser({ commit }, changes) {
       if (changes) commit('updateUser', changes);
       return updateUser(changes);
@@ -49,12 +92,24 @@ export default {
       commit('saveApplication', application);
       return updateUserFlat({ application });
     },
+    saveEvent({ commit }, event) {
+      commit('saveEvent', event);
+      return updateEvent(event);
+    },
+    saveRole({ commit }, role) {
+      commit('saveRole', role);
+      return updateRole(role);
+    },
     async getEvents({ commit }) {
       const events = await getEvents();
-      commit('getEvents', events);
+      commit('setEvents', events);
+      return events;
+    },
+    async switchEvent({ commit }, eventID) {
+      commit('setEventID', eventID);
     },
   },
   getters: {
-    currentEvent: state => _.find(state.events, { identifier: state.currentEventID }),
+    currentEvent: state => _.find(state.events, { _id: state.currentEventID }),
   },
 };

@@ -48,6 +48,14 @@ export function getEvents() {
   return makeRequest(`${settings.api.baseurl}events`);
 }
 
+export function getUsers(query) {
+  return makeRequest(`${settings.api.baseurl}users`, { query });
+}
+
+export function getRoles() {
+  return makeRequest(`${settings.api.baseurl}roles`);
+}
+
 export function getEvent(eventID) {
   return makeRequest(`${settings.api.baseurl}event/${eventID}`);
 }
@@ -72,4 +80,12 @@ export function updateUser(changes) {
 
 export function updateUserFlat(changes) {
   return makePOST(`${settings.api.baseurl}user`, changes);
+}
+
+export function updateEvent(event) {
+  return makePOST(`${settings.api.baseurl}event`, event);
+}
+
+export function updateRole(role) {
+  return makePOST(`${settings.api.baseurl}role`, role);
 }

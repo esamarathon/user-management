@@ -12,8 +12,8 @@
         </md-menu>
         <md-field class="compact">
           <label for="event">Event</label>
-          <md-select v-model="eventID" name="event" id="event">
-            <md-option v-for="possibleEvent in $store.state.events" :value="possibleEvent.identifier" :key="possibleEvent.identifier">{{possibleEvent.name}}</md-option>
+          <md-select v-model="currentEventID" name="event" id="event">
+            <md-option v-for="possibleEvent in eventList" :value="possibleEvent._id" :key="possibleEvent._id">{{possibleEvent.name}}</md-option>
           </md-select>
         </md-field>
       </div>
@@ -47,9 +47,26 @@
             <span class="md-list-item-text">Volunteer</span>
           </md-list-item>
 
-          <md-list-item :to="{name:'Admin'}">
-            <md-icon>lock</md-icon>
-            <span class="md-list-item-text">Administration</span>
+          <md-subheader>Administration</md-subheader>
+          <md-list-item :to="{name:'Roles'}">
+            <md-icon>security</md-icon>
+            <span class="md-list-item-text">Roles</span>
+          </md-list-item>
+          <md-list-item :to="{name:'Users'}">
+            <md-icon>people</md-icon>
+            <span class="md-list-item-text">Users</span>
+          </md-list-item>
+          <md-list-item :to="{name:'Runs'}">
+            <md-icon>games</md-icon>
+            <span class="md-list-item-text">Runs</span>
+          </md-list-item>
+          <md-list-item :to="{name:'Volunteers'}">
+            <md-icon>ballot</md-icon>
+            <span class="md-list-item-text">Volunteers</span>
+          </md-list-item>
+          <md-list-item :to="{name:'Events'}">
+            <md-icon>event</md-icon>
+            <span class="md-list-item-text">Events</span>
           </md-list-item>
         </md-list>
       </div>
@@ -104,6 +121,10 @@
 
     .router-link-exact-active .md-list-item-text {
       color: var(--md-theme-default-primary-on-background, #448aff);
+    }
+
+    .md-subheader {
+      color: #FFF;
     }
   }
 }

@@ -1,19 +1,24 @@
 <template>
   <div class="layout-column" v-if="user">
-    <h1>Your submissions</h1>
-    <div class="flex-none">
+    <h1>Your submissions for {{currentEvent.name}}</h1>
+    <div class="flex-none" v-if="submissionsOpen">
       <md-button class="md-primary md-raised" @click="newSubmission()">Submit run</md-button>
     </div>
+    <div class="flex-none layout-row" v-else>
+      <div class="submissions-closed flex-none">
+        <md-icon>lock</md-icon> Sumissions are currently closed.
+      </div>
+    </div>
     <div class="submission-list">
-      <div class="submission layout-row md-elevation-2" v-for="submission in submissions" :key="submission.id">
+      <div class="submission layout-row md-elevation-2" v-for="submission in submissions" :key="submission._id">
         <div class="flex-100 layout-column">
           <div class="submission-header flex-none">{{submission.game}} {{submission.category}}</div>
           <div class="submission-body flex-none">Status: {{submission.status}}</div>
         </div>
         <div class="flex-none">
-          <md-button class="md-icon-button md-dark" @click="selectSubmission(submission)"><md-icon>edit</md-icon></md-button>
-          <md-button class="md-icon-button md-dark" @click="duplicateSubmission(submission)"><md-icon>library_add</md-icon></md-button>
-          <md-button class="md-icon-button md-dark" @click="deleteSubmission(submission)"><md-icon>delete</md-icon></md-button>
+          <md-button class="md-icon-button md-dark" @click="selectSubmission(submission)" :disabled="!submissionsOpen"><md-icon>edit</md-icon></md-button>
+          <md-button class="md-icon-button md-dark" @click="duplicateSubmission(submission)" :disabled="!submissionsOpen"><md-icon>library_add</md-icon></md-button>
+          <md-button class="md-icon-button md-dark" @click="deleteSubmission(submission)" :disabled="!submissionsOpen"><md-icon>delete</md-icon></md-button>
         </div>
       </div>
     </div>
@@ -60,6 +65,10 @@
                 </div>
               </div>
             </div>
+            <md-field class="large-field flex-none">
+              <label for="video">Video url</label>
+              <md-input name="video" id="video" v-model="selectedSubmission.video" />
+            </md-field>
             <md-field class="large-field flex-100">
               <md-textarea name="comment" id="comment" v-model="selectedSubmission.description" placeholder="Game description (e.g. explanation of the basic concept, things you would like to be pointed out by the hosts, ...)" />
             </md-field>
@@ -92,32 +101,6 @@
   }
 }
 
-.small-field {
-  min-width: 80px;
-  width: auto;
-}
-
-.medium-field {
-  min-width: 200px;
-  width: auto;
-  flex-grow: 1;
-}
-
-.large-field {
-  min-width: 300px;
-  width: auto;
-  flex-grow: 2;
-
-  &.md-field.md-has-textarea {
-    margin: 8px;
-    padding: 8px;
-
-    .md-textarea {
-      padding: 0;
-    }
-  }
-}
-
 .md-field {
   margin-right: 8px;
 }
@@ -134,6 +117,18 @@
   width: 200px;
   i.md-icon {
     font-size: 200px!important;
+  }
+}
+
+.submissions-closed {
+  padding: 8px;
+  margin: 8px;
+  background-color: rgba(255, 0, 0, 0.4);
+  font-size: large;
+
+  .md-icon.md-theme-default.md-icon-font {
+    vertical-align: text-bottom;
+    color: white;
   }
 }
 </style>

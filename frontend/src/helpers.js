@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 function bufferToHex(buffer) {
   return Array
     .from(new Uint8Array(buffer))
@@ -13,4 +15,12 @@ export function generateID() {
 export function parseDuration(duration) {
   const [hours, minutes] = /(\d+):(\d+)/.exec(duration);
   return parseInt(hours, 10) * 3600 * 1000 + parseInt(minutes, 10) * 60 * 1000;
+}
+
+export function mergeNonArray(item, data) {
+  return _.mergeWith(item, data, (obj, src) => {
+    if (_.isArray(src)) {
+      return src;
+    }
+  });
 }

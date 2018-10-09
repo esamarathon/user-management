@@ -136,3 +136,32 @@ body, html {
 .md-button.md-dark.md-icon-button .md-icon.md-theme-default.md-icon-font {
   color: white;
 }
+.md-button.md-dark.md-icon-button .md-disabled .md-icon.md-theme-default.md-icon-font {
+  color: rgba(255,255,255,0.5);
+}
+
+.small-field {
+  min-width: 80px;
+  width: auto;
+}
+
+.medium-field {
+  min-width: 200px;
+  width: auto;
+  flex-grow: 1;
+}
+
+.large-field {
+  min-width: 300px;
+  width: auto;
+  flex-grow: 2;
+
+  &.md-field.md-has-textarea {
+    margin: 8px;
+    padding: 8px;
+
+    .md-textarea {
+      padding: 0;
+    }
+  }
+}

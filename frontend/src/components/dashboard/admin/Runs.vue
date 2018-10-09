@@ -1,6 +1,6 @@
 <template>
   <div class="layout-column">
-    <router-view></router-view>
+
   </div>
 </template>
 

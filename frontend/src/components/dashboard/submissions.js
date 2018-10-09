@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 
 import Team from './Team.vue';
 import { generateID } from '../../helpers';
-import platforms from './platforms.json';
+import settings from '../../settings';
 
 function findTeamName(teams) {
   if (!teams) return 'Team 1';
@@ -19,12 +19,12 @@ export default {
   data: () => ({
     showDialog: false,
     selectedSubmission: null,
-    platforms,
+    platforms: settings.platforms,
   }),
   methods: {
     newSubmission() {
       const newSubmission = {
-        event: this.$store.currentEventID,
+        event: this.currentEvent._id,
         _id: generateID(),
         game: '',
         category: '',
@@ -78,10 +78,16 @@ export default {
   },
   computed: {
     ...mapState(['user']),
-    submissions: {
-      get() {
-        return _.filter(this.user.submissions, sub => sub.status !== 'deleted');
-      },
+    ...mapGetters(['currentEvent']),
+    submissions() {
+      return _.filter(this.user.submissions, (sub) => {
+        console.log('Events', sub.event, this.currentEvent._id, 'are');
+        return sub.status !== 'deleted' && sub.event === this.currentEvent._id;
+      });
+    },
+    submissionsOpen() {
+      const today = new Date();
+      return new Date(this.currentEvent.submissionsStart) < today && new Date(this.currentEvent.submissionsEnd) > today;
     },
   },
   components: {

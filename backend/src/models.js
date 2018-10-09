@@ -30,7 +30,13 @@ const TwitterConnection = new mongoose.Schema({
 
 const Role = new mongoose.Schema({
   name: String,
+  special: Boolean,
   permissions: [String]
+});
+
+const UserRole = new mongoose.Schema({
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  role: { type: mongoose.Schema.Types.ObjectId, ref: 'role' }
 });
 
 const User = new mongoose.Schema({
@@ -43,12 +49,12 @@ const User = new mongoose.Schema({
   },
   phone_display: String, // first and last characters from the phone number
   phone_encrypted: String, // SHA-256 encrypted phone number
-  roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }],
+  roles: [UserRole],
   submissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'submission' }],
-  appications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'application' }]
+  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'application' }]
 });
 
-User.virtual('name').get(() => {
+User.virtual('name').get(function getUserName() {
   let name = this.connections.twitch.displayName;
   if (name.toLowerCase() !== this.connections.twitch.name) name += ` (${this.connections.twitch.name})`;
   return name;
@@ -80,6 +86,7 @@ const Submission = new mongoose.Schema({
   estimate: String,
   runType: String, // 'solo', race', 'coop', 'relay'
   teams: [Team],
+  video: String,
   comment: String,
   description: String,
   status: String,
@@ -88,8 +95,9 @@ const Submission = new mongoose.Schema({
 
 const Application = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
-  role: { type: mongoose.Schema.Types.ObjectId, ref: 'role' },
+  role: String,
   status: String,
+  questions: Object,
   comment: String
 });
 
@@ -100,13 +108,14 @@ const Link = new mongoose.Schema({
 
 const Event = new mongoose.Schema({
   name: String,
-  identifier: String,
-  start: Date,
-  end: Date,
+  status: String,
+  startDate: Date,
+  endDate: Date,
   submissionsStart: Date,
   submissionsEnd: Date,
   applicationsStart: Date,
-  applicationsEnd: Date
+  applicationsEnd: Date,
+  volunteersNeeded: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }]
 });
 
 const Activity = new mongoose.Schema({
@@ -117,12 +126,12 @@ const Activity = new mongoose.Schema({
 });
 
 export const schemas = {
-  Role, User, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection
 };
 export const models = {
   Event: mongoose.model('event', Event),
-  Role: mongoose.model('role', Role),
   User: mongoose.model('user', User),
+  Role: mongoose.model('role', Role),
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
   Activity: mongoose.model('activity', Activity)

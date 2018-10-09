@@ -5,11 +5,11 @@
     "domainFilter": ".*",
     "encryptionKey": null
   },
-	"logger": {
-		"level": "debug",
-		"name": "ESA-users"
-	},
-	"api": {
+  "logger": {
+    "level": "debug",
+    "name": "ESA-users"
+  },
+  "api": {
     "baseurl": "http://127.0.0.1:8081/",
     "port": 8081
   },
@@ -18,18 +18,82 @@
   },
   "twitch": {
     "clientID": "",
-		"clientSecret": ""
+    "clientSecret": ""
   },
   "db": {
     "url": "mongodb://localhost/esa_users"
   },
+  "defaultRoles": [
+    {
+      "name": "Admin",
+      "permissions": [
+        "*"
+      ],
+      "special": true
+    },
+    {
+      "name": "Scheduling",
+      "permissions": [
+        "Approve Submissions",
+        "Edit Schedule"
+      ],
+      "special": true
+    },
+    {
+      "name": "Moderator",
+      "permissions": [
+        "Moderate Omnibar"
+      ]
+    },
+    {
+      "name": "Host",
+      "permissions": []
+    },
+    {
+      "name": "Donation Reader",
+      "permissions": [
+        "Approve Donations",
+        "Read Donations"
+      ]
+    },
+    {
+      "name": "Donation Approver",
+      "permissions": [
+        "Approve Donations"
+      ]
+    },
+    {
+      "name": "Tech",
+      "permissions": []
+    }
+  ],
   "permissions": [
-    "Users",
-    "Schedule",
-    "Submissions",
-    "Volunteers",
-    "Donations",
-    "Roles",
+    "Edit Users",
+    "Edit Schedule",
+    "Approve Submissions",
+    "Approve Donations",
+    "Read Donations",
+    "Moderate Omnibar",
+    "Manage Roles",
+    "Manage Events",
+    "Senior",
     "Admin"
-  ]
+  ],
+  "platforms": [
+    "SNES", "NES", "Nintendo 64", "Nintendo DS", "Nintendo Wii", "Nintendo Switch", 
+    "Nintendo WiiU", "Nintendo Gamecube", "GameBoy", "GameBoy Color", "GameBoy Advance",
+    "Nintendo GameBoy Player", "Philips CD-i", "Nintendo Wii VC", "Nintendo Wii U VC",
+
+    "PlayStation", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation Vita",
+    "PlayStation Portable", "PlayStation TV",
+
+    "Sega Genesis", "Sega Game Gear", "Sega Master System", "Sega Saturn", "Dreamcast", "Sega Megadrive",
+
+    "Xbox", "Xbox360", "Xbox One",
+
+    "Atari 2500", "Atari Lynx", "Atari 5200",
+
+    "PC", "Paper", "Arcade"
+  ],
+  "defaultAdmins": ["21018440"]
 }
