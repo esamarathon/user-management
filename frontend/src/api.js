@@ -52,6 +52,14 @@ export function getUsers(query) {
   return makeRequest(`${settings.api.baseurl}users`, { query });
 }
 
+export function getUserApplications(query) {
+  return makeRequest(`${settings.api.baseurl}user/applications`, { query });
+}
+
+export function getUserSubmissions(query) {
+  return makeRequest(`${settings.api.baseurl}user/submissions`, { query });
+}
+
 export function getRoles() {
   return makeRequest(`${settings.api.baseurl}roles`);
 }
@@ -76,6 +84,14 @@ export function flattenChanges(obj) {
 
 export function updateUser(changes) {
   return makePOST(`${settings.api.baseurl}user`, flattenChanges(changes));
+}
+
+export function updateApplication(changes) {
+  return makePOST(`${settings.api.baseurl}user/application`, changes);
+}
+
+export function updateSubmission(changes) {
+  return makePOST(`${settings.api.baseurl}user/submission`, changes);
 }
 
 export function updateUserFlat(changes) {

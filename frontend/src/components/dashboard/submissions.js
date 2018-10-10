@@ -21,6 +21,9 @@ export default {
     selectedSubmission: null,
     platforms: settings.platforms,
   }),
+  created() {
+    this.$store.dispatch('getSubmissions');
+  },
   methods: {
     newSubmission() {
       const newSubmission = {
@@ -77,10 +80,10 @@ export default {
     },
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user', 'submissions']),
     ...mapGetters(['currentEvent']),
-    submissions() {
-      return _.filter(this.user.submissions, (sub) => {
+    submissionList() {
+      return _.filter(this.submissions, (sub) => {
         console.log('Events', sub.event, this.currentEvent._id, 'are');
         return sub.status !== 'deleted' && sub.event === this.currentEvent._id;
       });

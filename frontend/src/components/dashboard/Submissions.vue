@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-column" v-if="user">
+  <div class="layout-column" v-if="submissions">
     <h1>Your submissions for {{currentEvent.name}}</h1>
     <div class="flex-none" v-if="submissionsOpen">
       <md-button class="md-primary md-raised" @click="newSubmission()">Submit run</md-button>
@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="submission-list">
-      <div class="submission layout-row md-elevation-2" v-for="submission in submissions" :key="submission._id">
+      <div class="submission layout-row md-elevation-2" v-for="submission in submissionList" :key="submission._id">
         <div class="flex-100 layout-column">
           <div class="submission-header flex-none">{{submission.game}} {{submission.category}}</div>
           <div class="submission-body flex-none">Status: {{submission.status}}</div>

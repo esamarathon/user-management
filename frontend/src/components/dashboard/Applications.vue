@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-column" v-if="user">
+  <div class="layout-column" v-if="applications && roles">
     <h1>Your volunteer applications for {{currentEvent.name}}</h1>
     <div class="flex-none" v-if="applicationsOpen">
       <md-button class="md-primary md-raised" @click="newApplication()">Submit application</md-button>
@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="application-list">
-      <div class="application layout-row md-elevation-2" v-for="application in applications" :key="application._id">
+      <div class="application layout-row md-elevation-2" v-for="application in applicationList" :key="application._id">
         <div class="flex-100 layout-column">
           <div class="application-header flex-none">{{roleName(application.role)}}</div>
           <div class="application-body flex-none">Status: {{application.status}}</div>

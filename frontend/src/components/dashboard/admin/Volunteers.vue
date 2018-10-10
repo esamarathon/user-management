@@ -1,6 +1,6 @@
 <template>
   <div class="layout-column">
-    Volunteers
+    <h1>Volunteers</h1>
   </div>
 </template>
 

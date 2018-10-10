@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { mergeNonArray } from './helpers';
 
 import {
-  updateUser, getEvents, updateUserFlat, getUser, updateEvent, getRoles, updateRole,
+  updateUser, getEvents, getUser, updateEvent, getRoles, updateRole, getUserApplications, getUserSubmissions, updateSubmission, updateApplication,
 } from './api';
 
 export default {
@@ -11,6 +11,8 @@ export default {
     events: null,
     currentEventID: null,
     roles: null,
+    applications: null,
+    submissions: null,
   },
   mutations: {
     setUser(state, user) {
@@ -19,28 +21,34 @@ export default {
     setRoles(state, roles) {
       state.roles = roles;
     },
-    updateUser(state, changes) {
-      _.merge(this.state.user, changes);
+    setApplications(state, applications) {
+      state.applications = applications;
     },
-    async saveSubmission(state, submission) {
-      if (!this.state.user.submissions) this.state.user.submissions = [];
-      const existingSubmission = _.find(this.state.user.submissions, { _id: submission._id });
+    setSubmissions(state, submissions) {
+      state.submissions = submissions;
+    },
+    updateUser(state, changes) {
+      _.merge(state.user, changes);
+    },
+    saveSubmission(state, submission) {
+      if (!state.submissions) state.submissions = [];
+      const existingSubmission = _.find(state.submissions, { _id: submission._id });
       if (existingSubmission) {
         _.merge(existingSubmission, submission);
       } else {
-        this.state.user.submissions.push(submission);
+        state.submissions.push(submission);
       }
     },
-    async saveApplication(state, application) {
-      if (!this.state.user.applications) this.state.user.applications = [];
-      const existingApplication = _.find(this.state.user.applications, { _id: application._id });
+    saveApplication(state, application) {
+      if (!state.applications) state.applications = [];
+      const existingApplication = _.find(state.applications, { _id: application._id });
       if (existingApplication) {
         mergeNonArray(existingApplication, application);
       } else {
-        state.user.applications.push(application);
+        state.applications.push(application);
       }
     },
-    async saveEvent(state, event) {
+    saveEvent(state, event) {
       if (!state.events) state.events = [];
       const existingEvent = _.find(state.events, { _id: event._id });
       if (existingEvent) {
@@ -49,7 +57,7 @@ export default {
         state.events.push(event);
       }
     },
-    async saveRole(state, role) {
+    saveRole(state, role) {
       if (!state.roles) state.roles = [];
       const existingRole = _.find(state.roles, { _id: role._id });
       if (existingRole) {
@@ -80,17 +88,27 @@ export default {
       commit('setRoles', roles);
       return roles;
     },
+    async getApplications({ commit }) {
+      const applications = await getUserApplications();
+      commit('setApplications', applications);
+      return applications;
+    },
+    async getSubmissions({ commit }) {
+      const submissions = await getUserSubmissions();
+      commit('setSubmissions', submissions);
+      return submissions;
+    },
     updateUser({ commit }, changes) {
       if (changes) commit('updateUser', changes);
       return updateUser(changes);
     },
     saveSubmission({ commit }, submission) {
       commit('saveSubmission', submission);
-      return updateUserFlat({ submission });
+      return updateSubmission(submission);
     },
     saveApplication({ commit }, application) {
       commit('saveApplication', application);
-      return updateUserFlat({ application });
+      return updateApplication(application);
     },
     saveEvent({ commit }, event) {
       commit('saveEvent', event);

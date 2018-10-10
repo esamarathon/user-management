@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { mongo } from 'mongoose';
 import './db';
 
 const TwitchConnection = new mongoose.Schema({
@@ -49,9 +49,7 @@ const User = new mongoose.Schema({
   },
   phone_display: String, // first and last characters from the phone number
   phone_encrypted: String, // SHA-256 encrypted phone number
-  roles: [UserRole],
-  submissions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'submission' }],
-  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'application' }]
+  roles: [UserRole]
 });
 
 User.virtual('name').get(function getUserName() {
@@ -80,6 +78,7 @@ const Team = new mongoose.Schema({
 
 const Submission = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   game: String,
   category: String,
   platform: String,
@@ -95,9 +94,19 @@ const Submission = new mongoose.Schema({
 
 const Application = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   role: String,
   status: String,
   questions: Object,
+  comment: String
+});
+
+const CutDecision = new mongoose.Schema({
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  type: String, // "submission"/"application"
+  item: mongoose.Schema.Types.ObjectId,
+  decision: String, // "accept"/"deny"/"superyes"/"superno"
   comment: String
 });
 
@@ -126,7 +135,7 @@ const Activity = new mongoose.Schema({
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, CutDecision
 };
 export const models = {
   Event: mongoose.model('event', Event),
@@ -134,5 +143,6 @@ export const models = {
   Role: mongoose.model('role', Role),
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
-  Activity: mongoose.model('activity', Activity)
+  Activity: mongoose.model('activity', Activity),
+  CutDecision: mongoose.model('cutdecision', CutDecision)
 };

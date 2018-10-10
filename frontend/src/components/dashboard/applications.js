@@ -11,6 +11,7 @@ export default {
   }),
   async created() {
     await this.$store.dispatch('getRoles');
+    await this.$store.dispatch('getApplications');
   },
   methods: {
     newApplication() {
@@ -39,16 +40,16 @@ export default {
       this.$store.dispatch('saveApplication', application);
     },
     roleName(roleID) {
-      return _.find(this.$store.state.roles, { _id: roleID }).name;
+      return _.find(this.roles, { _id: roleID }).name;
     },
   },
   computed: {
-    ...mapState(['user']),
+    ...mapState(['user', 'applications', 'roles']),
     ...mapGetters(['currentEvent']),
-    applications: {
+    applicationList: {
       get() {
-        console.log('Updating applications list', this.user.applications);
-        return _.filter(this.user.applications, app => app.status !== 'deleted' && app.event === this.currentEvent._id);
+        console.log('Updating applications list', this.applications);
+        return _.filter(this.applications, app => app.status !== 'deleted' && app.event === this.currentEvent._id);
       },
     },
     applicationsOpen() {
@@ -57,13 +58,13 @@ export default {
     },
     roleList: {
       get() {
-        return _.filter(this.$store.state.roles, role => !role.special && this.currentEvent.volunteersNeeded.includes(role._id));
+        return _.filter(this.roles, role => !role.special && this.currentEvent.volunteersNeeded.includes(role._id));
       },
     },
     selectedApplicationRole: {
       get() {
         if (this.selectedApplication) {
-          const role = _.find(this.$store.state.roles, { _id: this.selectedApplication.role });
+          const role = _.find(this.roles, { _id: this.selectedApplication.role });
           if (role) return role;
         }
         return { name: '' };

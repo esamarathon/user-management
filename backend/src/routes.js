@@ -8,10 +8,13 @@ import cors from 'cors';
 
 import settings from './settings';
 import {
-  handleLogin, getUser, updateUser, getEvent, updateEvent, requestSensitiveData, getRoles, updateRole, getUsers
+  handleLogin, getUser,
+  updateUser, getEvent, updateEvent,
+  requestSensitiveData, getRoles, updateRole,
+  getUsers, getCutDecisions, getUserApplications, getUserSubmissions,
+  updateUserApplication, updateUserSubmission, getApplications, getSubmissions
 } from './api';
 import { handleWebsocket } from './websocket';
-import logger from './logger';
 import { publicKey } from './auth';
 
 
@@ -37,12 +40,18 @@ app.get('/events/', getEvent);
 app.post('/event', updateEvent);
 app.get('/event/:event/', getEvent);
 app.get('/user', getUser);
+app.get('/user/applications', getUserApplications);
+app.get('/user/submissions', getUserSubmissions);
 app.post('/user', updateUser);
+app.post('/user/application', updateUserApplication);
+app.post('/user/submission', updateUserSubmission);
 app.get('/users', getUsers);
 app.get('/users', getUser);
 app.post('/role', updateRole);
 app.get('/roles', getRoles);
-
+app.get('/applications', getApplications);
+app.get('/submissions', getSubmissions);
+app.get('/cut/:type', getCutDecisions);
 
 app.get('/sensitive', requestSensitiveData);
 

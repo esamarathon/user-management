@@ -36,8 +36,6 @@ export async function handleLogin(req, res, next) {
     const userResponse = (await twitchGet('https://api.twitch.tv/kraken/user', null, token)).body;
     console.log('User response:', userResponse);
     if (userResponse) {
-      const jwt = generateToken(token, { id: userResponse._id, login: userResponse.name, displayName: userResponse.display_name });
-
       // get user
       let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
       if (!user) {
@@ -59,10 +57,16 @@ export async function handleLogin(req, res, next) {
         });
         console.log('Created new user', user);
       } else {
-        user.connections.twitch.name = userResponse.name;
+        if (user.connections.twitch.name !== userResponse.name) {
+          user.connections.twitch.name = userResponse.name;
+          logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their name to ${userResponse.name}`);
+        }
         user.connections.twitch.displayName = userResponse.display_name;
         user.connections.twitch.logo = userResponse.logo;
-        user.connections.twitch.email = userResponse.email;
+        if (user.connections.twitch.email !== userResponse.email) {
+          user.connections.twitch.email = userResponse.email;
+          logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their email to ${userResponse.email}`);
+        }
         user.connections.twitch.oauthToken = token;
         user.connections.twitch.refreshToken = tokenResponse.body.refresh_token;
         user.connections.twitch.expiresAt = Date.now() + tokenResponse.body.expires_in * 1000;
@@ -85,6 +89,7 @@ export async function handleLogin(req, res, next) {
 
       await user.save();
 
+      const jwt = generateToken(token, { twitchID: userResponse._id, name: user.name, id: user._id });
       res.cookie('esa-jwt', jwt, settings.auth.cookieOptions);
 
       console.log('Redirecting to', redirectUrl);
@@ -100,15 +105,25 @@ export async function handleLogin(req, res, next) {
 export async function getUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user with ID ', req.jwt.user.id);
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }, 'flag connections roles submissions applications phone_display')
+  const user = await models.User.findById(req.jwt.user.id, 'flag connections roles phone_display')
   .populate('roles.role')
-  .populate('applications')
-  .populate('submissions')
   .exec();
   if (user) {
     return res.json(user);
   }
   return res.status(404).end('User not found.');
+}
+
+export async function getUserSubmissions(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  console.log('Getting user submissions with ID ', req.jwt.user.id);
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }));
+}
+
+export async function getUserApplications(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  console.log('Getting user applications with ID ', req.jwt.user.id);
+  return res.json(await models.Application.find({ user: req.jwt.user.id }));
 }
 
 function maskPhone(phoneNumber) {
@@ -141,52 +156,11 @@ const allowedUserModifications = new Map([
   ['phone', (obj, prop, val) => {
     obj.phone_encrypted = encryptPhoneNumber();
     obj.phone_display = maskPhone(val);
-  }],
-  ['submission', async (obj, prop, val, user) => {
-    console.log(user.submissions);
-    let submission = await models.Submission.findById(val._id);
-    console.log(`Found submission ${val._id}`, submission);
-    if (submission) {
-      if (user.submissions && user.submissions.indexOf(val._id.toString()) >= 0) {
-        delete val._id;
-        _.merge(submission, val);
-        submission.save();
-      } else {
-        throw new Error('Invalid submission ID.');
-      }
-    } else {
-      submission = new models.Submission(val);
-      await submission.save();
-      console.log('After save:', submission);
-      obj.submissions.push(submission);
-    }
-  }],
-  ['application', async (obj, prop, val, user) => {
-    console.log(user.application);
-    let application = await models.Application.findById(val._id);
-    console.log(`Found application ${val._id}`, application);
-    if (application) {
-      if (user.applications && user.applications.indexOf(val._id.toString()) >= 0) {
-        delete val._id;
-        console.log('Application before merge', application);
-        _.merge(application, val);
-        application.markModified('questions');
-        console.log('Application after merge', application);
-        application.save();
-      } else {
-        throw new Error('Invalid application ID.');
-      }
-    } else {
-      application = new models.Application(val);
-      await application.save();
-      console.log('After save:', application);
-      obj.applications.push(application);
-    }
   }]
 ]);
 export async function updateUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles.role').exec();
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (user) {
     console.log('Request body: ', req.body);
     const badChanges = _.filter(await Promise.all(_.map(req.body, async (value, property) => {
@@ -223,6 +197,50 @@ function mergeNonArray(item, data) {
   return _.mergeWith(item, data, (obj, src) => (_.isArray(src) ? src : undefined));
 }
 
+export async function updateUserApplication(req, res) {
+  // TODO: verify event
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  let application = await models.Application.findById(req.body._id).exec();
+  const validChanges = _.pick(req.body, ['role', 'questions', 'comment']);
+  if (req.body.status && req.body.status === 'saved' || req.body.status === 'saved') validChanges.status = req.body.status;
+  if (application) {
+    if (!application.user.equals(req.jwt.user.id)) return res.status(403).end('Access denied.');
+    mergeNonArray(application, validChanges);
+    if (req.body.questions) application.markModified('questions');
+  } else {
+    application = new models.Application({
+      _id: req.body._id,
+      user: req.jwt.user.id,
+      event: req.body.event,
+      ...validChanges
+    });
+  }
+  await application.save();
+  return res.json(application);
+}
+
+export async function updateUserSubmission(req, res) {
+  // TODO: verify event
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  let submission = await models.Submission.findById(req.body._id).exec();
+  console.log(`Found existing submission for ${req.body._id}:`, submission);
+  const validChanges = _.pick(req.body, ['game', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description']);
+  if (req.body.status && req.body.status === 'saved' || req.body.status === 'saved') validChanges.status = req.body.status;
+  if (submission) {
+    if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
+    mergeNonArray(submission, validChanges);
+  } else {
+    submission = new models.Submission({
+      _id: req.body._id,
+      user: req.jwt.user.id,
+      event: req.body.event,
+      ...validChanges
+    });
+  }
+  await submission.save();
+  return res.json(submission);
+}
+
 async function updateModel(Model, data, markModified) {
   let item = await Model.findOne({ _id: data._id }).exec();
   if (item) {
@@ -246,7 +264,7 @@ function hasPermission(user, eventID, permission) {
 
 export async function updateEvent(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles.role').exec();
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (hasPermission(user, req.body._id, 'Manage Events')) {
     console.log('Updating event with', req.body);
     const result = await updateModel(models.Event, req.body);
@@ -257,8 +275,8 @@ export async function updateEvent(req, res) {
 
 export async function updateRole(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles.role').exec();
-  if (hasPermission(user, req.body._id, 'Manage Roles')) {
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, null, 'Manage Roles')) {
     console.log('Updating role with', req.body);
     const result = await updateModel(models.Role, req.body);
     return res.json(result);
@@ -268,8 +286,8 @@ export async function updateRole(req, res) {
 
 export async function requestSensitiveData(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles.role').exec();
-  if (hasPermission(user, req.body._id, 'Read Donations')) {
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, null, 'Read Donations')) {
     return res.json({ memes: 'are good' });
   }
   return res.status(403).end('Access denied.');
@@ -286,8 +304,8 @@ export async function getRoles(req, res) {
 
 export async function getUsers(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const user = await models.User.findOne({ 'connections.twitch.id': req.jwt.user.id }).populate('roles.role').exec();
-  if (hasPermission(user, req.body._id, 'Edit Users')) {
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, null, 'Edit Users')) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
     console.log('Query:', query);
@@ -312,6 +330,50 @@ export async function getUsers(req, res) {
       roles: _.map(item.roles, roleInfo => roleInfo.role.name).join(', ')
     }));
     return res.json(result);
+  }
+  return res.status(403).end('Access denied.');
+}
+
+
+const cutDecisionTypePermissions = {
+  submission: 'Approve Submissions',
+  application: 'Approve Volunteers'
+};
+
+export async function getSubmissions(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  if (!req.query.event) return res.status(400).end('Missing query parameter event');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  const permissionNeeded = _.get(cutDecisionTypePermissions, 'submission');
+  if (permissionNeeded && hasPermission(user, req.query.event, permissionNeeded)) {
+    return res.json(await models.Submission.find({ event: req.query.event })
+    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+    .exec());
+  }
+  return res.status(403).end('Access denied.');
+}
+
+export async function getApplications(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  if (!req.query.event) return res.status(400).end('Missing query parameter event');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  const permissionNeeded = _.get(cutDecisionTypePermissions, 'application');
+  if (permissionNeeded && hasPermission(user, req.query.event, permissionNeeded)) {
+    return res.json(await models.Application.find({ event: req.query.event })
+    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+    .exec());
+  }
+  return res.status(403).end('Access denied.');
+}
+
+export async function getCutDecisions(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  const permissionNeeded = _.get(cutDecisionTypePermissions, req.params.type);
+  if (permissionNeeded && hasPermission(user, req.query.event, permissionNeeded)) {
+    return res.json(await models.CutDecision.find({ event: req.query.event, type: req.params.type })
+    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.id connections.twitch.logo')
+    .exec());
   }
   return res.status(403).end('Access denied.');
 }
