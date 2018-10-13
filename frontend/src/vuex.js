@@ -13,6 +13,8 @@ export default {
     roles: null,
     applications: null,
     submissions: null,
+    runs: null,
+    volunteers: null,
   },
   mutations: {
     setUser(state, user) {
@@ -26,6 +28,9 @@ export default {
     },
     setSubmissions(state, submissions) {
       state.submissions = submissions;
+    },
+    setRuns(state, runs) {
+      state.runs = runs;
     },
     updateUser(state, changes) {
       _.merge(state.user, changes);

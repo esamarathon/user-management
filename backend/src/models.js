@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import './db';
 
 const TwitchConnection = new mongoose.Schema({
@@ -101,13 +101,13 @@ const Application = new mongoose.Schema({
   comment: String
 });
 
-const CutDecision = new mongoose.Schema({
-  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+const RunDecision = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-  type: String, // "submission"/"application"
-  item: mongoose.Schema.Types.ObjectId,
-  decision: String, // "accept"/"deny"/"superyes"/"superno"
-  comment: String
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  run: { type: mongoose.Schema.Types.ObjectId, ref: 'submission' },
+  cut: String,
+  decision: String,
+  explanation: String
 });
 
 const Link = new mongoose.Schema({
@@ -135,7 +135,7 @@ const Activity = new mongoose.Schema({
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, CutDecision
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, RunDecision
 };
 export const models = {
   Event: mongoose.model('event', Event),
@@ -144,5 +144,5 @@ export const models = {
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
   Activity: mongoose.model('activity', Activity),
-  CutDecision: mongoose.model('cutdecision', CutDecision)
+  RunDecision: mongoose.model('rundecision', RunDecision)
 };

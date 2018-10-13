@@ -2,12 +2,20 @@ import _ from 'lodash';
 import { jwtCookie } from './auth';
 import settings from './settings';
 
+export function objectToQueryString(url, obj) {
+  const res = new URL(url);
+  _.each(obj, (val, key) => {
+    res.searchParams.append(key, val);
+  });
+  return res;
+}
+
 export async function makeRequest(endpoint, options) {
   const optionsToUse = _.defaultsDeep({}, options, { headers: { accept: 'application/json' } });
   if (jwtCookie) {
     _.defaultsDeep(optionsToUse, { headers: { authorization: `Bearer ${jwtCookie}` } });
   }
-  const response = await fetch(endpoint, optionsToUse);
+  const response = await fetch(optionsToUse.query ? objectToQueryString(endpoint, optionsToUse.query) : endpoint, optionsToUse);
   if (response.status === 200) {
     return JSON.parse(await response.text());
   }
@@ -68,6 +76,14 @@ export function getEvent(eventID) {
   return makeRequest(`${settings.api.baseurl}event/${eventID}`);
 }
 
+export function getRuns(eventID) {
+  return makeRequest(`${settings.api.baseurl}submissions`, { query: { event: eventID } });
+}
+
+export function getDecisions(eventID, type) {
+  return makeRequest(`${settings.api.baseurl}decisions/runs`, { query: { event: eventID, type } });
+}
+
 export function flattenChanges(obj) {
   const res = {};
   _.each(obj, (val, key) => {
@@ -104,4 +120,8 @@ export function updateEvent(event) {
 
 export function updateRole(role) {
   return makePOST(`${settings.api.baseurl}role`, role);
+}
+
+export function updateDecision(data) {
+  return makePOST(`${settings.api.baseurl}decision/runs`, data);
 }

@@ -320,7 +320,7 @@ export async function getUsers(req, res) {
           logo: item.connections.twitch.logo
         },
         twitter: {
-          name: item.connections.twitter && item.connections.twitter.name
+          handle: item.connections.twitter && item.connections.twitter.handle
         },
         discord: {
           name: item.connections.discord && item.connections.discord.name
@@ -334,18 +334,13 @@ export async function getUsers(req, res) {
   return res.status(403).end('Access denied.');
 }
 
-
-const cutDecisionTypePermissions = {
-  submission: 'Approve Submissions',
-  application: 'Approve Volunteers'
-};
+const runDecisionPermission = 'Approve Submissions';
 
 export async function getSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.query.event) return res.status(400).end('Missing query parameter event');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
-  const permissionNeeded = _.get(cutDecisionTypePermissions, 'submission');
-  if (permissionNeeded && hasPermission(user, req.query.event, permissionNeeded)) {
+  if (hasPermission(user, req.query.event, runDecisionPermission)) {
     return res.json(await models.Submission.find({ event: req.query.event })
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
     .exec());
@@ -357,8 +352,7 @@ export async function getApplications(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.query.event) return res.status(400).end('Missing query parameter event');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
-  const permissionNeeded = _.get(cutDecisionTypePermissions, 'application');
-  if (permissionNeeded && hasPermission(user, req.query.event, permissionNeeded)) {
+  if (hasPermission(user, req.query.event, runDecisionPermission)) {
     return res.json(await models.Application.find({ event: req.query.event })
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
     .exec());
@@ -366,14 +360,47 @@ export async function getApplications(req, res) {
   return res.status(403).end('Access denied.');
 }
 
-export async function getCutDecisions(req, res) {
+export async function getRunDecisions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
-  const permissionNeeded = _.get(cutDecisionTypePermissions, req.params.type);
-  if (permissionNeeded && hasPermission(user, req.query.event, permissionNeeded)) {
-    return res.json(await models.CutDecision.find({ event: req.query.event, type: req.params.type })
+  if (hasPermission(user, req.query.event, runDecisionPermission)) {
+    return res.json(await models.RunDecision.find({ event: req.query.event })
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.id connections.twitch.logo')
     .exec());
+  }
+  return res.status(403).end('Access denied.');
+}
+
+export async function updateRunDecision(req, res, next) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  if (!req.body.event) return res.status(400).end('Missing event');
+  if (!req.body.run) return res.status(400).end('Missing run ID');
+  if (!req.body.cut) return res.status(400).end('Missing cut');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, req.body.event, runDecisionPermission)) {
+    let decision = await models.RunDecision.findOne({
+      event: req.body.event, run: req.body.run, cut: req.body.cut, user: req.jwt.user.id
+    }).exec();
+    console.log('Found decision: ', decision);
+    if (decision) {
+      _.merge(decision, _.pick(req.body, ['decision', 'explanation']));
+    } else {
+      console.log('Inserting decision:', req.body);
+      decision = new models.RunDecision({
+        run: req.body.run,
+        event: req.body.event,
+        user: req.jwt.user.id,
+        decision: req.body.decision,
+        explanation: req.body.explanation,
+        cut: req.body.cut
+      });
+    }
+    try {
+      await decision.save();
+      return res.json(decision);
+    } catch (err) {
+      next(err);
+    }
   }
   return res.status(403).end('Access denied.');
 }

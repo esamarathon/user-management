@@ -165,3 +165,28 @@ body, html {
     }
   }
 }
+
+.md-table.transparent-table {
+  background-color: transparent !important;
+  .md-content {
+    background-color: transparent !important;
+    color: white !important;
+  }
+
+  th.md-table-head {
+    color: white !important;
+  }
+
+  .md-sortable .md-icon svg {
+    color: white !important;
+    fill: white !important;
+  }
+
+}
+
+.md-tabs.md-theme-default.dark-tabs .md-tabs-navigation {
+  background-color: transparent;
+  .md-button {
+    color: white;
+  }
+}

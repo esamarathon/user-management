@@ -24,3 +24,16 @@ export function mergeNonArray(item, data) {
     }
   });
 }
+
+export function getUserName(user) {
+  const name = user.connections.twitch.displayName;
+  return name + ((name.toLowerCase() === user.connections.twitch.name) ? '' : ` (${user.connections.twitch.name})`);
+}
+
+export function teamsToString(teams) {
+  return _.map(_.filter(teams, team => team.members.length > 0),
+    team => _.map(_.filter(team.members, member => member.name && member.name.length > 0),
+      member => (member.user ? getUserName(member) : member.name))
+      .join(', '))
+    .join(' vs ');
+}

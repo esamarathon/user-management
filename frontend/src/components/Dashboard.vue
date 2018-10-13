@@ -25,8 +25,11 @@
       </div>
     </div>
     <div class="wrapper layout-row layout-start-stretch flex-100">
-      <div class="navigation flex-none layout-padding">
-        <md-list>
+      <div class="navigation flex-none layout-padding layout-column" :class="{collapsed: collapseNav}">
+        <md-button class="collapse-nav md-icon-button flex-none" @click="collapseNav = !collapseNav">
+          <md-icon>slideshow</md-icon>
+        </md-button>
+        <md-list class="flex">
           <md-list-item :to="{name:'Home'}">
             <md-icon>home</md-icon>
             <span class="md-list-item-text">Home</span>
@@ -110,6 +113,30 @@
   width: 280px;
   background-color: #1F2741;
   transition: width 0.1s;
+
+  .collapse-nav {
+    align-self: flex-end;
+    .md-icon, .md-list-item-text {
+      color: white;
+    }
+  }
+
+  &:not(.collapsed) {
+    .collapse-nav {
+      transform: rotate(180deg);
+    }
+  }
+
+  &.collapsed {
+    width: 72px;
+
+    .md-subheader {
+      text-indent: -999px;
+      border-bottom: 1px solid rgba(255,255,255,0.7);
+      max-height: 1px;
+      min-height: 0px;
+    }
+  }
 
   .md-list{
     background-color: transparent;

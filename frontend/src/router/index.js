@@ -11,7 +11,7 @@ import DashboardApplications from '../components/dashboard/Applications.vue';
 import DashboardAdmin from '../components/dashboard/Admin';
 import AdminRoles from '../components/dashboard/admin/Roles';
 import AdminUsers from '../components/dashboard/admin/Users';
-import AdminRuns from '../components/dashboard/admin/Runs';
+import AdminRuns from '../components/dashboard/admin/Runs.vue';
 import AdminVolunteers from '../components/dashboard/admin/Volunteers';
 import AdminEvents from '../components/dashboard/admin/Events';
 

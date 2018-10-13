@@ -11,6 +11,7 @@ export default {
   data: () => ({
     // this should probably be vuex
     eventID: null,
+    collapseNav: false,
   }),
   async created() {
     if (!jwt) this.$router.push({ name: 'Login' });
