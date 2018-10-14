@@ -117,7 +117,7 @@ export async function getUser(req, res) {
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
-  return res.json(await models.Submission.find({ user: req.jwt.user.id }));
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game category platform estimate runType teams video comment description status notes'));
 }
 
 export async function getUserApplications(req, res) {
@@ -360,35 +360,21 @@ export async function getApplications(req, res) {
   return res.status(403).end('Access denied.');
 }
 
-export async function getRunDecisions(req, res) {
-  if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
-  if (hasPermission(user, req.query.event, runDecisionPermission)) {
-    return res.json(await models.RunDecision.find({ event: req.query.event })
-    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.id connections.twitch.logo')
-    .exec());
-  }
-  return res.status(403).end('Access denied.');
-}
-
 export async function updateRunDecision(req, res, next) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  if (!req.body.event) return res.status(400).end('Missing event');
   if (!req.body.run) return res.status(400).end('Missing run ID');
   if (!req.body.cut) return res.status(400).end('Missing cut');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (hasPermission(user, req.body.event, runDecisionPermission)) {
-    let decision = await models.RunDecision.findOne({
-      event: req.body.event, run: req.body.run, cut: req.body.cut, user: req.jwt.user.id
-    }).exec();
+    const run = await models.Submission.findById(req.body.run, 'event decisions');
+    if (!run) return res.status(404).end(`Run ${req.body.run} not found`);
+    let decision = _.find(run.decisions, { cut: req.body.cut, user: user._id });
     console.log('Found decision: ', decision);
     if (decision) {
       _.merge(decision, _.pick(req.body, ['decision', 'explanation']));
     } else {
       console.log('Inserting decision:', req.body);
-      decision = new models.RunDecision({
-        run: req.body.run,
-        event: req.body.event,
+      decision = run.decisions.push({
         user: req.jwt.user.id,
         decision: req.body.decision,
         explanation: req.body.explanation,
@@ -396,7 +382,7 @@ export async function updateRunDecision(req, res, next) {
       });
     }
     try {
-      await decision.save();
+      await run.save();
       return res.json(decision);
     } catch (err) {
       next(err);

@@ -11,7 +11,7 @@ import {
   handleLogin, getUser,
   updateUser, getEvent, updateEvent,
   requestSensitiveData, getRoles, updateRole,
-  getUsers, getRunDecisions, getUserApplications, getUserSubmissions,
+  getUsers, getUserApplications, getUserSubmissions,
   updateUserApplication, updateUserSubmission, getApplications, getSubmissions, updateRunDecision
 } from './api';
 import { handleWebsocket } from './websocket';
@@ -51,7 +51,6 @@ app.post('/role', updateRole);
 app.get('/roles', getRoles);
 app.get('/applications', getApplications);
 app.get('/submissions', getSubmissions);
-app.get('/decisions/runs', getRunDecisions);
 app.post('/decision/runs', updateRunDecision);
 
 app.get('/sensitive', requestSensitiveData);

@@ -76,6 +76,13 @@ const Team = new mongoose.Schema({
   name: String
 });
 
+const RunDecision = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  cut: String,
+  decision: String,
+  explanation: String
+});
+
 const Submission = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
@@ -89,7 +96,8 @@ const Submission = new mongoose.Schema({
   comment: String,
   description: String,
   status: String,
-  notes: [Note]
+  notes: [Note],
+  decisions: [RunDecision]
 });
 
 const Application = new mongoose.Schema({
@@ -99,15 +107,6 @@ const Application = new mongoose.Schema({
   status: String,
   questions: Object,
   comment: String
-});
-
-const RunDecision = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
-  run: { type: mongoose.Schema.Types.ObjectId, ref: 'submission' },
-  cut: String,
-  decision: String,
-  explanation: String
 });
 
 const Link = new mongoose.Schema({
@@ -135,7 +134,7 @@ const Activity = new mongoose.Schema({
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, RunDecision
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection
 };
 export const models = {
   Event: mongoose.model('event', Event),
@@ -143,6 +142,5 @@ export const models = {
   Role: mongoose.model('role', Role),
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
-  Activity: mongoose.model('activity', Activity),
-  RunDecision: mongoose.model('rundecision', RunDecision)
+  Activity: mongoose.model('activity', Activity)
 };
