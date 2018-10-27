@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard flex-100 layout-column">
-    <div class="header layout-row layout-between layout-padding">
+    <md-toolbar class="header layout-row layout-between layout-padding md-primary" md-theme="header">
       <div class="menu-button flex-none layout-row">
         <md-menu md-direction="bottom-end" class="menu-button">
           <md-button md-menu-trigger class="md-icon-button">
@@ -23,7 +23,7 @@
           <img class="profile-pic" :src="(user && user.connections.twitch.logo) || ''">
         </div>
       </div>
-    </div>
+    </md-toolbar>
     <div class="wrapper layout-row layout-start-stretch flex-100">
       <div class="navigation flex-none layout-padding layout-column" :class="{collapsed: collapseNav}">
         <md-button class="collapse-nav md-icon-button flex-none" @click="collapseNav = !collapseNav">
@@ -85,12 +85,8 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.dashboard {
-
-}
 
 .header {
-  background-color: #448aff;
 
   .user-info {
     background-color: #555;
@@ -116,9 +112,6 @@
 
   .collapse-nav {
     align-self: flex-end;
-    .md-icon, .md-list-item-text {
-      color: white;
-    }
   }
 
   &:not(.collapsed) {
@@ -140,19 +133,6 @@
 
   .md-list{
     background-color: transparent;
-    color: white;
-
-    .md-icon, .md-list-item-text {
-      color: white;
-    }
-
-    .router-link-exact-active .md-list-item-text {
-      color: var(--md-theme-default-primary-on-background, #448aff);
-    }
-
-    .md-subheader {
-      color: #FFF;
-    }
   }
 }
 

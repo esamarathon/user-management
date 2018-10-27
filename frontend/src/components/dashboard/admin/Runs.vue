@@ -1,26 +1,32 @@
 <template>
-  <div class="layout-column">
-    <h1>Runs</h1>
-    <md-tabs class="dark-tabs" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
-      <md-tab v-for="round in rounds" :key="round.name" :md-label="round.name" :id="round.name"></md-tab>
-    </md-tabs>
+  <div class="layout-column" v-if="currentEvent">
+    <h1>Runs submitted to {{currentEvent.name}}</h1>
+    <div class="layout-row layout-between-start">
+      <md-tabs class="dark-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
+        <md-tab v-for="round in rounds" :key="round.name" :md-label="round.name" :id="round.name"></md-tab>
+      </md-tabs>
+      <div class="flex">
+        <md-field>
+          <label>Show columns...</label>
+          <md-select multiple v-model="activeColumns">
+            <md-option v-for="column in columns" :key="column" :value="column">{{column}}</md-option>
+          </md-select>
+        </md-field>
+      </div>
+    </div>
     <md-table class="runs transparent-table" v-model="runList" md-sort="id" v-if="runList">
-      <colgroup>
-        <col style="width: 10%">
-        <col style="width: 10%">
-        <col style="width: 10%">
-        <col style="width: 10%">
-        <col style="width: 10%">
-        <col>
-      </colgroup>
-      <md-table-row slot="md-table-row" slot-scope="{ item }">
-        <md-table-cell md-label="Submitted by" md-sort-by="userName">{{item.userName}}</md-table-cell>
-        <md-table-cell md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
-        <md-table-cell md-label="Platform" md-sort-by="platform">{{item.platform}}</md-table-cell>
-        <md-table-cell md-label="Players">{{item.players}}</md-table-cell>
-        <md-table-cell md-label="Description">{{item.description}}</md-table-cell>
-        <md-table-cell md-label="Comment">{{item.comment}}</md-table-cell>
-        <md-table-cell md-label="Decision">
+      <md-table-row slot="md-table-row" slot-scope="{ item }" :style="{'border-left-color': getStatusIndicatorColor(item)}">
+        <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">
+          {{item.userName}}
+        </md-table-cell>
+        <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform">{{item.platform}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate">{{item.estimate}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Players']" md-label="Players">{{item.players}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Description']" md-label="Description">{{item.description}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Comment']" md-label="Comment">{{item.comment}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Video']" md-label="Video"><video-button :url="item.video"></video-button></md-table-cell>
+        <md-table-cell v-if="showColumns['Decision']" md-label="Decision">
           <div class="layout-row">
             <div class="layout-column flex-none">
               <div class="layout-row flex-none">
@@ -73,4 +79,9 @@
     background-color: rgba(255,255,255,0.7) !important;
   }
 }
+
+.md-table.runs .md-table-row {
+  border-left: 5px solid transparent;
+}
+
 </style>

@@ -12,7 +12,7 @@ import DashboardAdmin from '../components/dashboard/Admin';
 import AdminRoles from '../components/dashboard/admin/Roles';
 import AdminUsers from '../components/dashboard/admin/Users';
 import AdminRuns from '../components/dashboard/admin/Runs.vue';
-import AdminVolunteers from '../components/dashboard/admin/Volunteers';
+import AdminVolunteers from '../components/dashboard/admin/Volunteers.vue';
 import AdminEvents from '../components/dashboard/admin/Events';
 
 Vue.use(Router);
@@ -87,6 +87,7 @@ export default new Router({
             {
               path: 'volunteers',
               name: 'Volunteers',
+              alias: 'volunteers/:type',
               component: AdminVolunteers,
             },
           ],

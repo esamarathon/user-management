@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import { getUserName, teamsToString } from '../../../helpers';
-import { getRuns, getDecisions, updateDecision } from '../../../api';
+import { getRuns, updateDecision } from '../../../api';
 
 const basicButtons = [
   {
@@ -63,8 +63,20 @@ const finalButtons = [
 ];
 
 const decisionValues = {
-  superyes: 2, yes: 1, maybe: 0, no: -1, superno: -3,
+  superyes: 2, yes: 1, maybe: 0, no: -1, superno: -2,
 };
+
+const columns = [
+  'Submitted by',
+  'Name',
+  'Players',
+  'Platform',
+  'Estimate',
+  'Comment',
+  'Description',
+  'Video',
+  'Decision',
+];
 
 export default {
   name: 'Admin',
@@ -77,6 +89,9 @@ export default {
       { name: 'Final selection', buttons: finalButtons }],
     runs: null,
     currentRoundName: 'First cut',
+    columns,
+    activeColumns: columns.slice(),
+    filteredRuns: null,
   }),
   computed: {
     ...mapState(['user']),
@@ -89,9 +104,18 @@ export default {
     },
     runList: {
       get() {
-        const filteredRuns = _.filter(this.runs, run => run.validCuts[this.currentRoundName]);
-        console.log('Filtered runs:', filteredRuns);
-        return filteredRuns;
+        if (!this.filteredRuns) this.filteredRuns = _.filter(this.runs, run => run.validCuts[this.currentRoundName]);
+        return this.filteredRuns;
+      },
+      set(sortedRuns) {
+        this.filteredRuns = sortedRuns;
+      },
+    },
+    showColumns: {
+      get() {
+        const res = {};
+        _.each(columns, (column) => { res[column] = this.activeColumns.includes(column); });
+        return res;
       },
     },
   },
@@ -127,9 +151,11 @@ export default {
             userName: getUserName(run.user),
             name: `${run.game} (${run.category} ${run.runType})`,
             players: teamsToString(run.teams),
+            estimate: run.estimate,
             platform: run.platform,
             comment: run.comment,
             description: run.description,
+            video: run.video,
             explanation: ownExplanations,
             decision: ownDecisions,
             otherDecisions,
@@ -138,9 +164,11 @@ export default {
           };
         });
       console.log('Run list:', this.runList);
+      this.filteredRuns = null;
     },
     updateCurrentRound(tabName) {
       this.currentRoundName = tabName;
+      this.filteredRuns = null;
     },
     createCutObject(Type) {
       // creates an object {'First cut': new Type(), 'Second cut': new Type(), 'Final selection': new Type()}
@@ -152,17 +180,48 @@ export default {
       return res;
     },
     decide(run, decision) {
+      const decisionObj = {
+        run: run._id,
+        decision,
+        explanation: run.explanation[this.currentRoundName],
+        event: this.currentEvent._id,
+        cut: this.currentRoundName,
+        user: this.user._id,
+      };
+      this.updateDecision(run, decisionObj);
+      updateDecision(decisionObj);
       if (decision) run.decision[this.currentRoundName] = decision;
-      updateDecision({
-        run: run._id, decision, explanation: run.explanation[this.currentRoundName], event: this.currentEvent._id, cut: this.currentRoundName,
-      });
       console.log('Runs:', this.runList);
+    },
+    updateDecision(run, decisionObj) {
+      if (decisionObj.user === this.user._id) {
+        console.log('Decreasing cut value by', decisionValues[run.decision[decisionObj.cut]] || 0, 'from', run.cutTotals[decisionObj.cut]);
+        run.cutTotals[decisionObj.cut] -= decisionValues[run.decision[decisionObj.cut]] || 0;
+      } else {
+        const existingDecision = _.find(run.otherDecisions, { user: decisionObj.user });
+        if (existingDecision) {
+          console.log('Decreasing cut value by', decisionValues[existingDecision.decision] || 0);
+          run.cutTotals[decisionObj.cut] -= decisionValues[existingDecision.decision] || 0;
+          existingDecision.decision = decisionObj.decision;
+          existingDecision.explanation = decisionObj.explanation;
+        } else {
+          run.otherDecisions[decisionObj.cut].push(decisionObj);
+        }
+      }
+      run.cutTotals[decisionObj.cut] += decisionValues[decisionObj.decision] || 0;
+      console.log('Increasing cut value by', decisionValues[decisionObj.decision] || 0, 'to', run.cutTotals[decisionObj.cut]);
     },
     getDecisionButton(run) {
       const decision = run.decision[this.currentRoundName];
       const button = _.find(this.currentRound.buttons, { value: decision ? decision.icon : null });
       if (button) return button;
       return { color: 'white', icon: '?' };
+    },
+    getStatusIndicatorColor(run) {
+      const total = run.cutTotals[this.currentRoundName];
+      if (total > 0) return '#33cc33';
+      if (total < 0) return '#cc3333';
+      return 'transparent';
     },
   },
   watch: {

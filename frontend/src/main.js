@@ -13,6 +13,7 @@ import App from './App';
 import router from './router';
 import FlagsDropdown from './components/dashboard/flag-dropdown.vue';
 import RadioGroup from './components/dashboard/RadioGroup';
+import VideoButton from './components/dashboard/admin/VideoButton';
 import vuexConfig from './vuex';
 
 import './assets/theme.scss';
@@ -22,6 +23,7 @@ Vue.use(Vuex);
 Vue.use(VueMoment);
 Vue.component('flags-dropdown', FlagsDropdown);
 Vue.component('radio-group', RadioGroup);
+Vue.component('video-button', VideoButton);
 
 const store = new Vuex.Store(vuexConfig);
 

@@ -82,7 +82,6 @@ body, html {
 }
 
 .flex-100 {
-  flex-grow: 1;
   flex-basis: 100%;
 }
 
@@ -133,13 +132,6 @@ body, html {
   z-index: 190;
 }
 
-.md-button.md-dark.md-icon-button .md-icon.md-theme-default.md-icon-font {
-  color: white;
-}
-.md-button.md-dark.md-icon-button .md-disabled .md-icon.md-theme-default.md-icon-font {
-  color: rgba(255,255,255,0.5);
-}
-
 .small-field {
   min-width: 80px;
   width: auto;
@@ -170,23 +162,9 @@ body, html {
   background-color: transparent !important;
   .md-content {
     background-color: transparent !important;
-    color: white !important;
   }
-
-  th.md-table-head {
-    color: white !important;
-  }
-
-  .md-sortable .md-icon svg {
-    color: white !important;
-    fill: white !important;
-  }
-
 }
 
 .md-tabs.md-theme-default.dark-tabs .md-tabs-navigation {
   background-color: transparent;
-  .md-button {
-    color: white;
-  }
 }

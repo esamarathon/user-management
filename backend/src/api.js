@@ -2,6 +2,7 @@ import got from 'got';
 import crypto from 'crypto';
 import URL from 'url';
 import _ from 'lodash';
+import mongoose from 'mongoose';
 
 import logger from './logger';
 import { twitchGet } from './twitchAPI';
@@ -255,6 +256,7 @@ async function updateModel(Model, data, markModified) {
 }
 
 function hasPermission(user, eventID, permission) {
+  if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
   console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
   return !!_.find(user.roles, userRole => {
     if (userRole.event && userRole.event !== eventID) return false;

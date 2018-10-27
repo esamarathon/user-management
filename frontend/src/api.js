@@ -80,6 +80,10 @@ export function getRuns(eventID) {
   return makeRequest(`${settings.api.baseurl}submissions`, { query: { event: eventID } });
 }
 
+export function getVolunteers(eventID) {
+  return makeRequest(`${settings.api.baseurl}applications`, { query: { event: eventID } });
+}
+
 export function getDecisions(eventID, type) {
   return makeRequest(`${settings.api.baseurl}decisions/runs`, { query: { event: eventID, type } });
 }

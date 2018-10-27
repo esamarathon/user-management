@@ -100,13 +100,21 @@ const Submission = new mongoose.Schema({
   decisions: [RunDecision]
 });
 
+const VolunteerDecision = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  cut: String,
+  decision: String,
+  explanation: String
+});
+
 const Application = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-  role: String,
+  role: { type: mongoose.Schema.Types.ObjectId, ref: 'role' },
   status: String,
   questions: Object,
-  comment: String
+  comment: String,
+  decisions: [VolunteerDecision]
 });
 
 const Link = new mongoose.Schema({
