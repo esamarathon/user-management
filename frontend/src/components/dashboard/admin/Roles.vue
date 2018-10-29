@@ -35,6 +35,29 @@
               </md-select>
             </md-field>
           </div>
+          <div class="layout-column">
+            <div class="layout-row">
+              <div class="flex-50">
+                <h3>Edit application questionaire</h3>
+              </div>
+              <div class="flex-50">
+                <h3>Questionaire preview</h3>
+              </div>
+            </div>
+            <div class="layout-column">
+              <div class="layout-row questionaires md-elevation-4" v-for="question in selectedRole.form" :key="question._id">
+                <div class="flex-50">
+                  <form-edit class="" :question="question" :editing="true"></form-edit>
+                </div>
+                <div class="flex-50">
+                  <form-edit class="" :question="question" :editing="false"></form-edit>
+                </div>
+              </div>
+            </div>
+            <div class="flex-none">
+              <md-button class="md-raised md-primary" @click="addQuestion(selectedRole)">Add question</md-button>
+            </div>
+          </div>
         </form>
       </md-dialog-content>
       <md-dialog-actions>
@@ -45,55 +68,7 @@
   </div>
 </template>
 
-<script>
-import _ from 'lodash';
-import { mapState, mapGetters } from 'vuex';
-import settings from '../../../settings';
-import { generateID } from '../../../helpers';
-
-export default {
-  name: 'Roles',
-  data: ()=>({
-    selectedRole: null,
-    showDialog: false,
-    permissions: settings.permissions
-  }),
-  created() {
-    this.$store.dispatch('getRoles');
-  },
-  computed: {
-    ...mapState(['user', 'roles']),
-    ...mapGetters(['currentEvent'])
-  },
-  methods: {
-    newRole() {
-      const newRole = {
-        _id: generateID(),
-        name: "",
-        permissions: [],
-        special: false
-      }
-      this.selectedRole = newRole;
-      this.showDialog = true;
-    },
-    selectRole(role) {
-      this.selectedRole = _.merge({}, role);
-      this.showDialog = true;
-    },
-    duplicateRole(role) {
-      this.selectedRole = _.merge({}, role, {id: generateID()});
-      this.showDialog = true;
-    },
-    deleteRole(role) {
-      this.$store.dispatch('deleteRole', role);
-    },
-    saveRole() {
-      this.$store.dispatch('saveRole', this.selectedRole);
-      this.showDialog = false;
-    }
-  }
-};
-</script>
+<script src="./roles.js"></script>
 
 <style lang="scss">
 .role-item {
@@ -115,4 +90,11 @@ export default {
 .md-switch {
   margin-left: 16px;
 }
+
+.questionaires {
+  margin-bottom: 12px;
+  background-color: rgba(128,128,128,0.3);
+}
+
+
 </style>

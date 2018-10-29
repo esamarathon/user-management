@@ -131,9 +131,6 @@
   margin-left: 16px;
 }
 
-.experience-table .md-radio {
-  margin: 16px;
-}
 
 .applications-closed {
   padding: 8px;

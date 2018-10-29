@@ -256,7 +256,7 @@ async function updateModel(Model, data, markModified) {
 }
 
 function hasPermission(user, eventID, permission) {
-  if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
+  // if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
   console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
   return !!_.find(user.roles, userRole => {
     if (userRole.event && userRole.event !== eventID) return false;

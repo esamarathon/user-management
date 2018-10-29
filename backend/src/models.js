@@ -28,10 +28,17 @@ const TwitterConnection = new mongoose.Schema({
   handle: String
 });
 
+const Question = new mongoose.Schema({
+  title: String,
+  type: String,
+  options: Object
+});
+
 const Role = new mongoose.Schema({
   name: String,
   special: Boolean,
-  permissions: [String]
+  permissions: [String],
+  form: [Question]
 });
 
 const UserRole = new mongoose.Schema({
