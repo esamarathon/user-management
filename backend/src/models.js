@@ -30,6 +30,7 @@ const TwitterConnection = new mongoose.Schema({
 
 const Question = new mongoose.Schema({
   title: String,
+  description: String,
   type: String,
   options: Object
 });

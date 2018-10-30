@@ -1,6 +1,6 @@
 <template>
   <md-field>
-    <md-select v-model="value">
+    <md-select v-model="choice" @md-selected="updateChoices()">
       <md-option v-for="option in options.options" :key="option" :value="option">{{option}}</md-option>
     </md-select>
   </md-field>
@@ -18,7 +18,8 @@ export default {
   },
   methods: {
     updateChoices() {
-      this.$emit('input', this.value)
+      console.log("Updating dropdown with value", this.choice);
+      this.$emit('input', this.choice)
     }
   }
 }

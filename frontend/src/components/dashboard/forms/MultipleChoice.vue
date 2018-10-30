@@ -8,8 +8,8 @@
       </div>
       <div class="multiple-choice-table-row layout-row flex-none" v-for="type in options.options" :key="type">
         <div class="multiple-choice-table-cell flex-25">{{type}}</div>
-        <div class="multiple-choice-table-cell flex-25 layout-row layout-center-center" v-for="i in [4,3,2,1]" :key="i" >
-          <md-radio :value="i" v-model="choices[type]" class="flex-none"></md-radio>
+        <div class="multiple-choice-table-cell flex-25 layout-row layout-center-center" v-for="i in ['Very', 'Somewhat', 'A little', 'Not at all']" :key="i" >
+          <md-radio :value="i" v-model="choices[type]" @change="updateChoices()" class="flex-none"></md-radio>
         </div>
       </div>
     </div>

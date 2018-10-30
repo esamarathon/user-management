@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import { generateID } from '../../helpers';
+import FormDisplay from './forms/FormDisplay.vue';
 
 export default {
   name: 'Applications',
@@ -70,5 +71,8 @@ export default {
         return { name: '' };
       },
     },
+  },
+  components: {
+    FormDisplay,
   },
 };

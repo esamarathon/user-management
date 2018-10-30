@@ -9,7 +9,7 @@ import DashboardSubmissions from '../components/dashboard/Submissions.vue';
 import DashboardSubmissionDetails from '../components/dashboard/SubmissionDetails';
 import DashboardApplications from '../components/dashboard/Applications.vue';
 import DashboardAdmin from '../components/dashboard/Admin';
-import AdminRoles from '../components/dashboard/admin/Roles';
+import AdminRoles from '../components/dashboard/admin/Roles.vue';
 import AdminUsers from '../components/dashboard/admin/Users';
 import AdminRuns from '../components/dashboard/admin/Runs.vue';
 import AdminVolunteers from '../components/dashboard/admin/Volunteers.vue';

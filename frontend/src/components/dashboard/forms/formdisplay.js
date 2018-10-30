@@ -6,7 +6,7 @@ import ShortText from './ShortText';
 import LongText from './LongText';
 
 export default {
-  name: 'FormEdit',
+  name: 'FormDisplay',
   data: () => ({
     questionTypes: [{
       name: 'Short text',
@@ -27,17 +27,21 @@ export default {
         name: 'options',
       }],
     }],
+    chosenValue: null,
   }),
   components: {
     MultipleChoice, ListEdit, Dropdown, ShortText, LongText,
   },
-  props: ['question'],
+  props: ['question', 'value'],
   created() {
+    if (this.value) {
+      this.chosenValue = this.value;
+    }
   },
   methods: {
-    getQuestionLists(question) {
-      console.log('Question lists:', _.find(this.questionTypes, { value: question.type }).lists);
-      return _.find(this.questionTypes, { value: question.type }).lists;
+    updateValue() {
+      console.log('Form value for question', this.question, 'updated to', this.chosenValue);
+      this.$emit('input', this.chosenValue);
     },
   },
 };

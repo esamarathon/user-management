@@ -35,22 +35,22 @@
               </md-select>
             </md-field>
           </div>
-          <div class="layout-column">
+          <div class="layout-column" v-if="!selectedRole.special">
             <div class="layout-row">
               <div class="flex-50">
-                <h3>Edit application questionaire</h3>
+                <h3>Edit application questionnaire </h3>
               </div>
               <div class="flex-50">
-                <h3>Questionaire preview</h3>
+                <h3>Questionnaire  preview</h3>
               </div>
             </div>
             <div class="layout-column">
-              <div class="layout-row questionaires md-elevation-4" v-for="question in selectedRole.form" :key="question._id">
+              <div class="layout-row questionnaires md-elevation-4" v-for="question in selectedRole.form" :key="question._id">
                 <div class="flex-50">
-                  <form-edit class="" :question="question" :editing="true"></form-edit>
+                  <form-edit class="" :question="question"></form-edit>
                 </div>
                 <div class="flex-50">
-                  <form-edit class="" :question="question" :editing="false"></form-edit>
+                  <form-display class="" :question="question" v-model="question.value"></form-display>
                 </div>
               </div>
             </div>
@@ -91,7 +91,7 @@
   margin-left: 16px;
 }
 
-.questionaires {
+.questionnaires {
   margin-bottom: 12px;
   background-color: rgba(128,128,128,0.3);
 }

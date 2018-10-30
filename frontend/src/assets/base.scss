@@ -165,6 +165,10 @@ body, html {
   }
 }
 
-.md-tabs.md-theme-default.dark-tabs .md-tabs-navigation {
-  background-color: transparent;
+.md-tabs.md-theme-default.transparent-tabs {
+  .md-tabs-navigation, .md-tab, .md-content {
+    background-color: transparent;
+  }
+
+
 }

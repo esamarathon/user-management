@@ -2,7 +2,7 @@
   <div class="layout-column" v-if="currentEvent">
     <h1>Runs submitted to {{currentEvent.name}}</h1>
     <div class="layout-row layout-between-start">
-      <md-tabs class="dark-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
+      <md-tabs class="transparent-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
         <md-tab v-for="round in rounds" :key="round.name" :md-label="round.name" :id="round.name"></md-tab>
       </md-tabs>
       <div class="flex">

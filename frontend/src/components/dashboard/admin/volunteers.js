@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import { getVolunteers } from '../../../api';
 import volunteerTable from './VolunteerTable.vue';
+import { getUserName } from '../../../helpers';
 
 export default {
   name: 'Volunteers',
@@ -27,15 +28,6 @@ export default {
         return _.find(this.rounds, { name: this.currentRoundName });
       },
     },
-    runList: {
-      get() {
-        if (!this.filteredRuns) this.filteredRuns = _.filter(this.runs, run => run.validCuts[this.currentRoundName]);
-        return this.filteredRuns;
-      },
-      set(sortedRuns) {
-        this.filteredRuns = sortedRuns;
-      },
-    },
     showColumns: {
       get() {
         const res = {};
@@ -58,9 +50,14 @@ export default {
       const volunteerMap = new Map();
       _.each(volunteers, (volunteer) => {
         const listOfVolunteers = volunteerMap.get(volunteer.role) || [];
-        listOfVolunteers.push(volunteer);
+        listOfVolunteers.push({
+          ...volunteer,
+          name: getUserName(volunteer.user),
+          questions: volunteer.questions,
+        });
         volunteerMap.set(volunteer.role, listOfVolunteers);
       });
+      console.log(volunteerMap);
       this.volunteersByRole = volunteerMap;
     },
   },

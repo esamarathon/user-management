@@ -32,56 +32,10 @@
                 <md-option v-for="role in roleList" :key="role._id" :value="role._id">{{role.name}}</md-option>
               </md-select>
             </md-field>
-            <!-- Mod applications -->
-            <div class="mod-questions flex-100 layout-row layout-wrap" v-if="selectedApplicationRole.name === 'Moderator'">
-              <h4>How experienced are you with these moderation technologies?</h4>
-              <div class="layout-column flex-100 experience-table">
-                <div class="experience-table-headers layout-row flex-none">
-                  <div class="experience-table-header flex-25 layout-row layout-center-center" v-for="x in ['', 'Very', 'Somewhat', 'A little', 'Not at all']" :key="x">
-                    <span>{{x}}</span>
-                  </div>
-                </div>
-                <div class="experience-table-row layout-row flex-none" v-for="type in ['Moobot', 'Ohbot', 'Discord', 'Logviewer']" :key="type">
-                  <div class="experience-table-cell flex-25">{{type}}</div>
-                  <div class="experience-table-cell flex-25 layout-row layout-center-center" v-for="i in [4,3,2,1]" :key="i" >
-                    <md-radio :value="i" v-model="selectedApplication.questions[type]" class="flex-none"></md-radio>
-                  </div>
-                </div>
+            <div class="layout-column flex-100">
+              <div v-for="question in selectedApplicationRole.form" :key="question.id" class="flex-none">
+                <form-display :editing="false" v-model="selectedApplication.questions[question._id]" :question="question"></form-display>
               </div>
-              <md-field class="medium-field flex-none">
-                <label for="timezone">Timezone</label>
-                <md-select name="role" id="role" v-model="selectedApplication.questions.timezone">
-                  <md-option v-for="tz in timezones" :key="tz" :value="tz">{{tz}}</md-option>
-                </md-select>
-              </md-field>
-              <md-field class="medium-field flex-none">
-                <label for="language">Which languages can you speak/read?</label>
-                <md-input name="language" id="language" v-model="selectedApplication.questions.languages" />
-              </md-field>
-              <md-switch v-model="selectedApplication.questions.onsite">Will you be on site during {{currentEvent.name}}</md-switch>
-              <div class="flex-100">
-                <h4>Prior moderation experience (ESA and others)</h4>
-                <md-field class="large-field flex-100">
-                  <md-textarea name="comment" id="comment" v-model="selectedApplication.questions.moderationExperience" />
-                </md-field>
-              </div>
-            </div>
-            <!-- Host applications -->
-            <div class="mod-questions flex-100" v-if="selectedApplicationRole.name === 'Host' || selectedApplicationRole.name === 'Donation reader'">
-              <h4>Couching</h4>
-              <md-field class="large-field flex-100">
-                <md-textarea name="comment" id="comment" v-model="selectedApplication.questions.couch" placeholder="Which runs will you be couching for?" />
-              </md-field>
-            </div>
-            <!-- Tech applications -->
-            <div class="mod-questions flex-100" v-if="selectedApplicationRole.name === 'Tech'">
-              <h4>Previous experience with stream tech (ESA or any other)</h4>
-              <md-field class="large-field flex-100">
-                <md-textarea name="comment" id="comment" v-model="selectedApplication.questions.techExperience" />
-              </md-field>
-              <p>There will be a small amount (1 or 2) of antisocial shifts (00-04 or 04-08) required, and an infodesk/check in shift.
-              Those selected will have access to a discount (400SEK) ticket for the week. Please see the info post for full information.</p>
-              <md-checkbox v-model="selectedApplication.questions.graveyardConsent">I agree</md-checkbox>
             </div>
             <!-- All applications -->
             <div class="general-questions flex-100">

@@ -3,6 +3,7 @@ import { mapState, mapGetters } from 'vuex';
 import settings from '../../../settings';
 import { generateID } from '../../../helpers';
 import FormEdit from '../forms/FormEdit.vue';
+import FormDisplay from '../forms/FormDisplay.vue';
 
 export default {
   name: 'Roles',
@@ -25,19 +26,14 @@ export default {
         name: '',
         permissions: [],
         special: false,
+        form: [],
       };
       this.selectedRole = newRole;
       this.showDialog = true;
     },
     selectRole(role) {
       this.selectedRole = _.merge({
-        form: [{
-          _id: generateID(),
-          title: 'Untitled question',
-          type: 'mdInput',
-          value: null,
-          options: {},
-        }],
+        form: [],
       }, role);
       this.showDialog = true;
     },
@@ -56,13 +52,14 @@ export default {
       role.form.push({
         _id: generateID(),
         title: 'Untitled question',
-        type: 'mdInput',
+        type: 'ShortText',
+        description: '',
         value: null,
         options: {},
       });
     },
   },
   components: {
-    FormEdit,
+    FormEdit, FormDisplay,
   },
 };
