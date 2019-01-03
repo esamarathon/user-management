@@ -67,7 +67,7 @@ User.virtual('name').get(function getUserName() {
 });
 
 const Note = new mongoose.Schema({
-  author: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   text: String
 }, {
   timestamps: true
