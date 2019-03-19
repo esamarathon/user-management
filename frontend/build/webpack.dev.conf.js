@@ -43,6 +43,9 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     watchOptions: {
       poll: config.dev.poll,
     },
+    allowedHosts: [
+      'local.test.esamarathon.com',
+    ],
   },
   plugins: [
     new webpack.DefinePlugin({

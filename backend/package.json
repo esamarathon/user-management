@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "BABEL_ENV=production babel src --source-maps -d dist",
+    "build-win": "babel src --source-maps -d dist",
     "babel": "babel-node src/backend.js --inspect",
     "dev": "nodemon --exec yarn babel"
   },

@@ -3,17 +3,17 @@ import Router from 'vue-router';
 import Loading from '../components/Loading.vue';
 import Login from '../components/Login.vue';
 import Dashboard from '../components/Dashboard.vue';
-import DashboardHome from '../components/dashboard/Home';
+import DashboardHome from '../components/dashboard/Home.vue';
 import DashboardProfile from '../components/dashboard/Profile.vue';
 import DashboardSubmissions from '../components/dashboard/Submissions.vue';
-import DashboardSubmissionDetails from '../components/dashboard/SubmissionDetails';
+import DashboardSubmissionDetails from '../components/dashboard/SubmissionDetails.vue';
 import DashboardApplications from '../components/dashboard/Applications.vue';
-import DashboardAdmin from '../components/dashboard/Admin';
+import DashboardAdmin from '../components/dashboard/Admin.vue';
 import AdminRoles from '../components/dashboard/admin/Roles.vue';
-import AdminUsers from '../components/dashboard/admin/Users';
+import AdminUsers from '../components/dashboard/admin/Users.vue';
 import AdminRuns from '../components/dashboard/admin/Runs.vue';
 import AdminVolunteers from '../components/dashboard/admin/Volunteers.vue';
-import AdminEvents from '../components/dashboard/admin/Events';
+import AdminEvents from '../components/dashboard/admin/Events.vue';
 
 Vue.use(Router);
 

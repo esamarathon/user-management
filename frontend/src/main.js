@@ -15,6 +15,7 @@ import FlagsDropdown from './components/dashboard/flag-dropdown.vue';
 import RadioGroup from './components/dashboard/RadioGroup';
 import VideoButton from './components/dashboard/admin/VideoButton';
 import vuexConfig from './vuex';
+import settings from './settings';
 
 import './assets/theme.scss';
 
@@ -30,6 +31,31 @@ const store = new Vuex.Store(vuexConfig);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
+Vue.mixin({
+  store,
+  methods: {
+    hasAllPermissions(...permissions) {
+      const perms = this.$store.getters.permissions;
+      if(perms.includes("*")) return true;
+      if(!permissions) permissions = settings.permissions;
+      for(let i=0;i<permissions.length;++i) {
+        if(!perms.includes(permissions[i])) return false;
+      }
+      return true;
+    },
+    hasAnyPermission(...permissions) {
+      const perms = this.$store.getters.permissions;
+      if(perms.includes("*")) return true;
+      if(!permissions) permissions = settings.permissions;
+      for(let i=0;i<permissions.length;++i) {
+        if(perms.includes(permissions[i])) return true;
+      }
+      return false;
+    }
+  }
+})
+
+
 new Vue({
   el: '#app',
   router,

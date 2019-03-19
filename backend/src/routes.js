@@ -12,7 +12,7 @@ import {
   updateUser, getEvent, updateEvent,
   requestSensitiveData, getRoles, updateRole,
   getUsers, getUserApplications, getUserSubmissions,
-  updateUserApplication, updateUserSubmission, getApplications, getSubmissions, updateRunDecision
+  updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission, updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
@@ -45,12 +45,19 @@ app.get('/user/submissions', getUserSubmissions);
 app.post('/user', updateUser);
 app.post('/user/application', updateUserApplication);
 app.post('/user/submission', updateUserSubmission);
+app.post('/user/invite', inviteUser);
+app.post('/invitation/respond', respondToInvitation);
+app.get('/activities', getActivities);
+// ------------------------------------------------------
+// Admin APIs
 app.get('/users', getUsers);
 app.get('/users', getUser);
+app.post('/users', setUser);
 app.post('/role', updateRole);
 app.get('/roles', getRoles);
 app.get('/applications', getApplications);
 app.get('/submissions', getSubmissions);
+app.get('/submission/:id', getSubmission);
 app.post('/decision/runs', updateRunDecision);
 
 app.get('/sensitive', requestSensitiveData);

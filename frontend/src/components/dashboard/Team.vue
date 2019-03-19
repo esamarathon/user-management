@@ -8,11 +8,15 @@
     </div>
     <div class="members layout-column">
       <span class="compact-title">Members:</span>
-      <div class="member" v-for="member in info.members" :key="member._id">
-        <md-autocomplete md-input-placeholder="Twitch name" class="compact" v-model="member.name" :md-options="usernameSearch" @md-changed="searchUsernames(member.name)" @md-selected="ensureEmptyRow()">
-          <template slot="md-autocomplete-item" slot-scope="{ item }">{{ item }}</template>
-        </md-autocomplete>
+      <draggable v-model="info.members" group="members">
+        <div class="member" v-for="member in info.members" :key="member._id">
+          <img :src="member.user.connections.twitch.logo" class="profilepic"> {{member.user.connections.twitch.displayName}}
+        </div>
+      </draggable>
+      <!-- <div class="member" v-for="member in info.members" :key="member._id">
+        <img :src="member.name" class="profile-pic"> {{member.name}}
       </div>
+      <md-button :click="addMember()">Add team member</md-button>-->
     </div>
   </div>
 </template>

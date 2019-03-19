@@ -18,17 +18,4 @@
 </script>
 
 <style lang="scss" scoped>
-.flag.flag-xx {
-  background: #333;
-  border: 1px solid #990000;
-  height: 22px;
-  box-sizing: border-box;
-  margin-bottom: 5px;
-
-  &:after {
-    content: '?';
-    text-align: center;
-    display: block;
-  }
-}
 </style>

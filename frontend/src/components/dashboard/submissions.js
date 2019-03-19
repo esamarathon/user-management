@@ -1,25 +1,17 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
-import Team from './Team.vue';
+import SubmissionEdit from './SubmissionEdit.vue';
 import { generateID } from '../../helpers';
 import settings from '../../settings';
 
-function findTeamName(teams) {
-  if (!teams) return 'Team 1';
-  for (let i = teams.length + 1; i < 10; ++i) {
-    const name = `Team ${i}`;
-    if (!_.find(teams, { name })) return name;
-  }
-  return null;
-}
 
 export default {
   name: 'Submissions',
   data: () => ({
     showDialog: false,
     selectedSubmission: null,
-    platforms: settings.platforms,
+    userToAdd: '',
   }),
   created() {
     this.$store.dispatch('getSubmissions');
@@ -38,45 +30,31 @@ export default {
         description: '',
         runType: 'solo',
         teams: null,
+        invitations: null,
       };
       this.selectedSubmission = newSubmission;
+      this.saveSubmission();
       this.showDialog = true;
     },
     saveSubmission() {
+      console.log("Saving submission", this.selectedSubmission)
       this.selectedSubmission.status = 'saved';
       this.$store.dispatch('saveSubmission', this.selectedSubmission);
       this.showDialog = false;
     },
     selectSubmission(submission) {
-      this.selectedSubmission = _.merge({}, submission);
+      this.selectedSubmission = _.cloneDeep(submission);
       this.showDialog = true;
+      console.log("Editing submission", submission);
     },
     duplicateSubmission(submission) {
-      this.selectedSubmission = _.merge({}, submission);
+      this.selectedSubmission = _.cloneDeep(submission);
       this.selectedSubmission._id = generateID();
       this.showDialog = true;
     },
     deleteSubmission(submission) {
       submission.status = 'deleted';
       this.$store.dispatch('saveSubmission', submission);
-    },
-    initTeams() {
-      console.log('Initializing teams');
-      if (this.selectedSubmission.runType !== 'solo' && !this.selectedSubmission.teams) {
-        this.selectedSubmission.teams = [{
-          name: 'Team 1',
-          members: [],
-        }];
-      }
-    },
-    addTeam() {
-      const name = findTeamName(this.selectedSubmission.teams);
-      if (name) {
-        this.selectedSubmission.teams.push({
-          name,
-          members: [],
-        });
-      }
     },
   },
   computed: {
@@ -94,6 +72,6 @@ export default {
     },
   },
   components: {
-    team: Team,
+    submissionEdit: SubmissionEdit,
   },
 };

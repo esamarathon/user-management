@@ -4,5 +4,11 @@
   },
   "twitch": {
     "clientID": "31wnt8q7vcvhyopwmsh6zd1jkuq27x"
+  },
+  "api": {
+    "baseurl": "http://local.test.esamarathon.com:8081/"
+  },
+  "frontend": {
+    "baseurl": "http://local.test.esamarathon.com:8080/"
   }
 }

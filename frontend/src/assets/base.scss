@@ -106,6 +106,10 @@ body, html {
   max-width: 100%;
 }
 
+.flex {
+  flex-grow: 1;
+}
+
 .layout-padding {
   padding: 8px;
 }
@@ -169,6 +173,28 @@ body, html {
   .md-tabs-navigation, .md-tab, .md-content {
     background-color: transparent;
   }
+}
 
+img.profilepic {
+  border-radius: 100%;
+  width: 2.5em;
+  margin-right: 8px;
+}
 
+.fullheight {
+  height: 100%;
+}
+
+.flag.flag-xx, .flag.flag-undefined {
+  background: #333;
+  border: 1px solid #990000;
+  height: 22px;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+
+  &:after {
+    content: '?';
+    text-align: center;
+    display: block;
+  }
 }

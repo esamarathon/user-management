@@ -73,14 +73,17 @@ const Note = new mongoose.Schema({
   timestamps: true
 });
 
-const Participant = new mongoose.Schema({
-  name: String,
+const Invitation = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
-  accepted: Boolean
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  submission: { type: mongoose.Schema.Types.ObjectId, ref: 'submission' },
+  status: String
+}, {
+  timestamps: true
 });
 
 const Team = new mongoose.Schema({
-  members: [Participant],
+  members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'invitation' }],
   name: String
 });
 
@@ -105,7 +108,8 @@ const Submission = new mongoose.Schema({
   description: String,
   status: String,
   notes: [Note],
-  decisions: [RunDecision]
+  decisions: [RunDecision],
+  invitations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'invitation' }]
 });
 
 const VolunteerDecision = new mongoose.Schema({
@@ -143,14 +147,18 @@ const Event = new mongoose.Schema({
 });
 
 const Activity = new mongoose.Schema({
-  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   category: String,
   type: { type: String },
-  link: Link
+  text: String,
+  link: Link,
+  icon: String
+}, {
+  timestamps: true
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, Invitation
 };
 export const models = {
   Event: mongoose.model('event', Event),
@@ -158,5 +166,6 @@ export const models = {
   Role: mongoose.model('role', Role),
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
-  Activity: mongoose.model('activity', Activity)
+  Activity: mongoose.model('activity', Activity),
+  Invitation: mongoose.model('invitation', Invitation)
 };

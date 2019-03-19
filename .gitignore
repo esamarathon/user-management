@@ -4,3 +4,4 @@ settings.frontend.json
 settings.json
 yarn-error.log
 *.pem
+*/dist/*

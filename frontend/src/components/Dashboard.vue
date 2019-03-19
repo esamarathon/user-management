@@ -50,30 +50,30 @@
             <span class="md-list-item-text">Volunteer</span>
           </md-list-item>
 
-          <md-subheader>Administration</md-subheader>
-          <md-list-item :to="{name:'Roles'}">
+          <md-subheader v-if="hasAnyPermission()">Administration</md-subheader>
+          <md-list-item v-if="hasAnyPermission('Manage Roles', 'Admin')" :to="{name:'Roles'}">
             <md-icon>security</md-icon>
             <span class="md-list-item-text">Roles</span>
           </md-list-item>
-          <md-list-item :to="{name:'Users'}">
+          <md-list-item v-if="hasAnyPermission('Edit Users', 'Admin')" :to="{name:'Users'}">
             <md-icon>people</md-icon>
             <span class="md-list-item-text">Users</span>
           </md-list-item>
-          <md-list-item :to="{name:'Runs'}">
+          <md-list-item v-if="hasAnyPermission('Approve Submissions', 'Admin')" :to="{name:'Runs'}">
             <md-icon>games</md-icon>
             <span class="md-list-item-text">Runs</span>
           </md-list-item>
-          <md-list-item :to="{name:'Volunteers'}">
+          <md-list-item v-if="hasAnyPermission('Approve Volunteers', 'Admin')" :to="{name:'Volunteers'}">
             <md-icon>ballot</md-icon>
             <span class="md-list-item-text">Volunteers</span>
           </md-list-item>
-          <md-list-item :to="{name:'Events'}">
+          <md-list-item v-if="hasAnyPermission('Manage Events', 'Admin')" :to="{name:'Events'}">
             <md-icon>event</md-icon>
             <span class="md-list-item-text">Events</span>
           </md-list-item>
         </md-list>
       </div>
-      <div class="content flex-100 layout-padding">
+      <div class="content flex-100 layout-padding layout-column">
         <router-view></router-view>
       </div>
     </div>

@@ -1,3 +1,6 @@
+import _ from 'lodash';
+import { models } from './models';
+
 export function throttleAsync(func, duration) {
   let lastInitiated = 0;
   let promise = null;
@@ -19,4 +22,10 @@ export function throttleAsync(func, duration) {
     if (fast && finishedPromise) return finishedPromise;
     return promise;
   };
+}
+
+export function notify(user, data) {
+  const activity = new models.Activity(_.merge({}, {user: user._id || user}, data));
+  activity.save();
+  // TODO: emit activity to rabbit
 }

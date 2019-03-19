@@ -97,8 +97,10 @@ img.logo {
 }
 
 .md-dark {
-  &.md-button.md-theme-default, .md-icon.md-theme-default.md-icon-font {
-    color: white;
+  &.md-button.md-theme-default {
+    &:not([disabled]) {
+      color: white;
+    }
   }
 
   &.md-field.md-theme-default, &.md-field.md-theme-default.md-focused, &.md-field.md-theme-default.md-has-value {

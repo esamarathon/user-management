@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { mergeNonArray } from './helpers';
 
 import {
-  updateUser, getEvents, getUser, updateEvent, getRoles, updateRole, getUserApplications, getUserSubmissions, updateSubmission, updateApplication,
+  updateUser, getEvents, getUser, updateEvent, getRoles, updateRole, getUserApplications, getUserSubmissions, updateSubmission, updateApplication, invite, setUser,
 } from './api';
 
 export default {
@@ -39,7 +39,7 @@ export default {
       if (!state.submissions) state.submissions = [];
       const existingSubmission = _.find(state.submissions, { _id: submission._id });
       if (existingSubmission) {
-        _.merge(existingSubmission, submission);
+        mergeNonArray(existingSubmission, submission);
       } else {
         state.submissions.push(submission);
       }
@@ -81,6 +81,12 @@ export default {
     setEventID(state, eventID) {
       state.currentEventID = eventID;
     },
+    addInvitation(state, [submission, invitation]) {
+      if (!state.submissions) state.submissions = [];
+      const existingSubmission = _.find(state.submissions, { _id: submission._id });
+      if (!existingSubmission.invitations) existingSubmission.invitations = [];
+      existingSubmission.invitations.push(invitation);
+    },
   },
   actions: {
     async getUser({ commit }) {
@@ -107,6 +113,10 @@ export default {
       if (changes) commit('updateUser', changes);
       return updateUser(changes);
     },
+    saveUser({ commit }, user) {
+      // Admin only API for setting other users
+      return setUser(user);
+    },
     saveSubmission({ commit }, submission) {
       commit('saveSubmission', submission);
       return updateSubmission(submission);
@@ -131,8 +141,25 @@ export default {
     async switchEvent({ commit }, eventID) {
       commit('setEventID', eventID);
     },
+    async inviteUser({ commit }, [submission, userID]) {
+      console.log('Inviting user ', userID, 'to submission', submission);
+      const invitation = await invite(submission, userID);
+      commit('addInvitation', [submission, invitation]);
+      return invitation;
+    },
   },
   getters: {
     currentEvent: state => _.find(state.events, { _id: state.currentEventID }),
+    permissions: state => {
+      if(!state.user) return [];
+      const perms = [];
+      _.each(state.user.roles, eventRole => {
+        if(!eventRole.event || eventRole.event === state.currentEventID) {
+          perms.push.apply(perms, eventRole.role.permissions);
+        }
+      });
+      console.log("Permissions:", perms);
+      return perms;
+    }
   },
 };

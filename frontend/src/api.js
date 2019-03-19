@@ -56,16 +56,24 @@ export function getEvents() {
   return makeRequest(`${settings.api.baseurl}events`);
 }
 
+export function getActivities() {
+  return makeRequest(`${settings.api.baseurl}activities`);
+}
+
 export function getUsers(query) {
   return makeRequest(`${settings.api.baseurl}users`, { query });
 }
 
-export function getUserApplications(query) {
-  return makeRequest(`${settings.api.baseurl}user/applications`, { query });
+export function getUserApplications() {
+  return makeRequest(`${settings.api.baseurl}user/applications`);
 }
 
-export function getUserSubmissions(query) {
-  return makeRequest(`${settings.api.baseurl}user/submissions`, { query });
+export function getUserSubmissions() {
+  return makeRequest(`${settings.api.baseurl}user/submissions`);
+}
+
+export function getSubmission(id) {
+  return makeRequest(`${settings.api.baseurl}submission/${id}`);
 }
 
 export function getRoles() {
@@ -106,12 +114,24 @@ export function updateUser(changes) {
   return makePOST(`${settings.api.baseurl}user`, flattenChanges(changes));
 }
 
+export function setUser(user) {
+  return makePOST(`${settings.api.baseurl}users`, user);
+}
+
 export function updateApplication(changes) {
   return makePOST(`${settings.api.baseurl}user/application`, changes);
 }
 
 export function updateSubmission(changes) {
   return makePOST(`${settings.api.baseurl}user/submission`, changes);
+}
+
+export function invite(submission, userid) {
+  return makePOST(`${settings.api.baseurl}user/invite`, { submission: submission._id, user: userid });
+}
+
+export function respondToInvitation(invitation, response) {
+  return makePOST(`${settings.api.baseurl}invitation/respond`, { invitation: invitation._id, response });
 }
 
 export function updateUserFlat(changes) {

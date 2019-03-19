@@ -9,6 +9,7 @@ import { twitchGet } from './twitchAPI';
 import settings from './settings';
 import { generateToken } from './auth';
 import { models } from './models';
+import { notify } from './helpers';
 
 export async function handleLogin(req, res, next) {
   const redirectUrl = req.query.state || settings.frontend.baseurl;
@@ -80,7 +81,7 @@ export async function handleLogin(req, res, next) {
         if (adminRole) {
           logger.info('Making user', user, 'an admin!');
           user.roles.push({
-            event: null,
+            event: "global",
             role: adminRole
           });
         } else {
@@ -99,7 +100,7 @@ export async function handleLogin(req, res, next) {
     }
     res.status(401).end('Invalid authentication');
     return;
-  } catch (err) { logger.error(err); next(err); }
+  } catch (err) { console.error(err); logger.error(err); next(err); }
 }
 
 
@@ -115,10 +116,24 @@ export async function getUser(req, res) {
   return res.status(404).end('User not found.');
 }
 
+export async function getActivities(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const activities = await models.Activity.find({user: req.jwt.user.id}, null, { sort: {updatedAt: -1}, limit: 50 });
+  const invitations = await models.Invitation.find({user: req.jwt.user.id, status: "pending"}, null, { sort: {updatedAt: -1}, limit: 50 })
+    .populate({path: 'createdBy', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo'})
+    .populate({path: 'submission', select: 'event game status runType category platform'})
+  return res.json({
+    activities,
+    invitations
+  })
+}
+
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
-  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game category platform estimate runType teams video comment description status notes'));
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game category platform estimate runType teams video comment description status notes invitations')
+  .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+  .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } }));
 }
 
 export async function getUserApplications(req, res) {
@@ -224,13 +239,43 @@ export async function updateUserSubmission(req, res) {
   // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   let submission = await models.Submission.findById(req.body._id).exec();
-  console.log(`Found existing submission for ${req.body._id}:`, submission);
-  const validChanges = _.pick(req.body, ['game', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description']);
-  if (req.body.status && req.body.status === 'saved' || req.body.status === 'saved') validChanges.status = req.body.status;
+  //console.log(`Found existing submission for ${req.body._id}:`, submission);
+  const validChanges = _.pick(req.body, ['game', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations']);
+  if (['saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
+
+
   if (submission) {
     if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
+    // validate invites and teams
+    if(validChanges.teams || validChanges.invitations) {
+      const allInvites = new Set(_.map(await models.Invitation.find({submission: req.body._id}), invite => invite._id.toString()));
+      const allMembers = _.map(_.flattenDeep([validChanges.invitations, _.map(validChanges.teams, team => team.members)]), member => member._id || member);
+
+      console.log("allInvites", allInvites)
+      console.log("allMembers", allMembers)
+
+      // make sure no invites got added or removed
+      for(let i=0; i < allMembers.length; ++i) {
+        const member = allMembers[i];
+        if(!allInvites.delete(member._id || member)) {
+          console.log("Duplicate or invalid invite:", member);
+          return res.status(400).end("Duplicate or invalid invite.")
+        }
+      }
+      if(allInvites.size > 0) {
+        console.log("Missing invites:", allInvites)
+        res.status(400).end("Missing invites.")
+      }
+      // strip everything but the IDs to prevent overwriting of invites
+      _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member._id || member ) } );
+      validChanges.invitations = _.map(validChanges.invitations, invite => invite._id || invite);
+    }
+    console.log("Valid changes:", validChanges)
     mergeNonArray(submission, validChanges);
   } else {
+    // cant set up invites or teams before the submission is created
+    delete validChanges.invites;
+    delete validChanges.teams;
     submission = new models.Submission({
       _id: req.body._id,
       user: req.jwt.user.id,
@@ -240,6 +285,95 @@ export async function updateUserSubmission(req, res) {
   }
   await submission.save();
   return res.json(submission);
+}
+
+export async function inviteUser(req, res) {
+  // TODO: verify event
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const submission = await models.Submission.findById(req.body.submission).exec();
+  if (submission) {
+    if (submission.user.toString() === req.jwt.user.id) {
+      console.log(`Found existing submission for ${req.body.submission}:`, submission);
+      // see if an invite already exists
+      // see if a user with this id already exists
+      let user = await models.User.findOne({ 'connections.twitch.id': req.body.user });
+      if (user) {
+        console.log('User already exists.');
+        const existingInvitation = await models.Invitation.findOne({ submission: req.body.submission, user });
+        if (existingInvitation) {
+          console.log("User already invited.");
+          return res.status(400).end('User already invited.');
+        }
+      } else {
+        let userResponse;
+        try {
+          userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/${req.body.user}`);
+          console.log('User response:', userResponse.body);
+          user = new models.User({
+            connections: {
+              twitch: {
+                name: userResponse.body.name,
+                displayName: userResponse.body.display_name,
+                id: userResponse.body._id,
+                logo: userResponse.body.logo
+              }
+            }
+          });
+          await user.save();
+        } catch (err) {
+          console.log(err);
+          return res.status(500).end('User lookup failed.');
+        }
+      }
+      const invitation = new models.Invitation({
+        user: user._id,
+        createdBy: req.jwt.user.id,
+        submission: submission._id,
+        status: user._id.toString() === req.jwt.user.id ? "accepted" : "pending" // when the user invites themselves (this automatically happens when a submission is created), they get automatically accepted.
+      });
+      await invitation.save();
+      if (!submission.invitations) submission.invitations = [];
+      submission.invitations.push(invitation);
+      submission.save();
+      const result = invitation.toObject();
+      result.user = {_id: user._id, connections: { twitch: _.pick(user.connections.twitch, ['name', 'displayName', 'id', 'logo']) }};
+      return res.json(result);
+    }
+    return res.status(403).end('Can only edit own runs.');
+  }
+  return res.status(404).end('Submission not found.');
+}
+
+export async function respondToInvitation(req, res) {
+  // TODO: verify event
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id);
+  const invitation = await models.Invitation.findById(req.body.invitation).populate("submission")
+  .populate({ path: 'createdBy', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' });
+  if(invitation && invitation.user._id.equals(user._id) && invitation.status === "pending") {
+    if(["accepted","denied"].includes(req.body.response)) {
+      invitation.status = req.body.response;
+      invitation.save();
+      // notify the invitation creator
+      notify(invitation.createdBy, {
+        category: "invitation",
+        type: req.body.response,
+        text: `${user.connections.twitch.displayName} ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType})!`,
+        icon: user.connections.twitch.logo
+      })
+      // notify the invitee
+      notify(user, {
+        category: "invitation",
+        type: req.body.response,
+        text: `You ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType}) by ${invitation.createdBy.connections.twitch.displayName}!`,
+        icon: invitation.createdBy.connections.twitch.logo
+      })
+    }
+  }
+  else {
+    console.log("Invalid invitation", invitation, invitation && invitation.user._id, req.jwt.user.id)
+    return res.status(400).end("Invalid invitation.")
+  }
 }
 
 async function updateModel(Model, data, markModified) {
@@ -259,7 +393,7 @@ function hasPermission(user, eventID, permission) {
   // if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
   console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
   return !!_.find(user.roles, userRole => {
-    if (userRole.event && userRole.event !== eventID) return false;
+    if (userRole.event && userRole.event !== "global" && userRole.event !== eventID) return false;
     return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
   });
 }
@@ -311,9 +445,10 @@ export async function getUsers(req, res) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
     console.log('Query:', query);
-    let result = await models.User.find(query, 'flag roles submissions applications connections').populate('roles.role');
+    let result = await models.User.find(query, 'flag roles submissions applications connections');
     console.log('Result:', result);
     result = _.map(result, item => ({
+      _id: item._id,
       name: item.name,
       connections: {
         twitch: {
@@ -329,11 +464,26 @@ export async function getUsers(req, res) {
         }
       },
       flag: item.flag,
-      roles: _.map(item.roles, roleInfo => roleInfo.role.name).join(', ')
+      roles: item.roles
     }));
     return res.json(result);
   }
   return res.status(403).end('Access denied.');
+}
+
+export async function setUser(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, null, 'Edit Users')) {
+    const userToChange = await models.User.findById(req.body._id);
+    _.each(req.body.roles, eventRole => {
+      if(eventRole.event === "global") eventRole.event = null;
+    });
+    mergeNonArray(userToChange, req.body);
+    await userToChange.save();
+    return res.json(userToChange);
+  }
+  return res.status(403).end("Access denied.");
 }
 
 const runDecisionPermission = 'Approve Submissions';
@@ -348,6 +498,15 @@ export async function getSubmissions(req, res) {
     .exec());
   }
   return res.status(403).end('Access denied.');
+}
+
+export async function getSubmission(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  if (!req.params.id) return res.status(400).end('Missing query parameter id');
+  return res.json(await models.Submission.findById(req.params.id, 'event user game category platform estimate runType teams video comment description status')
+  .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+  .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+  .exec());
 }
 
 export async function getApplications(req, res) {
