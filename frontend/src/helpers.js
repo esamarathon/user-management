@@ -22,6 +22,7 @@ export function mergeNonArray(item, data) {
     if (_.isArray(src)) {
       return src;
     }
+    return undefined;
   });
 }
 

@@ -47,7 +47,7 @@ export default {
         }];
         this.selectedSubmission.invitations = [];
         const selfInvite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, this.user.connections.twitch.id]); // invites yourself
-        console.log("Self invite:", selfInvite);
+        console.log('Self invite:', selfInvite);
       }
     },
     addTeam() {
@@ -61,16 +61,16 @@ export default {
     },
     async inviteUser() {
       // TODO: send invite user request
-      /*this.inviteList.push({
+      /* this.inviteList.push({
         id: generateID(),
         name: this.userToAdd,
         logo: this.userProfiles[this.userToAdd],
         accepted: false,
       });
-      this.userToAdd = '';*/
+      this.userToAdd = ''; */
       console.log(this.userToAdd);
-      const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, ""+this.twitchUserCache[this.userToAdd]._id]);
-      console.log("Invited user:", invite);
+      const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, `${this.twitchUserCache[this.userToAdd]._id}`]);
+      console.log('Invited user:', invite);
     },
     async searchUsernames(searchTerm) {
       if (searchTerm.length >= 2) {

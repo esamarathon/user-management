@@ -19,17 +19,14 @@ module.exports = {
   settings: {
     'import/resolver': {
       webpack: {
-        config: 'build/webpack.base.conf.js'
+        config: 'webpack/webpack.config.js'
       }
     }
   },
   // add your custom rules here
   rules: {
     // don't require .vue extension when importing
-    'import/extensions': ['error', 'always', {
-      js: 'never',
-      vue: 'never'
-    }],
+    'import/extensions': 'off',
     // disallow reassignment of function parameters
     // disallow parameter object manipulation except for specific exclusions
     'no-param-reassign': "off",
@@ -42,6 +39,10 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'max-len': ['warn', 200],
     'no-plusplus': ['warn', { "allowForLoopAfterthoughts": true }],
-    'no-underscore-dangle': 'off'
+    'no-underscore-dangle': 'off',
+    'prefer-destructuring': 'warn',
+    'no-unused-vars': ["warn", {"args": "none"}],
+    'prefer-spread': 'warn',
+    'no-console': 'off'
   }
 }

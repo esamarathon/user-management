@@ -2,7 +2,7 @@ import got from 'got';
 import crypto from 'crypto';
 import URL from 'url';
 import _ from 'lodash';
-import mongoose from 'mongoose';
+// import mongoose from 'mongoose';
 
 import logger from './logger';
 import { twitchGet } from './twitchAPI';
@@ -81,7 +81,7 @@ export async function handleLogin(req, res, next) {
         if (adminRole) {
           logger.info('Making user', user, 'an admin!');
           user.roles.push({
-            event: "global",
+            event: 'global',
             role: adminRole
           });
         } else {
@@ -118,14 +118,14 @@ export async function getUser(req, res) {
 
 export async function getActivities(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const activities = await models.Activity.find({user: req.jwt.user.id}, null, { sort: {updatedAt: -1}, limit: 50 });
-  const invitations = await models.Invitation.find({user: req.jwt.user.id, status: "pending"}, null, { sort: {updatedAt: -1}, limit: 50 })
-    .populate({path: 'createdBy', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo'})
-    .populate({path: 'submission', select: 'event game status runType category platform'})
+  const activities = await models.Activity.find({ user: req.jwt.user.id }, null, { sort: { updatedAt: -1 }, limit: 50 });
+  const invitations = await models.Invitation.find({ user: req.jwt.user.id, status: 'pending' }, null, { sort: { updatedAt: -1 }, limit: 50 })
+  .populate({ path: 'createdBy', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' })
+  .populate({ path: 'submission', select: 'event game status runType category platform' });
   return res.json({
     activities,
     invitations
-  })
+  });
 }
 
 export async function getUserSubmissions(req, res) {
@@ -239,7 +239,7 @@ export async function updateUserSubmission(req, res) {
   // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   let submission = await models.Submission.findById(req.body._id).exec();
-  //console.log(`Found existing submission for ${req.body._id}:`, submission);
+  // console.log(`Found existing submission for ${req.body._id}:`, submission);
   const validChanges = _.pick(req.body, ['game', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations']);
   if (['saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
@@ -247,30 +247,30 @@ export async function updateUserSubmission(req, res) {
   if (submission) {
     if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
-    if(validChanges.teams || validChanges.invitations) {
-      const allInvites = new Set(_.map(await models.Invitation.find({submission: req.body._id}), invite => invite._id.toString()));
+    if (validChanges.teams || validChanges.invitations) {
+      const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite._id.toString()));
       const allMembers = _.map(_.flattenDeep([validChanges.invitations, _.map(validChanges.teams, team => team.members)]), member => member._id || member);
 
-      console.log("allInvites", allInvites)
-      console.log("allMembers", allMembers)
+      console.log('allInvites', allInvites);
+      console.log('allMembers', allMembers);
 
       // make sure no invites got added or removed
-      for(let i=0; i < allMembers.length; ++i) {
+      for (let i = 0; i < allMembers.length; ++i) {
         const member = allMembers[i];
-        if(!allInvites.delete(member._id || member)) {
-          console.log("Duplicate or invalid invite:", member);
-          return res.status(400).end("Duplicate or invalid invite.")
+        if (!allInvites.delete(member._id || member)) {
+          console.log('Duplicate or invalid invite:', member);
+          return res.status(400).end('Duplicate or invalid invite.');
         }
       }
-      if(allInvites.size > 0) {
-        console.log("Missing invites:", allInvites)
-        res.status(400).end("Missing invites.")
+      if (allInvites.size > 0) {
+        console.log('Missing invites:', allInvites);
+        res.status(400).end('Missing invites.');
       }
       // strip everything but the IDs to prevent overwriting of invites
-      _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member._id || member ) } );
+      _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member._id || member); });
       validChanges.invitations = _.map(validChanges.invitations, invite => invite._id || invite);
     }
-    console.log("Valid changes:", validChanges)
+    console.log('Valid changes:', validChanges);
     mergeNonArray(submission, validChanges);
   } else {
     // cant set up invites or teams before the submission is created
@@ -301,7 +301,7 @@ export async function inviteUser(req, res) {
         console.log('User already exists.');
         const existingInvitation = await models.Invitation.findOne({ submission: req.body.submission, user });
         if (existingInvitation) {
-          console.log("User already invited.");
+          console.log('User already invited.');
           return res.status(400).end('User already invited.');
         }
       } else {
@@ -329,14 +329,14 @@ export async function inviteUser(req, res) {
         user: user._id,
         createdBy: req.jwt.user.id,
         submission: submission._id,
-        status: user._id.toString() === req.jwt.user.id ? "accepted" : "pending" // when the user invites themselves (this automatically happens when a submission is created), they get automatically accepted.
+        status: user._id.toString() === req.jwt.user.id ? 'accepted' : 'pending' // when the user invites themselves (this automatically happens when a submission is created), they get automatically accepted.
       });
       await invitation.save();
       if (!submission.invitations) submission.invitations = [];
       submission.invitations.push(invitation);
       submission.save();
       const result = invitation.toObject();
-      result.user = {_id: user._id, connections: { twitch: _.pick(user.connections.twitch, ['name', 'displayName', 'id', 'logo']) }};
+      result.user = { _id: user._id, connections: { twitch: _.pick(user.connections.twitch, ['name', 'displayName', 'id', 'logo']) } };
       return res.json(result);
     }
     return res.status(403).end('Can only edit own runs.');
@@ -348,32 +348,32 @@ export async function respondToInvitation(req, res) {
   // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const user = await models.User.findById(req.jwt.user.id);
-  const invitation = await models.Invitation.findById(req.body.invitation).populate("submission")
+  const invitation = await models.Invitation.findById(req.body.invitation).populate('submission')
   .populate({ path: 'createdBy', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' });
-  if(invitation && invitation.user._id.equals(user._id) && invitation.status === "pending") {
-    if(["accepted","denied"].includes(req.body.response)) {
+  if (invitation && invitation.user._id.equals(user._id) && invitation.status === 'pending') {
+    if (['accepted', 'denied'].includes(req.body.response)) {
       invitation.status = req.body.response;
       invitation.save();
       // notify the invitation creator
       notify(invitation.createdBy, {
-        category: "invitation",
+        category: 'invitation',
         type: req.body.response,
         text: `${user.connections.twitch.displayName} ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType})!`,
         icon: user.connections.twitch.logo
-      })
+      });
       // notify the invitee
       notify(user, {
-        category: "invitation",
+        category: 'invitation',
         type: req.body.response,
         text: `You ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType}) by ${invitation.createdBy.connections.twitch.displayName}!`,
         icon: invitation.createdBy.connections.twitch.logo
-      })
+      });
+      return res.json(invitation);
     }
+    return res.status(400).end('Submission is not in a modifiable state.');
   }
-  else {
-    console.log("Invalid invitation", invitation, invitation && invitation.user._id, req.jwt.user.id)
-    return res.status(400).end("Invalid invitation.")
-  }
+  console.log('Invalid invitation', invitation, invitation && invitation.user._id, req.jwt.user.id);
+  return res.status(400).end('Invalid invitation.');
 }
 
 async function updateModel(Model, data, markModified) {
@@ -393,7 +393,7 @@ function hasPermission(user, eventID, permission) {
   // if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
   console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
   return !!_.find(user.roles, userRole => {
-    if (userRole.event && userRole.event !== "global" && userRole.event !== eventID) return false;
+    if (userRole.event && userRole.event !== 'global' && userRole.event !== eventID) return false;
     return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
   });
 }
@@ -477,13 +477,13 @@ export async function setUser(req, res) {
   if (hasPermission(user, null, 'Edit Users')) {
     const userToChange = await models.User.findById(req.body._id);
     _.each(req.body.roles, eventRole => {
-      if(eventRole.event === "global") eventRole.event = null;
+      if (eventRole.event === 'global') eventRole.event = null;
     });
     mergeNonArray(userToChange, req.body);
     await userToChange.save();
     return res.json(userToChange);
   }
-  return res.status(403).end("Access denied.");
+  return res.status(403).end('Access denied.');
 }
 
 const runDecisionPermission = 'Approve Submissions';

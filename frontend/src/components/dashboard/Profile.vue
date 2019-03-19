@@ -41,8 +41,8 @@
 </script>
 
 <style lang="scss">
-@import url('flags-dropdown-vue/css/custom.css');
-@import url('flags-dropdown-vue/css/flags.min.css');
+@import url('../../../node_modules/flags-dropdown-vue/css/custom.css');
+@import url('../../../node_modules/flags-dropdown-vue/css/flags.min.css');
 
 .lang-dropdown {
   .flag-box {

@@ -36,24 +36,24 @@ Vue.mixin({
   methods: {
     hasAllPermissions(...permissions) {
       const perms = this.$store.getters.permissions;
-      if(perms.includes("*")) return true;
-      if(!permissions) permissions = settings.permissions;
-      for(let i=0;i<permissions.length;++i) {
-        if(!perms.includes(permissions[i])) return false;
+      if (perms.includes('*')) return true;
+      if (!permissions) permissions = settings.permissions;
+      for (let i = 0; i < permissions.length; ++i) {
+        if (!perms.includes(permissions[i])) return false;
       }
       return true;
     },
     hasAnyPermission(...permissions) {
       const perms = this.$store.getters.permissions;
-      if(perms.includes("*")) return true;
-      if(!permissions) permissions = settings.permissions;
-      for(let i=0;i<permissions.length;++i) {
-        if(perms.includes(permissions[i])) return true;
+      if (perms.includes('*')) return true;
+      if (!permissions) permissions = settings.permissions;
+      for (let i = 0; i < permissions.length; ++i) {
+        if (perms.includes(permissions[i])) return true;
       }
       return false;
-    }
-  }
-})
+    },
+  },
+});
 
 
 new Vue({

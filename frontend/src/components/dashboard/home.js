@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { getActivities, respondToInvitation } from "../../api";
 import { mapState } from 'vuex';
+import { getActivities, respondToInvitation } from '../../api';
 
 export default {
   name: 'Home',
@@ -28,26 +28,28 @@ export default {
         link: { name: 'ApplicationDetails', params: { id: '420' } },
       },
     */],
-    invitations: []
+    invitations: [],
   }),
   async created() {
-    const result = await getActivities()
-    const {activities, invitations} = result;
+    const result = await getActivities();
+    const { activities, invitations } = result;
     this.activities = activities;
     // we exclude denied submissions as well as self-invitations
-    this.invitations = _.filter(invitations, invitation => (["saved", "accepted"].includes(invitation.submission.status) && invitation.user !== invitation.createdBy._id));
-    _.each(this.invitations, invitation => {
+    this.invitations = _.filter(invitations, invitation => (['saved', 'accepted'].includes(invitation.submission.status) && invitation.user !== invitation.createdBy._id));
+    _.each(this.invitations, (invitation) => {
       invitation.submission.event = _.find(this.events, { _id: invitation.submission.event });
-    })
-    console.log(result, invitations, this.invitations)
+    });
+    console.log(result, invitations, this.invitations);
   },
   methods: {
     respondToInvitation(invitation, response) {
       respondToInvitation(invitation, response);
     },
     formatTime(time) {
-      return new Date(time).toLocaleDateString(undefined, {year: "numeric", month: "numeric", day: "numeric", hour:"numeric", minute:"numeric"})
-    }
+      return new Date(time).toLocaleDateString(undefined, {
+        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
+      });
+    },
   },
   computed: {
     ...mapState(['events']),

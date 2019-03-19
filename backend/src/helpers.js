@@ -25,7 +25,7 @@ export function throttleAsync(func, duration) {
 }
 
 export function notify(user, data) {
-  const activity = new models.Activity(_.merge({}, {user: user._id || user}, data));
+  const activity = new models.Activity(_.merge({}, { user: user._id || user }, data));
   activity.save();
   // TODO: emit activity to rabbit
 }

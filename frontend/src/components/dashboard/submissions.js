@@ -37,7 +37,7 @@ export default {
       this.showDialog = true;
     },
     saveSubmission() {
-      console.log("Saving submission", this.selectedSubmission)
+      console.log('Saving submission', this.selectedSubmission);
       this.selectedSubmission.status = 'saved';
       this.$store.dispatch('saveSubmission', this.selectedSubmission);
       this.showDialog = false;
@@ -45,7 +45,7 @@ export default {
     selectSubmission(submission) {
       this.selectedSubmission = _.cloneDeep(submission);
       this.showDialog = true;
-      console.log("Editing submission", submission);
+      console.log('Editing submission', submission);
     },
     duplicateSubmission(submission) {
       this.selectedSubmission = _.cloneDeep(submission);

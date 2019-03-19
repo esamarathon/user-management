@@ -1,7 +1,8 @@
-  @import "~vue-material/dist/theme/engine"; // Import the theme engine
+/*@import "/node_modules/vue-material/dist/theme/engine.scss";*/
+@import "../../node_modules/vue-material/dist/theme/engine.scss";
 
-  @include md-register-theme("header", (
-    theme: light
-  ));
+@include md-register-theme("header", (
+  theme: light
+));
 
-  @import "~vue-material/dist/theme/all"; // Apply the theme
+@import "../../node_modules/vue-material/dist/theme/all.scss";

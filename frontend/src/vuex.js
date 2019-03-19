@@ -150,16 +150,16 @@ export default {
   },
   getters: {
     currentEvent: state => _.find(state.events, { _id: state.currentEventID }),
-    permissions: state => {
-      if(!state.user) return [];
+    permissions: (state) => {
+      if (!state.user) return [];
       const perms = [];
-      _.each(state.user.roles, eventRole => {
-        if(!eventRole.event || eventRole.event === state.currentEventID) {
-          perms.push.apply(perms, eventRole.role.permissions);
+      _.each(state.user.roles, (eventRole) => {
+        if (!eventRole.event || eventRole.event === state.currentEventID) {
+          perms.push(...eventRole.role.permissions);
         }
       });
-      console.log("Permissions:", perms);
+      console.log('Permissions:', perms);
       return perms;
-    }
+    },
   },
 };

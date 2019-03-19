@@ -4,4 +4,5 @@ settings.frontend.json
 settings.json
 yarn-error.log
 *.pem
-*/dist/*
+**/dist/*.*
+frontend/webpack/dist/13f9a2d4f5387c0d185acc223bc8c06b.png
