@@ -5,7 +5,7 @@
   "author": "CBenni <levelcarnage@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
+    "dev": "webpack-dev-server --inline --progress --config ./webpack/webpack.config.js",
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
     "build": "webpack -p --config ./webpack/webpack.config.js"
@@ -15,9 +15,9 @@
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",
     "vue": "^2.5.17",
-    "vue-material": "latest",
+    "vue-material": "^1.0.0-beta-10.2",
     "vue-moment": "^4.0.0",
-    "vue-router": "^3.0.1",
+    "vue-router": "^3.0.2",
     "vuedraggable": "^2.19.2",
     "vuex": "^3.0.1"
   },
@@ -36,7 +36,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-friendly-formatter": "^3.0.0",
     "eslint-import-resolver-webpack": "^0.8.3",
-    "eslint-loader": "^2.1.0",
+    "eslint-loader": "^2.1.2",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-vue": "^5.2.2",
     "file-loader": "^3.0.1",
@@ -67,7 +67,7 @@
     "webpack": "^4.29.6",
     "webpack-bundle-analyzer": "^2.9.0",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.8",
+    "webpack-dev-server": "^3.2.1",
     "webpack-merge": "^4.1.0"
   },
   "engines": {

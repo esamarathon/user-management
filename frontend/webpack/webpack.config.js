@@ -18,10 +18,11 @@ module.exports = {
   plugins: [
     plugins.MiniCssExtractPlugin,
     plugins.VueLoaderPlugin,
+    plugins.HTMLWebpackPlugin,
   ],
   output: {
     path: path.resolve(__dirname, '../dist'),
-    filename: 'js/[name].bundle.js',
+    filename: '[hash].bundle.js',
   },
   resolve: {
     extensions: ['.js', '.vue', '.json', '.scss'],
@@ -30,5 +31,11 @@ module.exports = {
       '@': './src',
       $: path.join(__dirname, '../node_modules'),
     },
+  },
+  devServer: {
+    allowedHosts: [
+      'local.test.esamarathon.com',
+    ],
+    historyApiFallback: true,
   },
 };

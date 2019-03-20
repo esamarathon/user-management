@@ -2,9 +2,7 @@
   "presets": [
     ["@babel/preset-env", {
       "modules": false,
-      "targets": {
-        "chrome": "60"
-      }
+      "targets": "> 10%"
     }]
   ],
   "plugins": []

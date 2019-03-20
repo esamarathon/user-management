@@ -17,6 +17,9 @@ import AdminEvents from '../components/dashboard/admin/Events.vue';
 
 Vue.use(Router);
 
+Vue.component('router-link', Vue.options.components.RouterLink);
+Vue.component('router-view', Vue.options.components.RouterView);
+
 export default new Router({
   routes: [
     {

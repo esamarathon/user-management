@@ -1,30 +1,27 @@
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const JSLoader = {
   test: /\.js$/,
   exclude: /node_modules/,
   use: {
     loader: 'babel-loader',
-    options: {
-      presets: ['@babel/preset-env']
-    }
-  }
+  },
 };
 
 const VueLoader = {
   test: /\.vue$/,
   exclude: /node_modules/,
   use: {
-    loader: 'vue-loader'
-  }
+    loader: 'vue-loader',
+  },
 };
 
 const RawLoader = {
   test: /\.pem$/,
   exclude: /node_modules/,
   use: {
-    loader: 'raw-loader'
-  }
+    loader: 'raw-loader',
+  },
 };
 
 const ESLintLoader = {
@@ -34,25 +31,25 @@ const ESLintLoader = {
   use: {
     loader: 'eslint-loader',
     options: {
-      configFile: '.eslintrc.js'
+      configFile: '.eslintrc.js',
     },
-  }
+  },
 };
 
 const CSSLoader = {
   test: /\.css$/,
   use: [
     {
-      loader: MiniCssExtractPlugin.loader
+      loader: MiniCssExtractPlugin.loader,
     },
     {
       loader: 'css-loader',
-      options: {importLoaders: 1},
+      options: { importLoaders: 1 },
     },
     {
-      loader: 'postcss-loader'
+      loader: 'postcss-loader',
     },
-    //'css-loader',
+    // 'css-loader',
   ],
 };
 
@@ -60,21 +57,21 @@ const SCSSLoader = {
   test: /\.scss$/,
   use: [
     {
-      loader: MiniCssExtractPlugin.loader
+      loader: MiniCssExtractPlugin.loader,
     },
-    //"style-loader",
-    "css-loader",
-    "sass-loader"
+    // "style-loader",
+    'css-loader',
+    'sass-loader',
   ],
 };
 
 const FileLoader = {
   test: /\.(png|svg|jpg|gif)$/,
   use: [
-    'file-loader'
-  ]
-}
+    'file-loader',
+  ],
+};
 
 module.exports = {
-  JSLoader, ESLintLoader, CSSLoader, VueLoader, RawLoader, FileLoader, SCSSLoader
+  JSLoader, ESLintLoader, CSSLoader, VueLoader, RawLoader, FileLoader, SCSSLoader,
 };
