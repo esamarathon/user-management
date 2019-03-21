@@ -81,7 +81,7 @@ export async function handleLogin(req, res, next) {
         if (adminRole) {
           logger.info('Making user', user, 'an admin!');
           user.roles.push({
-            event: 'global',
+            event: null,
             role: adminRole
           });
         } else {
