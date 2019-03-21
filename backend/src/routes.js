@@ -16,6 +16,7 @@ import {
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
+import db from './db';
 
 
 const app = express();
@@ -62,5 +63,7 @@ app.post('/decision/runs', updateRunDecision);
 
 app.get('/sensitive', requestSensitiveData);
 
-server.listen(settings.api.port);
+db.then(() => {
+  server.listen(settings.api.port);
+});
 export { server, app };

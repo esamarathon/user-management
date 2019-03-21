@@ -1,5 +1,6 @@
 import _ from 'lodash';
 
+import db from './db';
 import { models } from './models';
 import settings from './settings';
 
@@ -28,6 +29,8 @@ async function setUpRoles() {
   return null;
 }
 
-Promise.all([setUpEvents(), setUpRoles()]).then(() => {
-  console.log('First time setup complete');
+db.then(() => {
+  Promise.all([setUpEvents(), setUpRoles()]).then(() => {
+    console.log('First time setup complete');
+  });
 });
