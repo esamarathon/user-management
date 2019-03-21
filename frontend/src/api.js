@@ -19,7 +19,8 @@ export async function makeRequest(endpoint, options) {
   if (response.status === 200) {
     return JSON.parse(await response.text());
   }
-  throw new Error(`Call to ${endpoint} returned with status ${response.status}${response.body ? `: ${response.body}` : ''}`);
+  console.log('fetch error:', `Call to ${endpoint} returned with status ${response.status}${response.body ? `: ${response.body}` : ''}`);
+  throw new Error(response.text() || `Error ${response.status}`);
 }
 
 export async function makeTwitchRequest(endpoint, options, token) {

@@ -68,9 +68,23 @@ export default {
         accepted: false,
       });
       this.userToAdd = ''; */
-      console.log(this.userToAdd);
-      const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, `${this.twitchUserCache[this.userToAdd]._id}`]);
-      console.log('Invited user:', invite);
+      let twitchUser = this.twitchUserCache[this.userToAdd];
+      if (!twitchUser && this.userToAdd) {
+        const response = await makeTwitchRequest('https://api.twitch.tv/kraken/users/', { query: { login: this.userToAdd } });
+        twitchUser = response[0];
+      }
+      if (!twitchUser) {
+        this.$toasted.error(`Invalid user ${this.userToAdd}`);
+        return;
+      }
+      console.log('Inviting', this.userToAdd, twitchUser);
+      try {
+        const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, `${this.twitchUserCache[this.userToAdd]._id}`]);
+        this.$toasted.error('User successfully invited!');
+        console.log('Invited user:', invite);
+      } catch (err) {
+        this.$toasted.error(`User could not be invited: ${err.message}`);
+      }
     },
     async searchUsernames(searchTerm) {
       if (searchTerm.length >= 2) {

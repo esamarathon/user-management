@@ -39,8 +39,12 @@ export default {
     saveSubmission() {
       console.log('Saving submission', this.selectedSubmission);
       this.selectedSubmission.status = 'saved';
-      this.$store.dispatch('saveSubmission', this.selectedSubmission);
-      this.showDialog = false;
+      try {
+        this.$store.dispatch('saveSubmission', this.selectedSubmission);
+        this.showDialog = false;
+      } catch (err) {
+        this.$toasted.error(`Could not save submission: ${err.message}`);
+      }
     },
     selectSubmission(submission) {
       this.selectedSubmission = _.cloneDeep(submission);

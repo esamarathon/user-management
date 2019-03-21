@@ -4,6 +4,8 @@ import Vue from 'vue';
 import VueMaterial from 'vue-material';
 import Vuex from 'vuex';
 import VueMoment from 'vue-moment';
+import Toasted from 'vue-toasted';
+
 import 'vue-material/dist/vue-material.min.css';
 import 'vue-material/dist/theme/default-dark.css';
 
@@ -25,6 +27,7 @@ Vue.use(VueMoment);
 Vue.component('flags-dropdown', FlagsDropdown);
 Vue.component('radio-group', RadioGroup);
 Vue.component('video-button', VideoButton);
+Vue.use(Toasted);
 
 const store = new Vuex.Store(vuexConfig);
 
