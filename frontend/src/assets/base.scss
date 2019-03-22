@@ -153,11 +153,15 @@ body, html {
   flex-grow: 2;
 
   &.md-field.md-has-textarea {
-    margin: 8px;
+    margin: 8px 8px 24px 8px;
     padding: 8px;
 
     .md-textarea {
       padding: 0;
+    }
+
+    &.md-invalid:before {
+      opacity: 1;
     }
   }
 }
@@ -179,6 +183,34 @@ img.profilepic {
   border-radius: 100%;
   width: 2.5em;
   margin-right: 8px;
+}
+
+.member {
+  position: relative;
+  &:before {
+    content: '?';
+    background-color: #333333;
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    padding: 1px;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    text-align: center;
+    z-index: 99;
+  }
+
+  &.accepted:before {
+    content: '✔';
+    background-color: #008b13;
+  }
+
+  &.denied:before {
+    content: '🗙';
+    background-color: #5a0505;
+  }
 }
 
 .fullheight {

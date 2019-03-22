@@ -117,8 +117,7 @@ export default {
       console.log(this.selectedUser.roles);
     },
     roleString(user) {
-      console.log(_.filter(user.roles, eventRole => eventRole.role || eventRole.role === this.currentEventID));
-      const result = _.map(_.filter(user.roles, eventRole => eventRole.role || eventRole.role === this.currentEventID), eventRole => eventRole.role.name).join(", ");
+      const result = _.map(_.filter(user.roles, eventRole => eventRole.event === "global" || eventRole.event === this.currentEventID), eventRole => eventRole.role.name).join(", ");
       return result;
     }
   },

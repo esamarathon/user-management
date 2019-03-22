@@ -1,6 +1,14 @@
 import _ from 'lodash';
 import draggable from 'vuedraggable';
 import { mapState, mapGetters } from 'vuex';
+import { validationMixin } from 'vuelidate';
+import {
+  required,
+  email,
+  minLength,
+  maxLength,
+  helpers,
+} from 'vuelidate/lib/validators';
 import Team from './Team.vue';
 import settings from '../../settings';
 import { makeTwitchRequest } from '../../api';
@@ -25,6 +33,9 @@ function getDisplayName(user) {
   if (user.display_name.toLowerCase() === user.name) return user.display_name;
   return user.name;
 }
+
+const estimate = helpers.regex('estimate', /\d{1,2}:\d{2}/);
+
 const twitchUserCache = {};
 export default {
   name: 'SubmissionsEdit',
@@ -36,6 +47,7 @@ export default {
   }),
   props: {
     selectedSubmission: Object,
+    showDialog: Boolean,
   },
   methods: {
     async initTeams() {
@@ -80,7 +92,7 @@ export default {
       console.log('Inviting', this.userToAdd, twitchUser);
       try {
         const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, `${this.twitchUserCache[this.userToAdd]._id}`]);
-        this.$toasted.error('User successfully invited!');
+        this.$toasted.info('User successfully invited!');
         console.log('Invited user:', invite);
       } catch (err) {
         this.$toasted.error(`User could not be invited: ${err.message}`);
@@ -104,6 +116,26 @@ export default {
       console.log('Selected', item);
       this.userToAdd = item;
     },
+    selectPlatform(item) {
+      console.log(item, 'clicked');
+      this.selectedSubmission.platform = item;
+    },
+    getValidationClass(fieldName) {
+      const field = this.$v.selectedSubmission[fieldName];
+
+      if (field) {
+        return {
+          'md-invalid': field.$invalid && field.$dirty,
+        };
+      }
+      return null;
+    },
+    saveSubmission() {
+      this.$v.$touch();
+      if (!this.$v.$invalid) {
+        this.$emit('submit', this.selectedSubmission);
+      }
+    },
   },
   computed: {
     ...mapState(['user']),
@@ -111,5 +143,38 @@ export default {
   components: {
     team: Team,
     draggable,
+  },
+  mixins: [validationMixin],
+  validations: {
+    selectedSubmission: {
+      game: {
+        required,
+        minLength: minLength(1),
+      },
+      category: {
+        required,
+        minLength: minLength(1),
+      },
+      estimate: {
+        required,
+        estimate,
+      },
+      platform: {
+        required,
+        minLength: minLength(1),
+      },
+      video: {
+        required,
+        minLength: minLength(1),
+      },
+      description: {
+        required,
+        minLength: minLength(250),
+      },
+      comment: {
+        required,
+        minLength: minLength(250),
+      },
+    },
   },
 };

@@ -34,7 +34,7 @@ module.exports = {
   },
   devServer: {
     allowedHosts: [
-      'local.test.esamarathon.com',
+      '127.0.0.1',
     ],
     historyApiFallback: true,
   },

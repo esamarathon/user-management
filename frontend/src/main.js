@@ -27,7 +27,7 @@ Vue.use(VueMoment);
 Vue.component('flags-dropdown', FlagsDropdown);
 Vue.component('radio-group', RadioGroup);
 Vue.component('video-button', VideoButton);
-Vue.use(Toasted);
+Vue.use(Toasted, { duration: 3000 });
 
 const store = new Vuex.Store(vuexConfig);
 
@@ -49,7 +49,7 @@ Vue.mixin({
     hasAnyPermission(...permissions) {
       const perms = this.$store.getters.permissions;
       if (perms.includes('*')) return true;
-      if (!permissions) permissions = settings.permissions;
+      if (permissions.length === 0) permissions = settings.permissions;
       for (let i = 0; i < permissions.length; ++i) {
         if (perms.includes(permissions[i])) return true;
       }

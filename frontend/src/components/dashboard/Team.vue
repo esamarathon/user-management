@@ -9,8 +9,8 @@
     <div class="members layout-column">
       <span class="compact-title">Members:</span>
       <draggable v-model="info.members" group="members">
-        <div class="member" v-for="member in info.members" :key="member._id">
-          <img :src="member.user.connections.twitch.logo" class="profilepic"> {{member.user.connections.twitch.displayName}}
+        <div class="member" v-for="member in info.members" :key="member._id" :class="member.status">
+          <img :src="member.user.connections.twitch.logo" class="profilepic invitation"> {{member.user.connections.twitch.displayName}}
         </div>
       </draggable>
       <!-- <div class="member" v-for="member in info.members" :key="member._id">

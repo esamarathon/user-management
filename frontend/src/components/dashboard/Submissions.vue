@@ -22,17 +22,7 @@
         </div>
       </div>
     </div>
-    <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false">
-      <md-dialog-title>Submit run</md-dialog-title>
-      <md-dialog-content>
-        <submission-edit :selectedSubmission="selectedSubmission"></submission-edit>
-      </md-dialog-content>
-      <md-dialog-actions>
-        <md-button class="md-accent" @click="showDialog = false">Cancel</md-button>
-        <md-button class="md-primary" @click="saveSubmission()">Save draft</md-button>
-        <md-button class="md-primary submit-button" @click="submitSubmission()">Submit</md-button>
-      </md-dialog-actions>
-    </md-dialog>
+    <submission-edit :selectedSubmission="selectedSubmission" @submit="saveSubmission()" @cancel="showDialog=false" :showDialog.sync="showDialog"></submission-edit>
   </div>
 </template>
 
