@@ -7,8 +7,12 @@
       <md-card-header>
         <div class="md-title">ESA login</div>
       </md-card-header>
-      <md-card-content class="layout-row layout-center-center">
-        <md-button class="twitch-login" @click="login">Log in with twitch</md-button>
+      <md-card-content class="layout-column layout-between-center login-area">
+        <div class="layout-row">
+          <md-checkbox v-model="gdpr" class="inline"></md-checkbox>
+          <span>I have read and understood the <a href="https://esamarathon.com/privacy" target="_blank">privacy policy of ESA</a><br> and accept the terms stated therein.</span>
+        </div>
+        <md-button class="twitch-login" @click="login" :disabled="!gdpr">Log in with twitch</md-button>
       </md-card-content>
     </md-card>
   </div>
@@ -33,9 +37,18 @@
     width: 300px;
   }
 }
+
+.login-area {
+  height: 150px;
+}
+
 .md-button.md-theme-default.twitch-login {
   background-color: #6441A4;
   color: white;
   border-radius: 5px;
+}
+
+.md-button.md-theme-default.twitch-login[disabled] {
+  background-color: #716d78;
 }
 </style>
