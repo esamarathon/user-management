@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import settings from './settings';
 
 function bufferToHex(buffer) {
   return Array
@@ -83,5 +84,7 @@ export function setCookie(name, value, time) {
     date.setTime(date.getTime() + time);
     expires = `; expires=${date.toUTCString()}`;
   }
-  document.cookie = `${name}=${value || ''}${expires}; path=/`;
+  const options = _.merge({}, settings.auth.cookieOptions, { path: '/' });
+  const optionsString = _.map(options, (val, key) => `${key}=${val}`).join('; ');
+  document.cookie = `${name}=${value || ''}${expires}; ${optionsString}`;
 }
