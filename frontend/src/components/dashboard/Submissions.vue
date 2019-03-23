@@ -1,8 +1,12 @@
 <template>
   <div class="layout-column" v-if="submissions">
     <h1>Your submissions for {{currentEvent.name}}</h1>
-    <div class="flex-none" v-if="submissionsOpen">
-      <md-button class="md-primary md-raised" @click="newSubmission()">Submit run</md-button>
+    <div class="flex-none layout-row" v-if="submissionsOpen">
+      <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord">Submit run</md-button>
+      <div class="no-discord flex-none" v-else>
+        <md-icon>warning</md-icon> Please link your discord account to the users tool to be able to submit runs. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
+        This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
+      </div>
     </div>
     <div class="flex-none layout-row" v-else>
       <div class="submissions-closed flex-none">
@@ -64,7 +68,7 @@
 
 }
 
-.submissions-closed {
+.submissions-closed, .no-discord {
   padding: 8px;
   margin: 8px;
   background-color: rgba(255, 0, 0, 0.4);

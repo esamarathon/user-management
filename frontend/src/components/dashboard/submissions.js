@@ -12,6 +12,7 @@ export default {
     showDialog: false,
     selectedSubmission: null,
     userToAdd: '',
+    discordInvite: settings.discord.invite,
   }),
   created() {
     this.$store.dispatch('getSubmissions');

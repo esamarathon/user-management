@@ -6,6 +6,7 @@ export default {
   name: 'Profile',
   data: () => ({
     phoneNum: '',
+    discordInvite: settings.discord.invite,
   }),
   methods: {
     flagSelected(selected) {

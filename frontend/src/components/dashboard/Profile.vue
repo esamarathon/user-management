@@ -48,6 +48,9 @@
           </div>
         </div>
       </div>
+      <div class="details-row layout-row button-equivalent">
+        <md-button class="md-dark" :href="discordInvite"><img class="logo" src="../../assets/discord_logo.png"> Join Discord server</md-button>
+      </div>
       <!--<div class="details-row layout-row">
         <md-button class="md-dark"><img class="logo" src="../../assets/speedrun_com_logo_flat.png"> Connect with Speedrun.com</md-button>
       </div>-->
