@@ -35,7 +35,7 @@ export default {
     const { activities, invitations } = result;
     this.activities = activities;
     // we exclude denied submissions as well as self-invitations
-    this.invitations = _.filter(invitations, invitation => (['saved', 'accepted'].includes(invitation.submission.status) && invitation.user !== invitation.createdBy._id));
+    this.invitations = _.filter(invitations, invitation => (['saved', 'accepted'].includes(invitation.submission.status) && invitation.user !== invitation.createdBy._id && invitation.submission));
     _.each(this.invitations, (invitation) => {
       invitation.submission.event = _.find(this.events, { _id: invitation.submission.event });
     });

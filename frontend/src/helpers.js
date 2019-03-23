@@ -75,3 +75,13 @@ export function getVideoData(url) {
     type: 'none',
   };
 }
+
+export function setCookie(name, value, time) {
+  let expires = '';
+  if (time) {
+    const date = new Date();
+    date.setTime(date.getTime() + time);
+    expires = `; expires=${date.toUTCString()}`;
+  }
+  document.cookie = `${name}=${value || ''}${expires}; path=/`;
+}

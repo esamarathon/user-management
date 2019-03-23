@@ -7,7 +7,7 @@ import _ from 'lodash';
 import logger from './logger';
 import { twitchGet } from './twitchAPI';
 import settings from './settings';
-import { generateToken } from './auth';
+import { generateToken, decodeToken } from './auth';
 import { models } from './models';
 import { notify } from './helpers';
 
@@ -103,6 +103,65 @@ export async function handleLogin(req, res, next) {
   } catch (err) { console.error(err); logger.error(err); next(err); }
 }
 
+export async function handleDiscordLogin(req, res) {
+  // check if the jwt is set as a cookie (!)
+  const jwtCookie = req.cookies['esa-jwt'];
+  let jwt;
+  try {
+    jwt = decodeToken(jwtCookie);
+  } catch (err) {
+    return res.status(401).end('Not authenticated');
+  }
+  // check the csrf token against the state
+  if (req.cookies['discord-csrf'] && req.cookies['discord-csrf'] === req.query.state) {
+    res.clearCookie('discord-csrf');
+    // get the oauth token for discord
+    logger.debug('Loggin in to discord...');
+    const tokenResponse = await got.post('https://discordapp.com/api/oauth2/token', {
+      form: true,
+      body: {
+        client_id: settings.discord.clientID,
+        client_secret: settings.discord.clientSecret,
+        grant_type: 'authorization_code',
+        redirect_uri: `${settings.api.baseurl}discord`,
+        code: req.query.code,
+        state: req.query.state
+      },
+      json: true
+    });
+    const token = tokenResponse.body.access_token;
+    const userResponse = await got.get('https://discordapp.com/api/users/@me', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      json: true
+    });
+    console.log('Discord user response:', userResponse.body);
+    const user = await models.User.findById(jwt.user.id);
+    user.connections.discord = {
+      id: userResponse.body.id,
+      name: userResponse.body.username,
+      discriminator: userResponse.body.discriminator,
+      avatar: userResponse.body.avatar,
+      public: true,
+      oauthToken: token,
+      refreshToken: tokenResponse.body.refresh_token,
+      expiresAt: Date.now() + tokenResponse.body.expires_in * 1000
+    };
+    await user.save();
+    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
+  }
+  return res.status(400).end('Invalid CSRF token.');
+}
+
+export async function handleDiscordLogout(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id, 'connections');
+  user.connections.discord = null;
+  await user.save();
+  return res.json({ success: true });
+}
+
 
 export async function getUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
@@ -172,7 +231,8 @@ const allowedUserModifications = new Map([
   ['phone', (obj, prop, val) => {
     obj.phone_encrypted = encryptPhoneNumber();
     obj.phone_display = maskPhone(val);
-  }]
+  }],
+  ['connections.discord.public', _.set]
 ]);
 export async function updateUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
@@ -241,7 +301,7 @@ export async function updateUserSubmission(req, res) {
   let submission = await models.Submission.findById(req.body._id).exec();
   // console.log(`Found existing submission for ${req.body._id}:`, submission);
   const validChanges = _.pick(req.body, ['game', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations']);
-  if (['saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
+  if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
 
   if (submission) {

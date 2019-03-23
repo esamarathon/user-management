@@ -27,12 +27,30 @@
         <div class="flex-10">Flag</div>
         <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
       </div>
-      <div class="details-row layout-row">
-        <md-button class="md-dark"><img class="logo" src="../../assets/discord_logo.png"> Connect with Discord</md-button>
+      <div class="details-row layout-row button-equivalent" v-if="!user.connections.discord">
+        <md-button class="md-dark" :href="discordAuthUrl"><img class="logo" src="../../assets/discord_logo.png"> Connect with Discord</md-button>
       </div>
-      <div class="details-row layout-row">
+      <div class="details-row layout-row button-equivalent" v-if="user.connections.discord">
+        <div class="layout-column discord-connection md-elevation-2 layout-padding">
+          <div class="layout-row layout-between-center">
+            <div class="flex-none">
+              <img class="big-logo" src="../../assets/discord_logo_blue.png"><span class="discord-username">{{user.connections.discord.name}}</span><span class="discord-discriminator">#{{user.connections.discord.discriminator}}</span>
+            </div>
+            <div class="flex-none">
+              <md-button class="md-dark md-icon-button" @click="discordLogout()"><md-icon>close</md-icon></md-button>
+            </div>
+          </div>
+          <div class="layout-row layout-between-center">
+            <span>Display on profile</span>
+            <div>
+              <md-switch v-model="user.connections.discord.public" @change="discordPublicUpdated()"></md-switch>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--<div class="details-row layout-row">
         <md-button class="md-dark"><img class="logo" src="../../assets/speedrun_com_logo_flat.png"> Connect with Speedrun.com</md-button>
-      </div>
+      </div>-->
     </form>
   </div>
 </template>
@@ -74,6 +92,11 @@ img.logo {
   margin-right: 8px;
 }
 
+img.big-logo {
+  height: 2em;
+  margin-right: 8px;
+}
+
 .button-align {
   padding: 0 8px;
   height: 36px;
@@ -109,5 +132,16 @@ img.logo {
       -webkit-text-fill-color: initial;
     }
   }
+}
+
+.discord-connection {
+  width: 20%;
+  min-width: 400px;
+  background-color: #2C2F33;
+}
+
+.discord-discriminator {
+  color: rgba(255,255,255,0.5);
+  font-size: small;
 }
 </style>

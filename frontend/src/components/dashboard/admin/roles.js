@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
+import draggable from 'vuedraggable';
 import settings from '../../../settings';
 import { generateID } from '../../../helpers';
 import FormEdit from '../forms/FormEdit.vue';
@@ -58,8 +59,11 @@ export default {
         options: {},
       });
     },
+    deleteQuestion(role, question) {
+      role.form.splice(role.form.indexOf(question), 1);
+    },
   },
   components: {
-    FormEdit, FormDisplay,
+    FormEdit, FormDisplay, draggable,
   },
 };

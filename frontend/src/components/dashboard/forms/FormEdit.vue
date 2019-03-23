@@ -1,10 +1,12 @@
 <template>
   <div class="form-edit layout-padding">
-    <div class="form-question">
-      <md-field>
-        <label>Question title</label>
-        <md-input v-model="question.title"></md-input>
-      </md-field>
+    <div class="form-question layout-column">
+      <div class="layout-row">
+        <md-field>
+          <label>Question title</label>
+          <md-input v-model="question.title" class="flex-100"></md-input>
+        </md-field>
+      </div>
       <md-field>
         <label>Question description</label>
         <md-textarea md-autogrow v-model="question.description"></md-textarea>
@@ -16,7 +18,7 @@
         </md-select>
       </md-field>
       <div>
-        <ListEdit v-for="list in getQuestionLists(question)" :key="list.name" :placeholder="`Add new ${list.name} ...`" v-model="question.options[list.name]"></ListEdit>
+        <ListEdit v-for="list in getQuestionLists(question.type)" :key="list.name" :placeholder="`Add new ${list.name} ...`" v-model="question.options[list.name]"></ListEdit>
       </div>
     </div>
   </div>

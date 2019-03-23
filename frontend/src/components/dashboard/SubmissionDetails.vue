@@ -3,10 +3,10 @@
     <h1>Submission details for {{name}} at {{submission.event.name}}</h1>
     {{submission}}
     <div class="submission-details layout-column">
-      <div class="details-row layout-row">
+      <!--<div class="details-row layout-row">
         <div class="flex-25">Submission ID</div>
         <div class="flex">{{submission._id}}</div>
-      </div>
+      </div>-->
       <div class="details-row layout-row">
         <div class="flex-25">Name</div>
         <div class="flex">{{name}}</div>

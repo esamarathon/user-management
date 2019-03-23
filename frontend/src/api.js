@@ -119,6 +119,10 @@ export function setUser(user) {
   return makePOST(`${settings.api.baseurl}users`, user);
 }
 
+export function discordLogout() {
+  return makeRequest(`${settings.api.baseurl}discord`, { method: 'DELETE' });
+}
+
 export function updateApplication(changes) {
   return makePOST(`${settings.api.baseurl}user/application`, changes);
 }

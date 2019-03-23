@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { mergeNonArray } from './helpers';
 
 import {
-  updateUser, getEvents, getUser, updateEvent, getRoles, updateRole, getUserApplications, getUserSubmissions, updateSubmission, updateApplication, invite, setUser,
+  updateUser, getEvents, getUser, updateEvent, getRoles, updateRole, getUserApplications, getUserSubmissions, updateSubmission, updateApplication, invite, setUser, discordLogout,
 } from './api';
 
 export default {
@@ -34,6 +34,9 @@ export default {
     },
     updateUser(state, changes) {
       _.merge(state.user, changes);
+    },
+    discordLogout(state) {
+      state.user.connections.discord = null;
     },
     saveSubmission(state, submission) {
       if (!state.submissions) state.submissions = [];
@@ -112,6 +115,10 @@ export default {
     updateUser({ commit }, changes) {
       if (changes) commit('updateUser', changes);
       return updateUser(changes);
+    },
+    async discordLogout({ commit }) {
+      await discordLogout();
+      commit('discordLogout');
     },
     saveUser({ commit }, user) {
       // Admin only API for setting other users

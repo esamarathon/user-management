@@ -1,4 +1,6 @@
 import { mapState } from 'vuex';
+import settings from '../../settings';
+import { generateID, setCookie } from '../../helpers';
 
 export default {
   name: 'Profile',
@@ -16,6 +18,12 @@ export default {
       setTimeout(() => {
         this.$store.dispatch('updateUser', { phone: this.phoneNum });
       }, 1);
+    },
+    discordLogout() {
+      this.$store.dispatch('discordLogout');
+    },
+    discordPublicUpdated() {
+      this.$store.dispatch('updateUser', { connections: { discord: { public: this.user.connections.discord.public } } });
     },
   },
   computed: {
@@ -37,6 +45,24 @@ export default {
       set(number) {
         console.log('Updating phone number', number);
         this.phoneNum = number;
+      },
+    },
+    discordAuthUrl: {
+      get() {
+        const stateToken = generateID();
+        setCookie('discord-csrf', stateToken, 15 * 60 * 1000);
+        const redirect = encodeURIComponent(`${settings.api.baseurl}discord`);
+        return `https://discordapp.com/api/oauth2/authorize?client_id=${settings.discord.clientID}&redirect_uri=${redirect}&response_type=code&scope=identify&state=${stateToken}`;
+      },
+    },
+    discordAvatar: {
+      get() {
+        if (!this.user.connections || !this.user.connections.discord) {
+          return null;
+        }
+        const discordConnection = this.user.connections.discord;
+        if (discordConnection.avatar.startsWith('a_')) return `https://cdn.discordapp.com/avatars/${discordConnection.id}/${discordConnection.avatar}.gif`;
+        return `https://cdn.discordapp.com/avatars/${discordConnection.id}/${discordConnection.avatar}.png`;
       },
     },
   },

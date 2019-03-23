@@ -8,11 +8,12 @@ import cors from 'cors';
 
 import settings from './settings';
 import {
-  handleLogin, getUser,
+  handleLogin, handleDiscordLogin, handleDiscordLogout, getUser,
   updateUser, getEvent, updateEvent,
   requestSensitiveData, getRoles, updateRole,
   getUsers, getUserApplications, getUserSubmissions,
-  updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission, updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser
+  updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission,
+  updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
@@ -35,6 +36,8 @@ app.use(jwt({
 }));
 
 app.get('/login', handleLogin);
+app.get('/discord', handleDiscordLogin);
+app.delete('/discord', handleDiscordLogout);
 app.ws('/socket', handleWebsocket);
 
 app.get('/events/', getEvent);

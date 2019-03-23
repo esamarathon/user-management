@@ -33,12 +33,12 @@ export default {
         invitations: null,
       };
       this.selectedSubmission = newSubmission;
-      this.saveSubmission();
+      this.saveSubmission('stub');
       this.showDialog = true;
     },
-    saveSubmission() {
+    saveSubmission(status) {
       console.log('Saving submission', this.selectedSubmission);
-      this.selectedSubmission.status = 'saved';
+      this.selectedSubmission.status = status || 'saved';
       try {
         this.$store.dispatch('saveSubmission', this.selectedSubmission);
         this.showDialog = false;
@@ -67,7 +67,7 @@ export default {
     submissionList() {
       return _.filter(this.submissions, (sub) => {
         console.log('Events', sub.event, this.currentEvent._id, 'are');
-        return sub.status !== 'deleted' && sub.event === this.currentEvent._id;
+        return sub.status === 'saved' && sub.event === this.currentEvent._id;
       });
     },
     submissionsOpen() {

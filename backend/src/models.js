@@ -13,7 +13,11 @@ const TwitchConnection = new mongoose.Schema({
 });
 
 const DiscordConnection = new mongoose.Schema({
+  id: String,
   name: String,
+  discriminator: String,
+  avatar: String,
+  public: Boolean,
   oauthToken: String,
   refreshToken: String,
   expiresAt: String

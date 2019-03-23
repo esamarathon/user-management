@@ -33,11 +33,12 @@ export default {
   },
   props: ['question'],
   created() {
+    if (!this.question.options) this.question.options = {};
   },
   methods: {
-    getQuestionLists(question) {
-      console.log('Question lists:', _.find(this.questionTypes, { value: question.type }).lists);
-      return _.find(this.questionTypes, { value: question.type }).lists;
+    getQuestionLists(questionType) {
+      console.log('Question lists:', _.find(this.questionTypes, { value: questionType }).lists);
+      return _.find(this.questionTypes, { value: questionType }).lists;
     },
   },
 };

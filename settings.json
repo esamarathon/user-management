@@ -5,6 +5,9 @@
   "twitch": {
     "clientID": "31wnt8q7vcvhyopwmsh6zd1jkuq27x"
   },
+  "discord": {
+    "clientID": "558816430712291349"
+  },
   "api": {
     "baseurl": "http://127.0.0.1:8081/"
   },

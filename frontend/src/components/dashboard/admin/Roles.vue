@@ -41,18 +41,24 @@
                 <h3>Edit application questionnaire </h3>
               </div>
               <div class="flex-50">
-                <h3>Questionnaire  preview</h3>
+                <h3>Questionnaire preview</h3>
               </div>
             </div>
             <div class="layout-column">
-              <div class="layout-row questionnaires md-elevation-4" v-for="question in selectedRole.form" :key="question._id">
-                <div class="flex-50">
-                  <form-edit class="" :question="question"></form-edit>
+              <draggable v-model="selectedRole.form" handle=".handle">
+                <div class="layout-row questionnaires md-elevation-4" v-for="question in selectedRole.form" :key="question._id">
+                  <div class="flex-50">
+                    <form-edit class="" :question="question"></form-edit>
+                  </div>
+                  <div class="flex-50">
+                    <form-display class="" :question="question" v-model="question.value"></form-display>
+                  </div>
+                  <div class="flex-none layout-column layout-start-center">
+                    <md-button class="flex-none md-icon-button" @click="deleteQuestion(role, question)"><md-icon>delete</md-icon></md-button>
+                    <div class="handle"><md-icon>reorder</md-icon></div>
+                  </div>
                 </div>
-                <div class="flex-50">
-                  <form-display class="" :question="question" v-model="question.value"></form-display>
-                </div>
-              </div>
+              </draggable>
             </div>
             <div class="flex-none">
               <md-button class="md-raised md-primary" @click="addQuestion(selectedRole)">Add question</md-button>
@@ -95,6 +101,5 @@
   margin-bottom: 12px;
   background-color: rgba(128,128,128,0.3);
 }
-
 
 </style>
