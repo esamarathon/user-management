@@ -1,7 +1,7 @@
 <template>
   <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false">
     <md-dialog-title>Submit run</md-dialog-title>
-    <md-dialog-content>
+    <md-dialog-content ref="dialog">
       <form v-if="selectedSubmission" class="layout-padding">
         <div class="layout-row layout-wrap">
           <md-field class="large-field flex-none" :class="getValidationClass('game')">
@@ -10,6 +10,19 @@
             <span class="md-error" v-if="!$v.selectedSubmission.game.required">The game name is required</span>
             <span class="md-error" v-else-if="!$v.selectedSubmission.game.minlength">Invalid game name</span>
           </md-field>
+          <md-autocomplete md-input-placeholder="Twitch game" class="large-field flex-50" v-model="selectedSubmission.twitchGame" :md-options="gameSearch" @md-changed="searchGames(selectedSubmission.twitchGame)" :class="getValidationClass('twitchGame')">
+            <label>Twitch game name</label>
+            <template slot="md-autocomplete-item" slot-scope="{ item }" @click="selectGame(item)"><span><img :src="twitchGameCache[item].box.small" class=""> {{ item }}</span></template>
+            <span class="md-error" v-if="!$v.selectedSubmission.twitchGame.required">The twitch game name is required</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.twitchGame.minlength">Invalid twitch game name</span>
+          </md-autocomplete>
+          <md-field class="large-field flex-50" :class="getValidationClass('leaderboards')">
+            <label for="leaderboards">Leaderboards</label>
+            <md-input name="leaderboards" id="leaderboards" v-model="selectedSubmission.leaderboards" />
+            <span class="md-error" v-if="!$v.selectedSubmission.leaderboards.required">The leaderboards URL is required</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.leaderboards.url">Invalid leaderboards URL</span>
+          </md-field>
+          <div class="spacer flex-45"></div>
           <md-field class="small-field flex-none" :class="getValidationClass('category')">
             <label for="category">Category</label>
             <md-input name="category" id="category" v-model="selectedSubmission.category" />
@@ -75,15 +88,72 @@
             <span class="md-error" v-else-if="!$v.selectedSubmission.video.url">Invalid video URL</span>
           </md-field>
           <md-field class="large-field flex-100" :class="getValidationClass('description')">
-            <md-textarea name="description" id="description" v-model="selectedSubmission.description" placeholder="Game description (e.g. explanation of the basic concept, things you would like to be pointed out by the hosts, ...)" md-counter="250" />
+            <md-textarea name="description" id="description" v-model="selectedSubmission.description" placeholder="Game description (e.g. explanation of the basic concept, things you would like to be pointed out by the hosts, ...)" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.description.required">A description is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minlength">Please provide at least 250 characters of description</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.description.minlength">Please provide at least 100 characters of description</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.description.maxlength">Please provide at most 1000 characters of description</span>
           </md-field>
           <md-field class="large-field flex-100" :class="getValidationClass('comment')">
-            <md-textarea name="comment" id="comment" v-model="selectedSubmission.comment" placeholder="Comment (e.g. why you are worthy, special requests, ...)" md-counter="250" />
+            <md-textarea name="comment" id="comment" v-model="selectedSubmission.comment" placeholder="Comment (e.g. why you are worthy, special requests, ...)" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.comment.required">A comment is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minlength">Please provide at least 250 characters of comment.</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minlength">Please provide at least 100 characters of comment.</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxlength">Please provide at most 1000 characters of comment</span>
           </md-field>
+          <div class="incentives flex-100 layout-column">
+            <div class="layout-row layout-start-center">
+              <md-button @click="addIncentive('incentive')" class="md-primary md-raised flex-none">Add incentive</md-button>
+              <md-button @click="addIncentive('bidwar')" class="md-primary md-raised flex-none">Add bidwar</md-button>
+              <div class="hint"><md-icon>info</md-icon> Please note that incentives or bidwars should not add more than 5 minutes to your run!</div>
+            </div>
+            <div class="incentive" v-for="(incentive, index) in selectedSubmission.incentives" :key="incentive._id">
+              <div class="incentive-header">{{incentive.type}}</div>
+              <div class="incentive-body">
+                <div class="layout-row layout-between-center">
+                  <md-field class="large-field flex-100" :class="getValidationClass(`incentives.$each.${index}.name`)">
+                    <label for="incentivename">Name</label>
+                    <md-input name="incentivename" v-model="incentive.name" />
+                    <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].name.required">An {{incentive.type}} name is required</span>
+                    <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].name.minlength">Invalid {{incentive.type}} name</span>
+                  </md-field>
+                  <md-button class="md-icon-button flex-none" @click="deleteIncentive(incentive)"><md-icon>delete</md-icon></md-button>
+                </div>
+                <md-field class="large-field flex-none" :class="getValidationClass(`incentives.$each.${index}.description`)">
+                  <label for="incentivedescription">Description</label>
+                  <md-textarea name="incentivedescription" v-model="incentive.description" />
+                  <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].description.required">A description is required for this {{incentive.type}}</span>
+                  <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].description.minlength">The {{incentive.type}} description needs to be at least 20 characters long</span>
+                  <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].description.maxlength">The {{incentive.type}} description needs to be at most 200 characters long</span>
+                </md-field>
+                <div v-if="incentive.type === 'bidwar'" class="layout-row layout-wrap">
+                  <md-field class="small-field flex-none">
+                    <md-select v-model="incentive.bidwarType" name="bidwarType" id="bidwarType">
+                      <label for="bidwarType">Bidwar type</label>
+                      <md-option value="freeform">Freeform input</md-option>
+                      <md-option value="options">Options</md-option>
+                    </md-select>
+                  </md-field>
+                  <div v-if="incentive.bidwarType === 'freeform'" class="layout-row layout-wrap">
+                    <md-field class="small-field flex-none" :class="getValidationClass(`incentives.$each.${index}.freeformMin`)">
+                      <label for="freeformMin">Minimum length</label>
+                      <md-input type="number" name="freeformMin" v-model="incentive.freeformMin" />
+                      <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].freeformMin.range">Invalid minimum</span>
+                    </md-field>
+                    <md-field class="small-field flex-none" :class="getValidationClass(`incentives.$each.${index}.freeformMax`)">
+                      <label for="freeformMin">Maximum length</label>
+                      <md-input type="number" name="freeformMin" v-model="incentive.freeformMax" />
+                      <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].freeformMax.range">Invalid maximum</span>
+                    </md-field>
+                  </div>
+                  <div v-if="incentive.bidwarType === 'options'" class="flex-100">
+                    <md-field class="small-field flex-none">
+                      <label for="incentiveoptions">Options (one per line)</label>
+                      <md-textarea name="incentiveoptions" v-model="incentive.options" />
+                    </md-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
     </md-dialog-content>
@@ -126,5 +196,19 @@
     font-size: 200px!important;
   }
 }
+
+.incentive {
+  background-color: rgba(0,0,0,0.5);
+  margin: 8px;
+  .incentive-header {
+    text-transform: capitalize;
+    background-color: #2f4f86;
+    padding: 8px;
+  }
+  .incentive-body {
+    padding: 8px;
+  }
+}
+
 
 </style>

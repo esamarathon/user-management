@@ -90,6 +90,11 @@ body, html {
   flex-basis: 50%;
 }
 
+.flex-45 {
+  flex-grow: 0;
+  flex-basis: 45%;
+}
+
 .flex-25 {
   flex-grow: 0;
   flex-basis: 25%;

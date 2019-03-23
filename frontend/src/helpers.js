@@ -1,5 +1,7 @@
 import _ from 'lodash';
+import { helpers } from 'vuelidate/lib/validators';
 import settings from './settings';
+
 
 function bufferToHex(buffer) {
   return Array
@@ -87,4 +89,20 @@ export function setCookie(name, value, time) {
   const options = _.merge({}, settings.auth.cookieOptions, { path: '/' });
   const optionsString = _.map(options, (val, key) => `${key}=${val}`).join('; ');
   document.cookie = `${name}=${value || ''}${expires}; ${optionsString}`;
+}
+
+export function lessThan(other) {
+  return (value, parentVm) => !value || value < helpers.ref(other, this, parentVm);
+}
+
+export function lessEqThan(other) {
+  return (value, parentVm) => !value || value <= helpers.ref(other, this, parentVm);
+}
+
+export function moreThan(other) {
+  return (value, parentVm) => !value || value > helpers.ref(other, this, parentVm);
+}
+
+export function moreEqThan(other) {
+  return (value, parentVm) => !value || value >= helpers.ref(other, this, parentVm);
 }

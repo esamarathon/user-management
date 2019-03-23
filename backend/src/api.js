@@ -190,7 +190,7 @@ export async function getActivities(req, res) {
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
-  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game category platform estimate runType teams video comment description status notes invitations')
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams video comment description status notes invitations incentives')
   .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } }));
 }
@@ -300,7 +300,7 @@ export async function updateUserSubmission(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   let submission = await models.Submission.findById(req.body._id).exec();
   // console.log(`Found existing submission for ${req.body._id}:`, submission);
-  const validChanges = _.pick(req.body, ['game', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations']);
+  const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations', 'incentives']);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
 

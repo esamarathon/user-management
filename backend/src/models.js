@@ -98,10 +98,22 @@ const RunDecision = new mongoose.Schema({
   explanation: String
 });
 
+const Incentive = new mongoose.Schema({
+  name: String,
+  description: String,
+  type: String,
+  bidwarType: String,
+  options: String,
+  freeformMin: Number,
+  freeformMax: Number
+});
+
 const Submission = new mongoose.Schema({
   event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   game: String,
+  twitchGame: String,
+  leaderboards: String,
   category: String,
   platform: String,
   estimate: String,
@@ -113,7 +125,8 @@ const Submission = new mongoose.Schema({
   status: String,
   notes: [Note],
   decisions: [RunDecision],
-  invitations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'invitation' }]
+  invitations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'invitation' }],
+  incentives: [Incentive]
 });
 
 const VolunteerDecision = new mongoose.Schema({

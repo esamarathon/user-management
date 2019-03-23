@@ -4,7 +4,7 @@ import { mapState, mapGetters } from 'vuex';
 import { validationMixin } from 'vuelidate';
 import {
   required,
-  email,
+  url,
   minLength,
   maxLength,
   helpers,
@@ -12,7 +12,7 @@ import {
 import Team from './Team.vue';
 import settings from '../../settings';
 import { makeTwitchRequest } from '../../api';
-import { generateID } from '../../helpers';
+import { generateID, moreEqThan, lessEqThan } from '../../helpers';
 
 function findTeamName(teams) {
   if (!teams) return 'Team 1';
@@ -27,6 +27,10 @@ async function searchForName(search) {
   const data = await makeTwitchRequest(`https://api.twitch.tv/kraken/search/channels?query=${encodeURIComponent(search)}`);
   return data.channels;
 }
+async function searchForGame(search) {
+  const data = await makeTwitchRequest(`https://api.twitch.tv/kraken/search/games?query=${encodeURIComponent(search)}`);
+  return data.games;
+}
 
 function getDisplayName(user) {
   console.log('Returning user name for ', user);
@@ -37,13 +41,16 @@ function getDisplayName(user) {
 const estimate = helpers.regex('estimate', /\d{1,2}:\d{2}/);
 
 const twitchUserCache = {};
+const twitchGameCache = {};
 export default {
   name: 'SubmissionsEdit',
   data: () => ({
     usernameSearch: [],
+    gameSearch: [],
     platforms: settings.platforms,
     userToAdd: '',
     twitchUserCache,
+    twitchGameCache,
   }),
   props: {
     selectedSubmission: Object,
@@ -112,16 +119,33 @@ export default {
         this.usernameSearch = [];
       }
     },
+    async searchGames(searchTerm) {
+      if (searchTerm.length >= 1) {
+        if (this.searchTimeout) clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(async () => {
+          this.gameSearch = _.map(await searchForGame(searchTerm), (game) => {
+            this.twitchGameCache[game.name] = game;
+            return game.name;
+          });
+        }, 300);
+      } else {
+        this.gameSearch = [];
+      }
+    },
     selectUser(item) {
       console.log('Selected', item);
       this.userToAdd = item;
+    },
+    selectGame(item) {
+      console.log('Selected', item);
+      this.selectedSubmission.twitchGame = this.twitchGameCache[item].name;
     },
     selectPlatform(item) {
       console.log(item, 'clicked');
       this.selectedSubmission.platform = item;
     },
     getValidationClass(fieldName) {
-      const field = this.$v.selectedSubmission[fieldName];
+      const field = _.get(this.$v.selectedSubmission, fieldName);
 
       if (field) {
         return {
@@ -135,6 +159,24 @@ export default {
       if (!this.$v.$invalid) {
         this.$emit('submit', this.selectedSubmission);
       }
+    },
+    addIncentive(type) {
+      this.selectedSubmission.incentives.push({
+        _id: generateID(),
+        type,
+        name: '',
+        description: '',
+        bidwarType: 'freeform',
+        freeformMin: 5,
+        freeformMax: 20,
+        options: '',
+      });
+      setTimeout(() => {
+        this.$refs.dialog.$el.scrollTop = this.$refs.dialog.$el.scrollHeight;
+      }, 1);
+    },
+    deleteIncentive(incentive) {
+      this.selectedSubmission.incentives.splice(this.selectedSubmission.incentives.indexOf(incentive), 1);
     },
   },
   computed: {
@@ -151,9 +193,16 @@ export default {
         required,
         minLength: minLength(1),
       },
+      twitchGame: {
+        required,
+      },
+      leaderboards: {
+        required,
+        url,
+      },
       category: {
         required,
-        minLength: minLength(1),
+        minLength: minLength(3),
       },
       estimate: {
         required,
@@ -165,15 +214,36 @@ export default {
       },
       video: {
         required,
-        minLength: minLength(1),
+        url,
       },
       description: {
         required,
-        minLength: minLength(250),
+        minLength: minLength(100),
+        maxLength: maxLength(1000),
       },
       comment: {
         required,
-        minLength: minLength(250),
+        minLength: minLength(100),
+        maxLength: maxLength(1000),
+      },
+      incentives: {
+        $each: {
+          name: {
+            required,
+            minLength: minLength(5),
+          },
+          description: {
+            required,
+            minLength: minLength(20),
+            maxLength: maxLength(200),
+          },
+          freeformMin: {
+            range: lessEqThan('freeformMax'),
+          },
+          freeformMax: {
+            range: moreEqThan('freeformMin'),
+          },
+        },
       },
     },
   },

@@ -5,6 +5,21 @@ import SubmissionEdit from './SubmissionEdit.vue';
 import { generateID } from '../../helpers';
 import settings from '../../settings';
 
+const emptySubmission = {
+  game: '',
+  twitchGame: '',
+  leaderboards: '',
+  category: '',
+  platform: '',
+  status: 'stub',
+  estimate: '',
+  comment: '',
+  description: '',
+  runType: 'solo',
+  teams: null,
+  invitations: null,
+  incentives: [],
+};
 
 export default {
   name: 'Submissions',
@@ -19,20 +34,10 @@ export default {
   },
   methods: {
     newSubmission() {
-      const newSubmission = {
+      const newSubmission = _.merge(_.cloneDeep(emptySubmission), {
         event: this.currentEvent._id,
         _id: generateID(),
-        game: '',
-        category: '',
-        platform: '',
-        status: 'stub',
-        estimate: '',
-        comment: '',
-        description: '',
-        runType: 'solo',
-        teams: null,
-        invitations: null,
-      };
+      });
       this.selectedSubmission = newSubmission;
       this.saveSubmission('stub');
       this.showDialog = true;
@@ -48,7 +53,7 @@ export default {
       }
     },
     selectSubmission(submission) {
-      this.selectedSubmission = _.cloneDeep(submission);
+      this.selectedSubmission = _.merge(_.cloneDeep(emptySubmission), _.cloneDeep(submission));
       this.showDialog = true;
       console.log('Editing submission', submission);
     },
