@@ -20,7 +20,7 @@
         <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">
           {{item.userName}}
         </md-table-cell>
-        <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name" class="textbreak">{{item.name}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name" class="textbreak width-200">{{item.name}}</md-table-cell>
         <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform" class="textbreak">{{item.platform}}</md-table-cell>
         <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate" class="textbreak">{{item.estimate}}</md-table-cell>
         <md-table-cell v-if="showColumns['Players']" md-label="Players">{{item.players}}</md-table-cell>
@@ -98,4 +98,7 @@
   word-break: break-word;
 }
 
+.width-200 {
+  width: 200px;
+}
 </style>

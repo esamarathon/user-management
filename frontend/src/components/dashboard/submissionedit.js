@@ -38,7 +38,7 @@ function getDisplayName(user) {
   return user.name;
 }
 
-const estimate = helpers.regex('estimate', /\d{1,2}:\d{2}/);
+const estimate = helpers.regex('estimate', /\d{1,2}:[0-5]\d/);
 
 const twitchUserCache = {};
 const twitchGameCache = {};
