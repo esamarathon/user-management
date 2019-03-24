@@ -54,7 +54,7 @@
                     <form-display class="" :question="question" v-model="question.value"></form-display>
                   </div>
                   <div class="flex-none layout-column layout-start-center">
-                    <md-button class="flex-none md-icon-button" @click="deleteQuestion(role, question)"><md-icon>delete</md-icon></md-button>
+                    <md-button class="flex-none md-icon-button" @click="deleteQuestion(selectedRole, question)"><md-icon>delete</md-icon></md-button>
                     <div class="handle"><md-icon>reorder</md-icon></div>
                   </div>
                 </div>
