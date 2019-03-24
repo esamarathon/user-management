@@ -20,12 +20,12 @@
         <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">
           {{item.userName}}
         </md-table-cell>
-        <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform">{{item.platform}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate">{{item.estimate}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name" class="textbreak">{{item.name}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform" class="textbreak">{{item.platform}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate" class="textbreak">{{item.estimate}}</md-table-cell>
         <md-table-cell v-if="showColumns['Players']" md-label="Players">{{item.players}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Description']" md-label="Description">{{item.description}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Comment']" md-label="Comment">{{item.comment}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Description']" md-label="Description" class="textbreak">{{item.description}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Comment']" md-label="Comment" class="textbreak">{{item.comment}}</md-table-cell>
         <md-table-cell v-if="showColumns['Video']" md-label="Video"><video-button :url="item.video"></video-button></md-table-cell>
         <md-table-cell v-if="showColumns['Decision']" md-label="Decision">
           <div class="layout-row">
@@ -92,6 +92,10 @@
 
 .md-table.runs .md-table-row {
   border-left: 5px solid transparent;
+}
+
+.textbreak {
+  word-break: break-word;
 }
 
 </style>
