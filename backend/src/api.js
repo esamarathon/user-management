@@ -327,8 +327,8 @@ export async function updateUserSubmission(req, res) {
         res.status(400).end('Missing invites.');
       }
       // strip everything but the IDs to prevent overwriting of invites
-      _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member._id || member); });
-      validChanges.invitations = _.map(validChanges.invitations, invite => invite._id || invite);
+      _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member && (member._id || member)); });
+      validChanges.invitations = _.map(validChanges.invitations, invite => invite && (invite._id || invite));
     }
     console.log('Valid changes:', validChanges);
     mergeNonArray(submission, validChanges);
@@ -394,7 +394,7 @@ export async function inviteUser(req, res) {
       await invitation.save();
       if (!submission.invitations) submission.invitations = [];
       submission.invitations.push(invitation);
-      submission.save();
+      await submission.save();
       const result = invitation.toObject();
       result.user = { _id: user._id, connections: { twitch: _.pick(user.connections.twitch, ['name', 'displayName', 'id', 'logo']) } };
       return res.json(result);
@@ -553,8 +553,9 @@ export async function getSubmissions(req, res) {
   if (!req.query.event) return res.status(400).end('Missing query parameter event');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (hasPermission(user, req.query.event, runDecisionPermission)) {
-    return res.json(await models.Submission.find({ event: req.query.event })
+    return res.json(await models.Submission.find({ event: req.query.event, status: 'saved' })
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .exec());
   }
   return res.status(403).end('Access denied.');
@@ -563,7 +564,7 @@ export async function getSubmissions(req, res) {
 export async function getSubmission(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.params.id) return res.status(400).end('Missing query parameter id');
-  return res.json(await models.Submission.findById(req.params.id, 'event user game category platform estimate runType teams video comment description status')
+  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams video comment description status incentives')
   .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .exec());

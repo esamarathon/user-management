@@ -86,9 +86,9 @@ export default {
     },
     addInvitation(state, [submission, invitation]) {
       if (!state.submissions) state.submissions = [];
-      const existingSubmission = _.find(state.submissions, { _id: submission._id });
-      if (!existingSubmission.invitations) existingSubmission.invitations = [];
-      existingSubmission.invitations.push(invitation);
+      if (!submission.invitations) submission.invitations = [];
+      submission.invitations.push(invitation);
+      console.log('Submission is now', submission);
     },
   },
   actions: {
@@ -151,6 +151,7 @@ export default {
     async inviteUser({ commit }, [submission, userID]) {
       console.log('Inviting user ', userID, 'to submission', submission);
       const invitation = await invite(submission, userID);
+      console.log('Adding invitation ', invitation, 'to submission', submission);
       commit('addInvitation', [submission, invitation]);
       return invitation;
     },

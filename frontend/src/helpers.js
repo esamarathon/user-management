@@ -35,11 +35,12 @@ export function getUserName(user) {
 }
 
 export function teamsToString(teams) {
-  return _.map(_.filter(teams, team => team.members.length > 0),
+  return _.map(teams, team => _.map(team.members, member => member.user && member.user.connections.twitch.displayName).join(', ')).join(' vs ');
+  /* return _.map(_.filter(teams, team => team.members.length > 0),
     team => _.map(_.filter(team.members, member => member.name && member.name.length > 0),
-      member => (member.user ? getUserName(member) : member.name))
+      member => (member.user ? getUserName(member.user) : member.name))
       .join(', '))
-    .join(' vs ');
+    .join(' vs '); */
 }
 
 // youtube embedding code:

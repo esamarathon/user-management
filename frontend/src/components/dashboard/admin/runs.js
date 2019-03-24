@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import { getUserName, teamsToString } from '../../../helpers';
 import { getRuns, updateDecision } from '../../../api';
+import submissionDetails from '../SubmissionDetails.vue';
 
 const basicButtons = [
   {
@@ -92,6 +93,8 @@ export default {
     columns,
     activeColumns: columns.slice(),
     filteredRuns: null,
+    showDialog: false,
+    selectedRun: null,
   }),
   computed: {
     ...mapState(['user']),
@@ -223,10 +226,17 @@ export default {
       if (total < 0) return '#cc3333';
       return 'transparent';
     },
+    viewRun(run) {
+      this.selectedRun = run._id;
+      this.showDialog = true;
+    },
   },
   watch: {
     currentEvent() {
       this.loadRuns();
     },
+  },
+  components: {
+    submissionDetails,
   },
 };

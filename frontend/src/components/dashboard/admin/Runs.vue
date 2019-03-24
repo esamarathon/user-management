@@ -16,6 +16,7 @@
     </div>
     <md-table class="runs transparent-table" v-model="runList" md-sort="id" v-if="runList">
       <md-table-row slot="md-table-row" slot-scope="{ item }" :style="{'border-left-color': getStatusIndicatorColor(item)}">
+        <md-table-cell><md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button></md-table-cell>
         <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">
           {{item.userName}}
         </md-table-cell>
@@ -47,6 +48,15 @@
         </md-table-cell>
       </md-table-row>
     </md-table>
+    <md-dialog :md-active.sync="showDialog" class="big-dialog">
+      <md-dialog-title>Run details</md-dialog-title>
+      <md-dialog-content ref="dialog">
+        <submission-details :submission="selectedRun"></submission-details>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-accent" @click="showDialog = false">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
   </div>
 </template>
 

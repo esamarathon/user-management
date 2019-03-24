@@ -5,18 +5,30 @@ import { getSubmission } from '../../api';
 export default {
   name: 'Submissions',
   data: () => ({
-    submission: null,
+    s: null,
   }),
+  props: ['submission'],
   async created() {
-    this.submission = await getSubmission(this.$route.params.id);
-    this.submission.event = _.find(this.events, { _id: this.submission.event });
-    console.log('Got submission', this.submission);
+    this.s = _.isObject(this.submission) ? this.submission : await getSubmission(this.submission || this.$route.params.id);
+    this.s.event = _.find(this.events, { _id: this.s.event });
+    console.log('Got submission', this.s);
   },
   computed: {
     ...mapState(['events']),
     name() {
-      if (this.submission.runType === 'solo') return `${this.submission.game} (${this.submission.category})`;
-      return `${this.submission.game} (${this.submission.category} ${this.submission.runType})`;
+      if (!this.s) return '';
+      if (this.s.runType === 'solo') return `${this.s.game} (${this.s.category})`;
+      return `${this.s.game} (${this.s.category} ${this.s.runType})`;
+    },
+    teamString() {
+      return _.map(this.s.teams, team => _.map(team.members, member => member.user.connections.twitch.displayName).join(', ')).join(' vs ');
+    },
+    incentives() {
+      return _.filter(this.s.incentives, i => i.type === 'incentive');
+    },
+    bidwars() {
+      console.log(this.s.incentives);
+      return _.filter(this.s.incentives, i => i.type === 'bidwar');
     },
   },
 };
