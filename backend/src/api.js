@@ -166,7 +166,7 @@ export async function handleDiscordLogout(req, res) {
 export async function getUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user with ID ', req.jwt.user.id);
-  const user = await models.User.findById(req.jwt.user.id, 'flag connections roles phone_display')
+  const user = await models.User.findById(req.jwt.user.id, 'flag connections roles phone_display availability')
   .populate('roles.role')
   .exec();
   if (user) {
@@ -232,7 +232,8 @@ const allowedUserModifications = new Map([
     obj.phone_encrypted = encryptPhoneNumber();
     obj.phone_display = maskPhone(val);
   }],
-  ['connections.discord.public', _.set]
+  ['connections.discord.public', _.set],
+  ['availability', _.set]
 ]);
 export async function updateUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
