@@ -51,6 +51,12 @@ const UserRole = new mongoose.Schema({
   role: { type: mongoose.Schema.Types.ObjectId, ref: 'role' }
 });
 
+const UserAvailability = new mongoose.Schema({
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  start: Date,
+  end: Date
+});
+
 const User = new mongoose.Schema({
   flag: String,
   connections: {
@@ -61,7 +67,8 @@ const User = new mongoose.Schema({
   },
   phone_display: String, // first and last characters from the phone number
   phone_encrypted: String, // SHA-256 encrypted phone number
-  roles: [UserRole]
+  roles: [UserRole],
+  availability: [UserAvailability]
 });
 
 User.virtual('name').get(function getUserName() {

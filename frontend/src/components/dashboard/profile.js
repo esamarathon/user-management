@@ -1,6 +1,8 @@
-import { mapState } from 'vuex';
+import _ from 'lodash';
+import { mapState, mapGetters } from 'vuex';
 import settings from '../../settings';
 import { generateID, setCookie } from '../../helpers';
+
 
 export default {
   name: 'Profile',
@@ -29,6 +31,7 @@ export default {
   },
   computed: {
     ...mapState(['user']),
+    ...mapGetters(['currentEvent']),
     twitterHandle: {
       get() {
         if (!this.user.connections || !this.user.connections.twitter) return '';
@@ -64,6 +67,53 @@ export default {
         const discordConnection = this.user.connections.discord;
         if (discordConnection.avatar.startsWith('a_')) return `https://cdn.discordapp.com/avatars/${discordConnection.id}/${discordConnection.avatar}.gif`;
         return `https://cdn.discordapp.com/avatars/${discordConnection.id}/${discordConnection.avatar}.png`;
+      },
+    },
+    availability: {
+      get() {
+        return _.find(this.user.availability, availability => availability.event === this.currentEvent._id);
+      },
+    },
+    availabilityStart: {
+      get() {
+        return this.availability && this.availability.start ? this.availability.start : this.currentEvent.startDate;
+      },
+      set(number) {
+        if (number instanceof Date) {
+          number = number.toJSON();
+        }
+        let updated = false;
+        if (this.availability) {
+          if (this.availability.start !== number) {
+            this.availability.start = number;
+            updated = true;
+          }
+        } else {
+          this.user.availability.push({ event: this.currentEvent._id, start: number, end: null });
+          updated = true;
+        }
+        if (updated) this.$store.dispatch('updateUser', { availability: this.user.availability });
+      },
+    },
+    availabilityEnd: {
+      get() {
+        return this.availability && this.availability.end ? this.availability.end : this.currentEvent.endDate;
+      },
+      set(number) {
+        if (number instanceof Date) {
+          number = number.toJSON();
+        }
+        let updated = false;
+        if (this.availability) {
+          if (this.availability.end !== number) {
+            this.availability.end = number;
+            updated = true;
+          }
+        } else {
+          this.user.availability.push({ event: this.currentEvent._id, start: null, end: number });
+          updated = true;
+        }
+        if (updated) this.$store.dispatch('updateUser', { availability: this.user.availability });
       },
     },
   },
