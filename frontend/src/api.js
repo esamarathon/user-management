@@ -100,7 +100,7 @@ export function getDecisions(eventID, type) {
 export function flattenChanges(obj) {
   const res = {};
   _.each(obj, (val, key) => {
-    if (_.isObject(val)) {
+    if (_.isObject(val) && !_.isArray(val)) {
       _.each(flattenChanges(val), (val2, key2) => {
         res[`${key}.${key2}`] = val2;
       });
