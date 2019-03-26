@@ -389,14 +389,14 @@ export async function inviteUser(req, res) {
         let userResponse;
         try {
           userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/${req.body.user}`);
-          console.log('User response:', userResponse.body);
+          console.log('User response:', userResponse);
           user = new models.User({
             connections: {
               twitch: {
-                name: userResponse.body.name,
-                displayName: userResponse.body.display_name,
-                id: userResponse.body._id,
-                logo: userResponse.body.logo
+                name: userResponse.name,
+                displayName: userResponse.display_name,
+                id: userResponse._id,
+                logo: userResponse.logo
               }
             }
           });

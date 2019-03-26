@@ -55,7 +55,7 @@ async function getModList() {
    }`;
   const variables = { userId: settings.twitch.channels[0].id, count: 100 };
   const result = await twitchGQL(query, variables);
-  return _.map(result.body.data.user.mods.edges, edge => edge.node);
+  return _.map(result.data.user.mods.edges, edge => edge.node);
 }
 
 const getModListThrottled = throttleAsync(getModList, 60000);
