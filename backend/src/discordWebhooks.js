@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 import _ from 'lodash';
 import settings from './settings';
+import logger from './logger';
 
 export function teamsToString(teams) {
   return _.map(teams, team => _.map(team.members, member => member.user && member.user.connections.twitch.displayName).join(', ')).join(' vs ');
@@ -8,7 +9,7 @@ export function teamsToString(teams) {
 
 async function publicWebhook(data) {
   try {
-    console.log('Sending public webhook', data);
+    logger.debug('Sending public webhook', data);
     const response = await fetch(settings.discord.webhooks.public.url, {
       method: 'post',
       body: JSON.stringify({
@@ -18,14 +19,14 @@ async function publicWebhook(data) {
         'Content-Type': 'application/json'
       }
     });
-    if (response.status === 204) console.log('Discord webhook succesfully placed!');
+    if (response.status === 204) logger.debug('Discord webhook succesfully placed!');
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 }
 async function privateWebhook(data) {
   try {
-    console.log('Sending private webhook', data);
+    logger.debug('Sending private webhook', data);
     const response = await fetch(settings.discord.webhooks.private.url, {
       method: 'post',
       body: JSON.stringify({
@@ -35,9 +36,9 @@ async function privateWebhook(data) {
         'Content-Type': 'application/json'
       }
     });
-    if (response.status === 204) console.log('Discord webhook succesfully placed!');
+    if (response.status === 204) logger.debug('Discord webhook succesfully placed!');
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 }
 
@@ -88,12 +89,7 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     category += ` (${submission.runType})`;
     teams = teamsToString(submission.teams);
   }
-  let oldTeams = '';
-  let oldCategory = changes.category;
-  if (submission.runType !== 'solo' && changes.teams) {
-    oldCategory += ` (${submission.runType})`;
-    oldTeams = teamsToString(changes.teams);
-  }
+  const oldCategory = `${changes.category || submission.category} (${changes.runType || submission.runType})`;
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
   bidwars = _.map(bidwars, 'name').join(', ');
@@ -110,10 +106,10 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     description: `${twitchName} has just updated an existing run!\n\n` // eslint-disable-line prefer-template
     + (discordUser ? `**Discord user:** <@!${discordUser.id}>\n` : '')
     + (changes.game ? `**Game:** ${submission.game} (was: ${changes.game})\n` : '')
-    + (changes.category ? `**Category:** ${category} (was: ${oldCategory})\n` : '')
+    + (category !== oldCategory ? `**Category:** ${category} (was: ${oldCategory})\n` : '')
     + (changes.platform ? `**Platform:** ${submission.platform} (was: ${changes.platform})\n` : '')
     + (changes.estimate ? `**Estimate:** ${submission.estimate} (was: ${changes.estimate})\n` : '')
-    + (teams !== oldTeams ? `**Players:** ${teams} (were: ${oldTeams})\n` : '')
+    + (changes.teams ? `**Players:** ${teams}\n` : '')
     + (changes.video ? `**Video:** ${submission.video} (was: ${changes.video})\n` : '')
     + (incentives !== oldIncentives ? `**Incentives:** ${incentives} (were: ${oldIncentives})\n` : '')
     + (bidwars !== oldBidwars ? `**Bid wars:** ${bidwars} (were: ${oldBidwars})` : '')

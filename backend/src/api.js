@@ -359,7 +359,9 @@ export async function updateUserSubmission(req, res) {
   await submission.save();
 
   if (changeType) {
-    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name').execPopulate();
+    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name')
+    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+    .execPopulate();
     console.log('Submission user:', submission.user);
     if (changeType === 'new') sendDiscordSubmission(submission);
     if (changeType === 'updated') sendDiscordSubmissionUpdate(submission, oldVals);
