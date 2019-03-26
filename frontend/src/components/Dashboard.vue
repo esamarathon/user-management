@@ -138,7 +138,14 @@
 
 @media screen and (max-width: 1000px) {
   .navigation {
-    width: 73px;
+    width: 72px;
+
+    .md-subheader {
+      text-indent: -999px;
+      border-bottom: 1px solid rgba(255,255,255,0.7);
+      max-height: 1px;
+      min-height: 0px;
+    }
   }
 }
 

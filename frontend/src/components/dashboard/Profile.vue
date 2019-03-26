@@ -27,17 +27,19 @@
         <div class="flex-10">Flag</div>
         <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
       </div>
-      <div class="details-row button-equivalent layout-row">
+      <div class="details-row button-equivalent layout-row layout-wrap">
         <div class="flex-10">Availability for {{currentEvent.name}}</div>
-        <div class="flex">
-          <md-datepicker class="medium-field" v-model="availabilityStart">
-            <label>From</label>
-          </md-datepicker>
-        </div>
-        <div class="flex">
-          <md-datepicker class="medium-field" v-model="availabilityEnd">
-            <label>Until</label>
-          </md-datepicker>
+        <div class="layout-row flex layout-wrap">
+          <div class="flex-none">
+            <md-datepicker class="medium-field" v-model="availabilityStart">
+              <label>From</label>
+            </md-datepicker>
+          </div>
+          <div class="flex-none">
+            <md-datepicker class="medium-field" v-model="availabilityEnd">
+              <label>Until</label>
+            </md-datepicker>
+          </div>
         </div>
       </div>
       <div class="details-row layout-row button-equivalent" v-if="!user.connections.discord">
