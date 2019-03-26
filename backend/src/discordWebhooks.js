@@ -89,6 +89,21 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     category += ` (${submission.runType})`;
     teams = teamsToString(submission.teams);
   }
+
+  let teamsChanged = false;
+  console.log('comparing', submission.teams, 'to', changes.teams);
+  _.each(submission.teams, (team, i) => {
+    if (!changes.teams[i]) {
+      teamsChanged = true;
+      return;
+    }
+    _.each(team.members, (member, j) => {
+      if (!member._id.equals(changes.teams[i].members[j])) {
+        teamsChanged = true;
+      }
+    });
+  });
+
   const oldCategory = `${changes.category || submission.category} (${changes.runType || submission.runType})`;
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
@@ -109,7 +124,7 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     + (category !== oldCategory ? `**Category:** ${category} (was: ${oldCategory})\n` : '')
     + (changes.platform ? `**Platform:** ${submission.platform} (was: ${changes.platform})\n` : '')
     + (changes.estimate ? `**Estimate:** ${submission.estimate} (was: ${changes.estimate})\n` : '')
-    + (changes.teams ? `**Players:** ${teams}\n` : '')
+    + (teamsChanged ? `**Players:** ${teams}\n` : '')
     + (changes.video ? `**Video:** ${submission.video} (was: ${changes.video})\n` : '')
     + (incentives !== oldIncentives ? `**Incentives:** ${incentives} (were: ${oldIncentives})\n` : '')
     + (bidwars !== oldBidwars ? `**Bid wars:** ${bidwars} (were: ${oldBidwars})` : '')
