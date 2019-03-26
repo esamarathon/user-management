@@ -24,7 +24,7 @@
             <img :src="invitation.createdBy.connections.twitch.logo" class="profilepic">
           </div>
           <div class="flex-100">
-            <span class="user-name">{{invitation.createdBy.connections.twitch.displayName}}</span> invited you to join the 
+            <span class="user-name">{{invitation.createdBy.connections.twitch.displayName}}</span> invited you to join the
             <span class="run-name">{{invitation.submission.game}} ({{invitation.submission.category}} {{invitation.submission.runType}})</span>
             run at <span class="event-name">{{invitation.submission.event.name}}</span> &mdash; <router-link :to="{name: 'SubmissionDetails', params: { id: invitation.submission._id }}">Details</router-link>
           </div>
@@ -36,14 +36,26 @@
       </div>
       <div class="home-column flex-100">
         <h2>Feed</h2>
+        <div class="feeditem layout-row" v-for="feeditem in feed" :key="feeditem.id">
+          <div class="flex-none" v-if="feeditem.icon">
+            <img :src="feeditem.icon" class="feeditem-icon">
+          </div>
+          <div class="flex-100 layout-column">
+            <div class="flex-100 layout-row layout-between">
+              <span class="feeditem-event">{{feeditem.event.name}}</span>
+              <span class="feeditem-time">{{formatTime(feeditem.time)}}</span>
+            </div>
+            <span class="feeditem-text" v-linkified:options="{ nl2br: 'true' }">{{feeditem.text}}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</template> 
+</template>
 
 <script src="./home.js"></script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .activity {
   padding: 12px;
   background-color: rgba(0,0,0,0.5);
@@ -80,6 +92,26 @@
   }
 
   .activity-icon {
+    height: 2.5em;
+    margin-right: 8px;
+  }
+}
+
+.feeditem {
+  padding: 12px;
+  background-color: rgba(0,0,0,0.5);
+  margin-bottom: 8px;
+
+  .feeditem-time {
+    font-size: small;
+    opacity: 0.5;
+  }
+
+  .feeditem-event {
+    font-weight: bold;
+  }
+
+  .feeditem-icon {
     height: 2.5em;
     margin-right: 8px;
   }

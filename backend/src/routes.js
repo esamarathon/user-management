@@ -13,7 +13,8 @@ import {
   requestSensitiveData, getRoles, updateRole,
   getUsers, getUserApplications, getUserSubmissions,
   updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission,
-  updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser
+  updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser, getFeed,
+  getFeedForEvent, updateFeed, deleteFeed
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
@@ -52,6 +53,8 @@ app.post('/user/submission', updateUserSubmission);
 app.post('/user/invite', inviteUser);
 app.post('/invitation/respond', respondToInvitation);
 app.get('/activities', getActivities);
+app.get('/feed', getFeed);
+app.get('/feed/:event/', getFeedForEvent);
 // ------------------------------------------------------
 // Admin APIs
 app.get('/users', getUsers);
@@ -63,6 +66,8 @@ app.get('/applications', getApplications);
 app.get('/submissions', getSubmissions);
 app.get('/submission/:id', getSubmission);
 app.post('/decision/runs', updateRunDecision);
+app.post('/feed', updateFeed);
+app.delete('/feed', deleteFeed);
 
 app.get('/sensitive', requestSensitiveData);
 
