@@ -1,15 +1,16 @@
-import crypto from 'crypto';
 import URL from 'url';
 import _ from 'lodash';
-// import mongoose from 'mongoose';
+import crypto from 'crypto';
+import { isDeepStrictEqual } from 'util';
 
+import mongoose from 'mongoose';
 import logger from './logger';
-import { twitchGet } from './twitchAPI';
 import settings from './settings';
-import { generateToken, decodeToken } from './auth';
 import { models } from './models';
+import { twitchGet } from './twitchAPI';
+import { generateToken, decodeToken } from './auth';
 import { notify, httpPost, httpReq } from './helpers';
-import { sendDiscordSubmission } from './discordWebhooks';
+import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion } from './discordWebhooks';
 
 export async function handleLogin(req, res, next) {
   const redirectUrl = req.query.state || settings.frontend.baseurl;
@@ -302,6 +303,7 @@ export async function updateUserSubmission(req, res) {
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
   let changeType;
+  const oldVals = {};
   if (submission) {
     if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
@@ -332,8 +334,16 @@ export async function updateUserSubmission(req, res) {
     if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
     if (submission.status === 'saved' && validChanges.status === 'saved') changeType = 'updated';
     console.log('Valid changes:', validChanges);
+    _.each(validChanges, (val, key) => {
+      if (!isDeepStrictEqual(submission[key], val)) oldVals[key] = submission[key];
+    });
     mergeNonArray(submission, validChanges);
   } else {
+    // maximum of 5 submissions per user
+    const submissionAggregation = await models.Submission.aggregate([{ $match: { user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
+    console.log('Submission aggregation:', submissionAggregation);
+    if (submissionAggregation[0] && submissionAggregation[0].submissions >= 5) return res.status(400).end('Maximum number of submissions exceeded.');
+
     // cant set up invites or teams before the submission is created, so we allow for the creation of stubs
     delete validChanges.invites;
     delete validChanges.teams;
@@ -352,6 +362,8 @@ export async function updateUserSubmission(req, res) {
     await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name').execPopulate();
     console.log('Submission user:', submission.user);
     if (changeType === 'new') sendDiscordSubmission(submission);
+    if (changeType === 'updated') sendDiscordSubmissionUpdate(submission, oldVals);
+    if (changeType === 'deleted') sendDiscordSubmissionDeletion(submission);
   }
   return res.json(submission);
 }

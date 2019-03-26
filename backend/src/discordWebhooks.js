@@ -71,7 +71,79 @@ export function sendDiscordSubmission(submission) {
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`
     + `**Estimate:** ${submission.estimate}\n`
-    + (teams ? `**Players:** ${submission.platform}\n` : '')
+    + (teams ? `**Players:** ${teams}\n` : '')
+    + `**Video:** ${submission.video}\n`
+    + (incentives ? `**Incentives:** ${incentives}\n` : '')
+    + (bidwars ? `**Bid wars:** ${bidwars}` : '')
+  });
+}
+
+export function sendDiscordSubmissionUpdate(submission, changes) {
+  const twitchUser = submission.user.connections.twitch;
+  const twitchName = twitchUser.displayName.toLowerCase() === twitchUser.name ? twitchUser.displayName : `${twitchUser.displayName} (${twitchUser.name})`;
+  const discordUser = submission.user.connections.discord;
+  let category = submission.category;
+  let teams = '';
+  if (submission.runType !== 'solo') {
+    category += ` (${submission.runType})`;
+    teams = teamsToString(submission.teams);
+  }
+  let oldTeams = '';
+  let oldCategory = changes.category;
+  if (submission.runType !== 'solo' && changes.teams) {
+    oldCategory += ` (${submission.runType})`;
+    oldTeams = teamsToString(changes.teams);
+  }
+  let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
+  incentives = _.map(incentives, 'name').join(', ');
+  bidwars = _.map(bidwars, 'name').join(', ');
+
+  let { incentive: oldIncentives, bidwar: oldBidwars } = _.groupBy(changes.incentives, 'type');
+  if (changes.incentives) {
+    oldIncentives = _.map(oldIncentives, 'name').join(', ');
+    oldBidwars = _.map(oldBidwars, 'name').join(', ');
+  }
+
+  privateWebhook({
+    title: 'A run has been updated!',
+    url: `${settings.frontend.baseurl}#/dashboard/submissions/${submission._id}`,
+    description: `${twitchName} has just updated an existing run!\n\n` // eslint-disable-line prefer-template
+    + (discordUser ? `**Discord user:** <@!${discordUser.id}>\n` : '')
+    + (changes.game ? `**Game:** ${submission.game} (was: ${changes.game})\n` : '')
+    + (changes.category ? `**Category:** ${category} (was: ${oldCategory})\n` : '')
+    + (changes.platform ? `**Platform:** ${submission.platform} (was: ${changes.platform})\n` : '')
+    + (changes.estimate ? `**Estimate:** ${submission.estimate} (was: ${changes.estimate})\n` : '')
+    + (teams !== oldTeams ? `**Players:** ${teams} (were: ${oldTeams})\n` : '')
+    + (changes.video ? `**Video:** ${submission.video} (was: ${changes.video})\n` : '')
+    + (incentives !== oldIncentives ? `**Incentives:** ${incentives} (were: ${oldIncentives})\n` : '')
+    + (bidwars !== oldBidwars ? `**Bid wars:** ${bidwars} (were: ${oldBidwars})` : '')
+  });
+}
+
+
+export function sendDiscordSubmissionDeletion(submission) {
+  const twitchUser = submission.user.connections.twitch;
+  const twitchName = twitchUser.displayName.toLowerCase() === twitchUser.name ? twitchUser.displayName : `${twitchUser.displayName} (${twitchUser.name})`;
+  const discordUser = submission.user.connections.discord;
+  let category = submission.category;
+  let teams = '';
+  if (submission.runType !== 'solo') {
+    category += ` (${submission.runType})`;
+    teams = teamsToString(submission.teams);
+  }
+  let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
+  incentives = _.map(incentives, 'name').join(', ');
+  bidwars = _.map(bidwars, 'name').join(', ');
+  privateWebhook({
+    title: 'A run has been deleted!',
+    url: `${settings.frontend.baseurl}#/dashboard/submissions/${submission._id}`,
+    description: `${twitchName} has just deleted a run!\n\n` // eslint-disable-line prefer-template
+    + (discordUser ? `**Discord user:** <@!${discordUser.id}>\n` : '')
+    + `**Game:** ${submission.game}\n`
+    + `**Category:** ${category}\n`
+    + `**Platform:** ${submission.platform}\n`
+    + `**Estimate:** ${submission.estimate}\n`
+    + (teams ? `**Players:** ${teams}\n` : '')
     + `**Video:** ${submission.video}\n`
     + (incentives ? `**Incentives:** ${incentives}\n` : '')
     + (bidwars ? `**Bid wars:** ${bidwars}` : '')

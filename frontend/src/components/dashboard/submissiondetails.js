@@ -4,7 +4,7 @@ import { getSubmission } from '../../api';
 import { teamsToString } from '../../helpers';
 
 export default {
-  name: 'Submissions',
+  name: 'SubmissionDetails',
   data: () => ({
     s: null,
   }),

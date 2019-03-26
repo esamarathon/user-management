@@ -2,15 +2,18 @@
   <div class="layout-column" v-if="submissions">
     <h1>Your submissions for {{currentEvent.name}}</h1>
     <div class="flex-none layout-row" v-if="submissionsOpen">
-      <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord">Submit run</md-button>
-      <div class="no-discord flex-none" v-else>
+      <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord && submissionList.length < 5">Submit run</md-button>
+      <div class="no-discord flex-none" v-if="!user.connections.discord">
         <md-icon>warning</md-icon> Please link your discord account to the users tool to be able to submit runs. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
         This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
       </div>
     </div>
-    <div class="flex-none layout-row" v-else>
-      <div class="submissions-closed flex-none">
+    <div class="flex-none layout-row">
+      <div class="submissions-closed flex-none" v-if="!submissionsOpen">
         <md-icon>lock</md-icon> Sumissions are currently closed.
+      </div>
+      <div class="submissions-closed flex-none" v-if="submissionList.length >= 5">
+        <md-icon>lock</md-icon> You have reached the maximum number of submissions for this event.
       </div>
     </div>
     <div class="submission-list">
