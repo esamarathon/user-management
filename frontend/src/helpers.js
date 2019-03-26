@@ -107,3 +107,9 @@ export function moreThan(other) {
 export function moreEqThan(other) {
   return (value, parentVm) => !value || value >= helpers.ref(other, this, parentVm);
 }
+
+export function formatTime(time) {
+  return new Date(time).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
+  });
+}

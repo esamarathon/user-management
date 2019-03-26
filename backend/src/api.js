@@ -185,6 +185,53 @@ export async function getActivities(req, res) {
   });
 }
 
+function calculateEventFeed(event) {
+  const now = Date.now();
+  const ret = [];
+
+  // this can probably be improved
+  if (event.submissionsStart && event.submissionsStart < now) {
+    ret.push({ event: event._id, text: `Submissions have been opened for ${event.name}. \nGo submit your runs at ${settings.frontend.baseurl}#/dashboard/submissions`, time: event.submissionsStart });
+  }
+  if (event.submissionsEnd && event.submissionsEnd < now) {
+    ret.push({ event: event._id, text: `Submissions are now closed for ${event.name}`, time: event.submissionsEnd });
+  }
+  if (event.applicationsStart && event.applicationsStart < now) {
+    ret.push({ event: event._id, text: `Volunteer applications have been opened for ${event.name}. \nGo apply at ${settings.frontend.baseurl}#/dashboard/applications`, time: event.applicationsStart });
+  }
+  if (event.applicationsEnd && event.applicationsEnd < now) {
+    ret.push({ event: event._id, text: `Volunteer applications are now closed for ${event.name}`, time: event.applicationsEnd });
+  }
+  if (event.startDate && event.startDate < now) {
+    ret.push({ event: event._id, text: `${event.name} has started!`, time: event.startDate });
+  }
+  if (event.endDate && event.endDate < now) {
+    ret.push({ event: event._id, text: `${event.name} has unfortunately ended`, time: event.endDate });
+  }
+
+  return ret;
+}
+
+async function calculateEventFeeds() {
+  const events = await models.Event.find({ status: { $eq: 'public' } });
+  return _.flatten(_.map(events, event => calculateEventFeed(event)));
+}
+
+export async function getFeed(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  let eventFeed = calculateEventFeeds();
+  const feed = await models.FeedItem.find(null, 'event text time', { sort: { time: -1 }, limit: 50 });
+  eventFeed = await eventFeed;
+  return res.json(_.sortBy(_.concat(feed, eventFeed), [feeditem => -feeditem.time]));
+}
+
+export async function getFeedForEvent(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const feed = await models.FeedItem.find({ event: req.params.event }).sort({ time: -1 })
+  .populate({ path: 'user', select: 'connections.twitch.displayName connections.twitch.name' });
+  return res.json(feed);
+}
+
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
@@ -528,6 +575,49 @@ export async function getEvent(req, res) {
 
 export async function getRoles(req, res) {
   return res.json(await models.Role.find());
+}
+
+export async function updateFeed(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, req.body.event, 'Edit Feed')) {
+    let feeditem = await models.FeedItem.findById(req.body._id).exec();
+
+    if (feeditem) {
+      delete req.body._id;
+      mergeNonArray(feeditem, req.body);
+      mergeNonArray(feeditem, { user: req.jwt.user.id });
+    } else {
+      feeditem = new models.FeedItem({
+        _id: req.body._id,
+        user: req.jwt.user.id,
+        event: req.body.event,
+        text: req.body.text,
+        time: req.body.time
+      });
+    }
+    console.log(feeditem);
+    await feeditem.save();
+    return res.json(feeditem);
+  }
+  return res.status(403).end('Access denied.');
+}
+
+export async function deleteFeed(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, req.body.event, 'Edit Feed')) {
+    const feeditem = await models.FeedItem.findById(req.body._id).exec();
+
+    if (feeditem) {
+      await feeditem.delete();
+    } else {
+      res.status(404).end('Feed Item not found.');
+    }
+
+    return res.json({});
+  }
+  return res.status(403).end('Access denied.');
 }
 
 export async function getUsers(req, res) {
