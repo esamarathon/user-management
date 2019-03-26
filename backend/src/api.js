@@ -1,15 +1,16 @@
-import got from 'got';
-import crypto from 'crypto';
 import URL from 'url';
 import _ from 'lodash';
-// import mongoose from 'mongoose';
+import crypto from 'crypto';
+import { isDeepStrictEqual } from 'util';
 
+import mongoose from 'mongoose';
 import logger from './logger';
-import { twitchGet } from './twitchAPI';
 import settings from './settings';
-import { generateToken, decodeToken } from './auth';
 import { models } from './models';
-import { notify } from './helpers';
+import { twitchGet } from './twitchAPI';
+import { generateToken, decodeToken } from './auth';
+import { notify, httpPost, httpReq } from './helpers';
+import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion } from './discordWebhooks';
 
 export async function handleLogin(req, res, next) {
   const redirectUrl = req.query.state || settings.frontend.baseurl;
@@ -21,8 +22,7 @@ export async function handleLogin(req, res, next) {
   }
   try {
     logger.debug('Logging in...');
-    const tokenResponse = await got.post('https://api.twitch.tv/kraken/oauth2/token', {
-      form: true,
+    const tokenResponse = await httpPost('https://api.twitch.tv/kraken/oauth2/token', {
       body: {
         client_id: settings.twitch.clientID,
         client_secret: settings.twitch.clientSecret,
@@ -30,12 +30,11 @@ export async function handleLogin(req, res, next) {
         redirect_uri: `${settings.api.baseurl}login`,
         code: req.query.code,
         state: req.query.state
-      },
-      json: true
+      }
     });
-    const token = tokenResponse.body.access_token;
+    const token = tokenResponse.access_token;
     console.log('Token:', token);
-    const userResponse = (await twitchGet('https://api.twitch.tv/kraken/user', null, token)).body;
+    const userResponse = await twitchGet('https://api.twitch.tv/kraken/user', null, token);
     console.log('User response:', userResponse);
     if (userResponse) {
       // get user
@@ -51,8 +50,8 @@ export async function handleLogin(req, res, next) {
               logo: userResponse.logo,
               email: userResponse.email,
               oauthToken: token,
-              refreshToken: tokenResponse.body.refresh_token,
-              expiresAt: Date.now() + tokenResponse.body.expires_in * 1000
+              refreshToken: tokenResponse.refresh_token,
+              expiresAt: Date.now() + tokenResponse.expires_in * 1000
             }
           },
           flag: (req.header['CF-IPCountry'] || 'XX').toLowerCase()
@@ -70,8 +69,8 @@ export async function handleLogin(req, res, next) {
           logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their email to ${userResponse.email}`);
         }
         user.connections.twitch.oauthToken = token;
-        user.connections.twitch.refreshToken = tokenResponse.body.refresh_token;
-        user.connections.twitch.expiresAt = Date.now() + tokenResponse.body.expires_in * 1000;
+        user.connections.twitch.refreshToken = tokenResponse.refresh_token;
+        user.connections.twitch.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
         console.log('Updated user', user);
       }
 
@@ -117,8 +116,7 @@ export async function handleDiscordLogin(req, res) {
     res.clearCookie('discord-csrf');
     // get the oauth token for discord
     logger.debug('Loggin in to discord...');
-    const tokenResponse = await got.post('https://discordapp.com/api/oauth2/token', {
-      form: true,
+    const tokenResponse = await httpPost('https://discordapp.com/api/oauth2/token', {
       body: {
         client_id: settings.discord.clientID,
         client_secret: settings.discord.clientSecret,
@@ -126,27 +124,27 @@ export async function handleDiscordLogin(req, res) {
         redirect_uri: `${settings.api.baseurl}discord`,
         code: req.query.code,
         state: req.query.state
-      },
-      json: true
+      }
     });
-    const token = tokenResponse.body.access_token;
-    const userResponse = await got.get('https://discordapp.com/api/users/@me', {
+    console.log('tokenResponse:', tokenResponse);
+    const token = tokenResponse.access_token;
+    if (!token) throw new Error('Invalid token');
+    const userResponse = await httpReq('https://discordapp.com/api/users/@me', {
       headers: {
         Authorization: `Bearer ${token}`
-      },
-      json: true
+      }
     });
-    console.log('Discord user response:', userResponse.body);
+    console.log('Discord user response:', userResponse);
     const user = await models.User.findById(jwt.user.id);
     user.connections.discord = {
-      id: userResponse.body.id,
-      name: userResponse.body.username,
-      discriminator: userResponse.body.discriminator,
-      avatar: userResponse.body.avatar,
+      id: userResponse.id,
+      name: userResponse.username,
+      discriminator: userResponse.discriminator,
+      avatar: userResponse.avatar,
       public: true,
       oauthToken: token,
-      refreshToken: tokenResponse.body.refresh_token,
-      expiresAt: Date.now() + tokenResponse.body.expires_in * 1000
+      refreshToken: tokenResponse.refresh_token,
+      expiresAt: Date.now() + tokenResponse.expires_in * 1000
     };
     await user.save();
     return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
@@ -304,7 +302,8 @@ export async function updateUserSubmission(req, res) {
   const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations', 'incentives']);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
-
+  let changeType;
+  const oldVals = {};
   if (submission) {
     if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
@@ -331,20 +330,43 @@ export async function updateUserSubmission(req, res) {
       _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member && (member._id || member)); });
       validChanges.invitations = _.map(validChanges.invitations, invite => invite && (invite._id || invite));
     }
+    if (submission.status === 'stub' && validChanges.status === 'saved') changeType = 'new';
+    if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
+    if (submission.status === 'saved' && validChanges.status === 'saved') changeType = 'updated';
     console.log('Valid changes:', validChanges);
+    _.each(validChanges, (val, key) => {
+      if (!isDeepStrictEqual(submission[key], val)) oldVals[key] = submission[key];
+    });
     mergeNonArray(submission, validChanges);
   } else {
-    // cant set up invites or teams before the submission is created
+    // maximum of 5 submissions per user
+    const submissionAggregation = await models.Submission.aggregate([{ $match: { user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
+    console.log('Submission aggregation:', submissionAggregation);
+    if (submissionAggregation[0] && submissionAggregation[0].submissions >= 5) return res.status(400).end('Maximum number of submissions exceeded.');
+
+    // cant set up invites or teams before the submission is created, so we allow for the creation of stubs
     delete validChanges.invites;
     delete validChanges.teams;
+    delete validChanges.status;
     submission = new models.Submission({
       _id: req.body._id,
       user: req.jwt.user.id,
       event: req.body.event,
+      status: 'stub',
       ...validChanges
     });
   }
   await submission.save();
+
+  if (changeType) {
+    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name')
+    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+    .execPopulate();
+    console.log('Submission user:', submission.user);
+    if (changeType === 'new') sendDiscordSubmission(submission);
+    if (changeType === 'updated') sendDiscordSubmissionUpdate(submission, oldVals);
+    if (changeType === 'deleted') sendDiscordSubmissionDeletion(submission);
+  }
   return res.json(submission);
 }
 
@@ -369,14 +391,14 @@ export async function inviteUser(req, res) {
         let userResponse;
         try {
           userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/${req.body.user}`);
-          console.log('User response:', userResponse.body);
+          console.log('User response:', userResponse);
           user = new models.User({
             connections: {
               twitch: {
-                name: userResponse.body.name,
-                displayName: userResponse.body.display_name,
-                id: userResponse.body._id,
-                logo: userResponse.body.logo
+                name: userResponse.name,
+                displayName: userResponse.display_name,
+                id: userResponse._id,
+                logo: userResponse.logo
               }
             }
           });
