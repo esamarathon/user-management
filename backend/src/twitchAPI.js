@@ -1,9 +1,8 @@
 import _ from 'lodash';
-import got from 'got';
 
 import logger from './logger';
 import settings from './settings';
-import { throttleAsync } from './helpers';
+import { throttleAsync, httpReq } from './helpers';
 
 export function twitchGet(url, headers, token, query) {
   if (!headers) headers = {};
@@ -11,7 +10,7 @@ export function twitchGet(url, headers, token, query) {
   if (token) headers.authorization = `OAuth ${token}`;
   if (!headers.accept) headers.accept = 'application/vnd.twitchtv.v5+json';
   logger.debug(`Getting ${url}`);
-  return got.get(url, { headers, query, json: true });
+  return httpReq(url, { headers, query });
 }
 
 export function twitchPost(url, headers, token, body) {
@@ -20,13 +19,13 @@ export function twitchPost(url, headers, token, body) {
   if (token) headers.authorization = `OAuth ${token}`;
   if (!headers.accept) headers.accept = 'application/vnd.twitchtv.v5+json';
   logger.debug(`Posting to ${url}`);
-  return got.post(url, { headers, body, json: true });
+  return httpReq(url, { headers, body });
 }
 const userIDByName = {};
 export async function twitchGetIDByName(userName) {
   if (userIDByName[userName]) return userIDByName[userName];
   const userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/?login=${userName}`);
-  userIDByName[userName] = userResponse.body.users[0]._id;
+  userIDByName[userName] = userResponse.users[0]._id;
   return userIDByName[userName];
 }
 

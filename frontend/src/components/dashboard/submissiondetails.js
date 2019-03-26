@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { mapState } from 'vuex';
 import { getSubmission } from '../../api';
+import { teamsToString } from '../../helpers';
 
 export default {
   name: 'Submissions',
@@ -21,7 +22,7 @@ export default {
       return `${this.s.game} (${this.s.category} ${this.s.runType})`;
     },
     teamString() {
-      return _.map(this.s.teams, team => _.map(team.members, member => member.user.connections.twitch.displayName).join(', ')).join(' vs ');
+      return teamsToString(this.s.teams); // _.map(this.s.teams, team => _.map(team.members, member => member.user.connections.twitch.displayName).join(', ')).join(' vs ');
     },
     incentives() {
       return _.filter(this.s.incentives, i => i.type === 'incentive');
