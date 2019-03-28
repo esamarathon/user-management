@@ -244,3 +244,7 @@ img.profilepic {
 .handle {
   cursor: move;
 }
+
+.md-dialog {
+  transform: translateX(-50%) translateY(calc(-50% - .5px)); /* fixes https://github.com/esamarathon/user-management/issues/12, hopefully */
+}

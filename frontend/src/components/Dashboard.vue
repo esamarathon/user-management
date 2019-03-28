@@ -93,6 +93,7 @@
     border-radius: 5px 0 0 5px;
     padding-left: 8px;
     height: 36px;
+    cursor: pointer;
 
     .profile-pic {
       height: 36px;
@@ -158,7 +159,7 @@
 }
 
 .esa-logo, .esa-logo img {
-  height: 100%;
+  height: 48px;
   margin-right: 8px;
 }
 </style>
