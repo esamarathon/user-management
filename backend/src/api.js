@@ -112,44 +112,48 @@ export async function handleDiscordLogin(req, res) {
     return res.status(401).end('Not authenticated');
   }
   // check the csrf token against the state
-  if (req.cookies['discord-csrf'] && req.cookies['discord-csrf'] === req.query.state) {
-    res.clearCookie('discord-csrf');
-    // get the oauth token for discord
-    logger.debug('Loggin in to discord...');
-    const tokenResponse = await httpPost('https://discordapp.com/api/oauth2/token', {
-      body: {
-        client_id: settings.discord.clientID,
-        client_secret: settings.discord.clientSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: `${settings.api.baseurl}discord`,
-        code: req.query.code,
-        state: req.query.state
-      }
-    });
-    console.log('tokenResponse:', tokenResponse);
-    const token = tokenResponse.access_token;
-    if (!token) throw new Error('Invalid token');
-    const userResponse = await httpReq('https://discordapp.com/api/users/@me', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    console.log('Discord user response:', userResponse);
-    const user = await models.User.findById(jwt.user.id);
-    user.connections.discord = {
-      id: userResponse.id,
-      name: userResponse.username,
-      discriminator: userResponse.discriminator,
-      avatar: userResponse.avatar,
-      public: true,
-      oauthToken: token,
-      refreshToken: tokenResponse.refresh_token,
-      expiresAt: Date.now() + tokenResponse.expires_in * 1000
-    };
-    await user.save();
-    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
+  try {
+    if (req.cookies['discord-csrf'] && req.cookies['discord-csrf'] === req.query.state) {
+      res.clearCookie('discord-csrf');
+      // get the oauth token for discord
+      logger.debug('Loggin in to discord...');
+      const tokenResponse = await httpPost('https://discordapp.com/api/oauth2/token', {
+        body: {
+          client_id: settings.discord.clientID,
+          client_secret: settings.discord.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: `${settings.api.baseurl}discord`,
+          code: req.query.code,
+          state: req.query.state
+        }
+      });
+      console.log('tokenResponse:', tokenResponse);
+      const token = tokenResponse.access_token;
+      if (!token) throw new Error('Invalid token');
+      const userResponse = await httpReq('https://discordapp.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log('Discord user response:', userResponse);
+      const user = await models.User.findById(jwt.user.id);
+      user.connections.discord = {
+        id: userResponse.id,
+        name: userResponse.username,
+        discriminator: userResponse.discriminator,
+        avatar: userResponse.avatar,
+        public: true,
+        oauthToken: token,
+        refreshToken: tokenResponse.refresh_token,
+        expiresAt: Date.now() + tokenResponse.expires_in * 1000
+      };
+      await user.save();
+      return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
+    }
+    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
+  } catch (err) {
+    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=0&error=${encodeURIComponent(err.toString())}`);
   }
-  return res.status(400).end('Invalid CSRF token.');
 }
 
 export async function handleDiscordLogout(req, res) {

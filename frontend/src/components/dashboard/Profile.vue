@@ -17,7 +17,7 @@
           <md-input v-model="twitterHandle" v-on:change="twitterUpdated"></md-input>
         </md-field>
       </div>
-      <div class="details-row button-equivalent layout-row">
+      <!--<div class="details-row button-equivalent layout-row">
         <div class="flex-10">Phone number</div>
         <md-field class="flex-10 very-compact md-dark">
           <md-input type="tel" autocomplete="tel" v-model="phoneNumber" v-on:change="phoneUpdated"></md-input>
@@ -27,7 +27,7 @@
         <div class="flex-20">
           <md-icon>info</md-icon> Your phone number will only be used in emergencies to contact you or for SMS or push notifications, if you choose to receive those. You can leave it free.
         </div>
-      </div>
+      </div>-->
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Flag</div>
         <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
