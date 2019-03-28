@@ -8,13 +8,13 @@
             <label for="game">Game</label>
             <md-input name="game" id="game" v-model="selectedSubmission.game" />
             <span class="md-error" v-if="!$v.selectedSubmission.game.required">The game name is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.game.minlength">Invalid game name</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.game.minLength">Invalid game name</span>
           </md-field>
           <md-autocomplete md-input-placeholder="Twitch game" class="large-field flex-50" v-model="selectedSubmission.twitchGame" :md-options="gameSearch" @md-changed="searchGames(selectedSubmission.twitchGame)" :class="getValidationClass('twitchGame')">
             <label>Twitch game name</label>
             <template slot="md-autocomplete-item" slot-scope="{ item }" @click="selectGame(item)"><span><img :src="twitchGameCache[item].box.small" class=""> {{ item }}</span></template>
             <span class="md-error" v-if="!$v.selectedSubmission.twitchGame.required">The twitch game name is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.twitchGame.minlength">Invalid twitch game name</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.twitchGame.minLength">Invalid twitch game name</span>
           </md-autocomplete>
           <md-field class="large-field flex-50" :class="getValidationClass('leaderboards')">
             <label for="leaderboards">Leaderboards</label>
@@ -27,7 +27,7 @@
             <label for="category">Category</label>
             <md-input name="category" id="category" v-model="selectedSubmission.category" />
             <span class="md-error" v-if="!$v.selectedSubmission.category.required">The category name is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.category.minlength">Invalid category name</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.category.minLength">Invalid category name</span>
           </md-field>
           <md-field class="small-field flex-none" :class="getValidationClass('estimate')">
             <label for="estimate">Estimate [hh:mm]</label>
@@ -39,7 +39,7 @@
             <label>Platform</label>
             <template slot="md-autocomplete-item" slot-scope="{ item }">{{ item }}</template>
             <span class="md-error" v-if="!$v.selectedSubmission.platform.required">The platform is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.platform.minlength">Invalid platform name</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.platform.minLength">Invalid platform name</span>
           </md-autocomplete>
           <md-field class="small-field flex-none">
             <label for="runType">Run type</label>
@@ -90,14 +90,14 @@
           <md-field class="large-field flex-100" :class="getValidationClass('description')">
             <md-textarea name="description" id="description" v-model="selectedSubmission.description" placeholder="Game description (e.g. explanation of the basic concept, things you would like to be pointed out by the hosts, ...)" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.description.required">A description is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.description.minlength">Please provide at least 100 characters of description</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.description.maxlength">Please provide at most 1000 characters of description</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.description.minLength">Please provide at least 100 characters of description</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.description.maxLength">Please provide at most 1000 characters of description</span>
           </md-field>
           <md-field class="large-field flex-100" :class="getValidationClass('comment')">
             <md-textarea name="comment" id="comment" v-model="selectedSubmission.comment" placeholder="Comment (e.g. why you are worthy, special requests, ...)" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.comment.required">A comment is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minlength">Please provide at least 100 characters of comment.</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxlength">Please provide at most 1000 characters of comment</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minLength">Please provide at least 100 characters of comment.</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxLength">Please provide at most 1000 characters of comment</span>
           </md-field>
           <div class="incentives flex-100 layout-column">
             <div class="layout-row layout-start-center">
@@ -113,7 +113,7 @@
                     <label for="incentivename">Name</label>
                     <md-input name="incentivename" v-model="incentive.name" />
                     <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].name.required">An {{incentive.type}} name is required</span>
-                    <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].name.minlength">Invalid {{incentive.type}} name</span>
+                    <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].name.minLength">Invalid {{incentive.type}} name</span>
                   </md-field>
                   <md-button class="md-icon-button flex-none" @click="deleteIncentive(incentive)"><md-icon>delete</md-icon></md-button>
                 </div>
@@ -121,8 +121,8 @@
                   <label for="incentivedescription">Description</label>
                   <md-textarea name="incentivedescription" v-model="incentive.description" />
                   <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].description.required">A description is required for this {{incentive.type}}</span>
-                  <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].description.minlength">The {{incentive.type}} description needs to be at least 20 characters long</span>
-                  <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].description.maxlength">The {{incentive.type}} description needs to be at most 200 characters long</span>
+                  <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].description.minLength">The {{incentive.type}} description needs to be at least 20 characters long</span>
+                  <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].description.maxLength">The {{incentive.type}} description needs to be at most 200 characters long</span>
                 </md-field>
                 <div v-if="incentive.type === 'bidwar'" class="layout-row layout-wrap">
                   <md-field class="small-field flex-none">
