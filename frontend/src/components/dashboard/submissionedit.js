@@ -59,12 +59,12 @@ export default {
   methods: {
     async initTeams() {
       console.log('Initializing teams');
-      if (this.selectedSubmission.runType !== 'solo' && !this.selectedSubmission.teams) {
+      if (this.selectedSubmission.runType !== 'solo' && (!this.selectedSubmission.teams || this.selectedSubmission.teams.length === 0)) {
         this.selectedSubmission.teams = [{
           name: 'Team 1',
           members: [],
         }];
-        this.selectedSubmission.invitations = [];
+        this.selectedSubmission.invitations = this.selectedSubmission.invitations || [];
         const selfInvite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, this.user.connections.twitch.id]); // invites yourself
         console.log('Self invite:', selfInvite);
       }
