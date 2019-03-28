@@ -352,14 +352,15 @@ export async function updateUserSubmission(req, res) {
       _id: req.body._id,
       user: req.jwt.user.id,
       event: req.body.event,
-      status: 'stub',
+      status: req.body.status || 'stub',
       ...validChanges
     });
+    if (submission.status === 'saved') changeType = 'new';
   }
   await submission.save();
 
   if (changeType) {
-    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name')
+    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name connections.discord.discriminator')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .execPopulate();
     console.log('Submission user:', submission.user);
@@ -442,14 +443,22 @@ export async function respondToInvitation(req, res) {
         category: 'invitation',
         type: req.body.response,
         text: `${user.connections.twitch.displayName} ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType})!`,
-        icon: user.connections.twitch.logo
+        icon: user.connections.twitch.logo,
+        link: {
+          name: 'SubmissionDetails',
+          params: { id: invitation.submission._id }
+        }
       });
       // notify the invitee
       notify(user, {
         category: 'invitation',
         type: req.body.response,
         text: `You ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType}) by ${invitation.createdBy.connections.twitch.displayName}!`,
-        icon: invitation.createdBy.connections.twitch.logo
+        icon: invitation.createdBy.connections.twitch.logo,
+        link: {
+          name: 'SubmissionDetails',
+          params: { id: invitation.submission._id }
+        }
       });
       return res.json(invitation);
     }

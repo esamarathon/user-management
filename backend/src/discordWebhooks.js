@@ -67,7 +67,7 @@ export function sendDiscordSubmission(submission) {
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}#/dashboard/submissions/${submission._id}`,
     description: `${twitchName} has just submited a new run!\n\n` // eslint-disable-line prefer-template
-    + (discordUser ? `**Discord user:** <@!${discordUser.id}>\n` : '')
+    + (discordUser ? `**Discord user:** <@!${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`
@@ -91,7 +91,6 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
   }
 
   let teamsChanged = false;
-  console.log('comparing', submission.teams, 'to', changes.teams);
   _.each(submission.teams, (team, i) => {
     if (!changes.teams[i]) {
       teamsChanged = true;
@@ -104,7 +103,10 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     });
   });
 
-  const oldCategory = `${changes.category || submission.category} (${changes.runType || submission.runType})`;
+  let oldCategory = `${changes.category || submission.category}`;
+  if ((changes.runType && changes.runType !== 'solo') || submission.runType !== 'solo') {
+    oldCategory += `(${changes.runType || submission.runType})`;
+  }
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
   bidwars = _.map(bidwars, 'name').join(', ');
@@ -115,20 +117,26 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     oldBidwars = _.map(oldBidwars, 'name').join(', ');
   }
 
-  privateWebhook({
-    title: 'A run has been updated!',
-    url: `${settings.frontend.baseurl}#/dashboard/submissions/${submission._id}`,
-    description: `${twitchName} has just updated an existing run!\n\n` // eslint-disable-line prefer-template
-    + (discordUser ? `**Discord user:** <@!${discordUser.id}>\n` : '')
-    + (changes.game ? `**Game:** ${submission.game} (was: ${changes.game})\n` : '')
-    + (category !== oldCategory ? `**Category:** ${category} (was: ${oldCategory})\n` : '')
-    + (changes.platform ? `**Platform:** ${submission.platform} (was: ${changes.platform})\n` : '')
-    + (changes.estimate ? `**Estimate:** ${submission.estimate} (was: ${changes.estimate})\n` : '')
-    + (teamsChanged ? `**Players:** ${teams}\n` : '')
-    + (changes.video ? `**Video:** ${submission.video} (was: ${changes.video})\n` : '')
-    + (incentives !== oldIncentives ? `**Incentives:** ${incentives} (were: ${oldIncentives})\n` : '')
-    + (bidwars !== oldBidwars ? `**Bid wars:** ${bidwars} (were: ${oldBidwars})` : '')
-  });
+  const updates = _.filter([
+    changes.game && `**Game:** ${submission.game} (was: ${changes.game})`,
+    category !== oldCategory && `**Category:** ${category} (was: ${oldCategory})`,
+    changes.platform && `**Platform:** ${submission.platform} (was: ${changes.platform})`,
+    changes.estimate && `**Estimate:** ${submission.estimate} (was: ${changes.estimate})`,
+    teamsChanged && `**Players:** ${teams}`,
+    changes.video && `**Video:** ${submission.video} (was: ${changes.video})`,
+    incentives !== oldIncentives && `**Incentives:** ${incentives} (were: ${oldIncentives})`,
+    bidwars !== oldBidwars && `**Bid wars:** ${bidwars} (were: ${oldBidwars})`
+  ]);
+
+  console.log('Updates:', updates);
+
+  if (updates.length > 0) {
+    privateWebhook({
+      title: 'A run has been updated!',
+      url: `${settings.frontend.baseurl}#/dashboard/submissions/${submission._id}`,
+      description: `${twitchName} has just updated an existing run!\n\n\n${discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : ''}${updates.join('\n')}`
+    });
+  }
 }
 
 
@@ -149,7 +157,7 @@ export function sendDiscordSubmissionDeletion(submission) {
     title: 'A run has been deleted!',
     url: `${settings.frontend.baseurl}#/dashboard/submissions/${submission._id}`,
     description: `${twitchName} has just deleted a run!\n\n` // eslint-disable-line prefer-template
-    + (discordUser ? `**Discord user:** <@!${discordUser.id}>\n` : '')
+    + (discordUser ? `**Discord user:** <@!${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`
