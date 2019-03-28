@@ -71,6 +71,10 @@
             <md-icon>event</md-icon>
             <span class="md-list-item-text">Events</span>
           </md-list-item>
+          <md-list-item v-if="hasAnyPermission('Edit Feed', 'Admin')" :to="{name:'Feed'}">
+            <md-icon>announcement</md-icon>
+            <span class="md-list-item-text">Feed</span>
+          </md-list-item>
         </md-list>
       </div>
       <div class="content flex-100 layout-padding layout-column">

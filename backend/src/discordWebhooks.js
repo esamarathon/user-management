@@ -105,7 +105,7 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
 
   let oldCategory = `${changes.category || submission.category}`;
   if ((changes.runType && changes.runType !== 'solo') || submission.runType !== 'solo') {
-    oldCategory += `(${changes.runType || submission.runType})`;
+    oldCategory += ` (${changes.runType || submission.runType})`;
   }
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');

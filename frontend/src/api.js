@@ -97,6 +97,14 @@ export function getDecisions(eventID, type) {
   return makeRequest(`${settings.api.baseurl}decisions/runs`, { query: { event: eventID, type } });
 }
 
+export function getFeed() {
+  return makeRequest(`${settings.api.baseurl}feed`);
+}
+
+export function getFeedByEvent(eventID) {
+  return makeRequest(`${settings.api.baseurl}feed/${eventID}`);
+}
+
 export function flattenChanges(obj) {
   const res = {};
   _.each(obj, (val, key) => {
@@ -153,4 +161,12 @@ export function updateRole(role) {
 
 export function updateDecision(data) {
   return makePOST(`${settings.api.baseurl}decision/runs`, data);
+}
+
+export function updateFeed(data) {
+  return makePOST(`${settings.api.baseurl}feed`, data);
+}
+
+export function deleteFeed(data) {
+  return makePOST(`${settings.api.baseurl}feed`, data, { method: 'DELETE' });
 }
