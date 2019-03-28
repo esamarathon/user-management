@@ -358,9 +358,9 @@ export async function updateUserSubmission(req, res) {
   if (submission) {
     if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
-    if (validChanges.teams || validChanges.invitations) {
-      const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite._id.toString()));
-      const allMembers = _.map(_.flattenDeep([validChanges.invitations, _.map(validChanges.teams, team => team.members)]), member => member._id || member);
+    if ((validChanges.teams && validChanges.teams.length > 0) || (validChanges.invitations && validChanges.invitations.length > 0)) {
+      const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite && invite._id.toString()));
+      const allMembers = _.map(_.flattenDeep([validChanges.invitations || [], _.map(validChanges.teams, team => team.members) || []]), member => member._id || member);
 
       console.log('allInvites', allInvites);
       console.log('allMembers', allMembers);
