@@ -70,6 +70,7 @@
   "permissions": [
     "Edit Users",
     "Edit Schedule",
+    "Edit Feed",
     "Approve Submissions",
     "Approve Volunteers",
     "Approve Donations",
