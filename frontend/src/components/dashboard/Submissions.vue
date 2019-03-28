@@ -24,7 +24,7 @@
         </div>
         <div class="flex-none">
           <md-button class="md-icon-button md-dark" @click="selectSubmission(submission)" :disabled="!submissionsOpen"><md-icon>edit</md-icon><md-tooltip md-direction="bottom" md-delay=150>Edit</md-tooltip></md-button>
-          <md-button class="md-icon-button md-dark" @click="duplicateSubmission(submission)" :disabled="!submissionsOpen"><md-icon>library_add</md-icon><md-tooltip md-direction="bottom" md-delay=150>Duplicate</md-tooltip></md-button>
+          <md-button class="md-icon-button md-dark" @click="duplicateSubmission(submission)" :disabled="!submissionsOpen || submissionList.length >= 5"><md-icon>library_add</md-icon><md-tooltip md-direction="bottom" md-delay=150>Duplicate</md-tooltip></md-button>
           <md-button class="md-icon-button md-dark" @click="deleteSubmission(submission)" :disabled="!submissionsOpen"><md-icon>delete</md-icon><md-tooltip md-direction="bottom" md-delay=150>Delete</md-tooltip></md-button>
         </div>
       </div>

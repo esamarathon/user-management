@@ -78,6 +78,15 @@ const columns = [
   'Video',
   'Decision',
 ];
+const activeColumns = [
+  'Submitted by',
+  'Name',
+  'Players',
+  'Platform',
+  'Estimate',
+  'Video',
+  'Decision',
+];
 
 export default {
   name: 'Admin',
@@ -91,7 +100,7 @@ export default {
     runs: null,
     currentRoundName: 'First cut',
     columns,
-    activeColumns: columns.slice(),
+    activeColumns: activeColumns.slice(),
     filteredRuns: null,
     showDialog: false,
     selectedRun: null,

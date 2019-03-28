@@ -6,8 +6,9 @@
     <md-button class="md-icon-button twitch" v-if="videoInfo.type === 'twitch'" @click="showDialog = true">
       <img src="../../../assets/twitch_logo.png">
     </md-button>
-    <md-button class="unknown" v-if="videoInfo.type === 'unknown'" :href="url" target="_blank">
-      {{videoInfo.host}}
+    <md-button class="unknown md-icon-button" v-if="videoInfo.type === 'unknown'" :href="url" target="_blank">
+      <img :src="'//'+videoInfo.host+'/favicon.ico'" @error="videoInfo.unknown = true" v-if="!videoInfo.unknown">
+      <span v-if="videoInfo.unknown">?</span>
     </md-button>
     <md-dialog :md-active.sync="showDialog">
       <iframe class="video-player md-image" :src="videoInfo.embedUrl" allow="autoplay; encrypted-media" allowfullscreen width=960 height=540></iframe>

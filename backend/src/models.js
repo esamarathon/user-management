@@ -181,6 +181,14 @@ const Activity = new mongoose.Schema({
   timestamps: true
 });
 
+const FeedItem = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  text: String,
+  icon: String,
+  time: Date
+});
+
 export const schemas = {
   User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, Invitation
 };
@@ -191,5 +199,6 @@ export const models = {
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
   Activity: mongoose.model('activity', Activity),
-  Invitation: mongoose.model('invitation', Invitation)
+  Invitation: mongoose.model('invitation', Invitation),
+  FeedItem: mongoose.model('feeditem', FeedItem)
 };

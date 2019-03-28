@@ -20,6 +20,10 @@
     "clientID": "",
     "clientSecret": ""
   },
+  "discord": {
+    "clientID": "",
+    "invite": "https://discord.gg/esamarathon"
+  },
   "db": {
     "url": "mongodb://localhost/esa_users"
   },
@@ -70,6 +74,7 @@
   "permissions": [
     "Edit Users",
     "Edit Schedule",
+    "Edit Feed",
     "Approve Submissions",
     "Approve Volunteers",
     "Approve Donations",

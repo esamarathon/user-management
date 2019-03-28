@@ -1,16 +1,23 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { mapState } from 'vuex';
-import { getActivities, respondToInvitation } from '../../api';
+import { getActivities, getFeed, respondToInvitation } from '../../api';
+import { formatTime } from '../../helpers';
 
 export default {
   name: 'Home',
   data: () => ({
     activities: [],
     invitations: [],
+    feed: [],
   }),
   async created() {
     this.updateActivities();
+    const feed = await getFeed();
+    this.feed = feed;
+    _.each(this.feed, (feeditem) => {
+      feeditem.event = _.find(this.events, { _id: feeditem.event });
+    });
   },
   methods: {
     async respondToInvitation(invitation, response) {
@@ -19,9 +26,7 @@ export default {
       await this.updateActivities();
     },
     formatTime(time) {
-      return new Date(time).toLocaleDateString(undefined, {
-        year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
-      });
+      return formatTime(time);
     },
     async updateActivities() {
       const result = await getActivities();

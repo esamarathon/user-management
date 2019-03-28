@@ -90,14 +90,14 @@
           <md-field class="large-field flex-100" :class="getValidationClass('description')">
             <md-textarea name="description" id="description" v-model="selectedSubmission.description" placeholder="Game description (e.g. explanation of the basic concept, things you would like to be pointed out by the hosts, ...)" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.description.required">A description is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.description.minlength">Please provide at least 100 characters of description</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.description.maxlength">Please provide at most 1000 characters of description</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.description.minLength">Please provide at least 100 characters of description</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.description.maxLength">Please provide at most 1000 characters of description</span>
           </md-field>
           <md-field class="large-field flex-100" :class="getValidationClass('comment')">
             <md-textarea name="comment" id="comment" v-model="selectedSubmission.comment" placeholder="Comment (e.g. why you are worthy, special requests, ...)" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.comment.required">A comment is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minlength">Please provide at least 100 characters of comment.</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxlength">Please provide at most 1000 characters of comment</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minLength">Please provide at least 100 characters of comment.</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxLength">Please provide at most 1000 characters of comment</span>
           </md-field>
           <div class="incentives flex-100 layout-column">
             <div class="layout-row layout-start-center">
