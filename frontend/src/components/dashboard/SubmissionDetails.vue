@@ -1,14 +1,14 @@
 <template>
-  <div class="layout-column" v-if="submission">
+  <div class="layout-column" v-if="s">
     <h1>Submission details for {{name}} at {{s.event.name}}</h1>
     <div class="submission-details layout-column">
-      <!--<div class="details-row layout-row">
-        <div class="flex-25">Submission ID</div>
-        <div class="flex">{{submission._id}}</div>
-      </div>-->
       <div class="details-row layout-row">
         <div class="flex-25">Name</div>
         <div class="flex"><a :href="s.leaderboards">{{name}}</a></div>
+      </div>
+      <div class="details-row layout-row">
+        <div class="flex-25">Status</div>
+        <div class="flex">{{s.status}}</div>
       </div>
       <div class="details-row layout-row">
         <div class="flex-25">Estimate</div>

@@ -13,33 +13,35 @@
           <div class="flex-100">
             <span class="activity-time">{{formatTime(activity.updatedAt)}}</span>
             <span class="activity-text">{{activity.text}}</span>
-            <span class="activity-link" v-if="activity.link"><router-link :to="activity.link">Details</router-link></span>
+            <span class="activity-link" v-if="activity.link"> &mdash; <router-link :to="activity.link">Details</router-link></span>
           </div>
         </div>
       </div>
       <div class="home-column flex-100">
         <h2>Invitations</h2>
-        <div class="invitation layout-row" v-for="invitation in invitations" :key="invitation._id">
-          <div class="flex-none">
-            <img :src="invitation.createdBy.connections.twitch.logo" class="profilepic">
+        <transition-group name="invitation-list" tag="div">
+          <div class="invitation layout-row" :class="`invitation-${invitation.class}`" v-for="invitation in invitationList" :key="invitation._id">
+            <div class="flex-none">
+              <img :src="invitation.createdBy.connections.twitch.logo" class="profilepic">
+            </div>
+            <div class="flex-100">
+              <span class="user-name">{{invitation.createdBy.connections.twitch.displayName}}</span> invited you to join the
+              <span class="run-name">{{invitation.submission.game}} ({{invitation.submission.category}} {{invitation.submission.runType}})</span>
+              run at <span class="event-name">{{invitation.submission.event.name}}</span> &mdash; <router-link :to="{name: 'SubmissionDetails', params: { id: invitation.submission._id }}">Details</router-link>
+            </div>
+            <div class="flex-none layout-row layout-wrap accept-buttons">
+              <md-button class="md-icon-button accept-button" @click="respondToInvitation(invitation, 'accepted')"><md-icon>check</md-icon></md-button><span><!-- seperates the buttons --></span>
+              <md-button class="md-icon-button decline-button" @click="respondToInvitation(invitation, 'denied')"><md-icon>clear</md-icon></md-button>
+            </div>
           </div>
-          <div class="flex-100">
-            <span class="user-name">{{invitation.createdBy.connections.twitch.displayName}}</span> invited you to join the 
-            <span class="run-name">{{invitation.submission.game}} ({{invitation.submission.category}} {{invitation.submission.runType}})</span>
-            run at <span class="event-name">{{invitation.submission.event.name}}</span> &mdash; <router-link :to="{name: 'SubmissionDetails', params: { id: invitation.submission._id }}">Details</router-link>
-          </div>
-          <div class="flex-none layout-row layout-wrap accept-buttons">
-            <md-button class="md-icon-button" @click="respondToInvitation(invitation, 'accepted')"><md-icon>check</md-icon></md-button><span><!-- seperates the buttons --></span>
-            <md-button class="md-icon-button" @click="respondToInvitation(invitation, 'denied')"><md-icon>clear</md-icon></md-button>
-          </div>
-        </div>
+        </transition-group>
       </div>
       <div class="home-column flex-100">
         <h2>Feed</h2>
       </div>
     </div>
   </div>
-</template> 
+</template>
 
 <script src="./home.js"></script>
 
@@ -94,6 +96,24 @@
 @media(max-width: 1600px) {
   .accept-buttons {
     flex-direction: column;
+  }
+}
+
+.invitation-list-enter-active, .invitation-list-leave-active {
+  transition: all 1s;
+}
+.invitation-list-enter, .invitation-list-leave-to {
+  opacity: 0;
+}
+
+.invitation.invitation-accepted {
+  .md-button.accept-button {
+    background-color: #65a713;
+  }
+}
+.invitation.invitation-denied {
+  .md-button.decline-button {
+    background-color: #a71313;
   }
 }
 </style>

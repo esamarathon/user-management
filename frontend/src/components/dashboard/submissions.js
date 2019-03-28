@@ -60,6 +60,9 @@ export default {
     duplicateSubmission(submission) {
       this.selectedSubmission = _.cloneDeep(submission);
       this.selectedSubmission._id = generateID();
+      this.selectedSubmission.teams = null;
+      this.selectedSubmission.runType = 'solo';
+      this.selectedSubmission.status = 'stub';
       this.showDialog = true;
     },
     deleteSubmission(submission) {

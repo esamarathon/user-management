@@ -41,26 +41,32 @@
               </md-select>
             </md-field>
 
-            <md-datepicker class="medium-field" v-model="selectedEvent.startDate">
-              <label>Start date</label>
-            </md-datepicker>
-            <md-datepicker class="medium-field" v-model="selectedEvent.endDate">
-              <label>End date</label>
-            </md-datepicker>
+            <div class="flex-100 layout-row">
+              <md-datepicker class="medium-field" v-model="selectedEvent.startDate">
+                <label>Start date</label>
+              </md-datepicker>
+              <md-datepicker class="medium-field" v-model="selectedEvent.endDate">
+                <label>End date</label>
+              </md-datepicker>
+            </div>
 
-            <md-datepicker class="medium-field" v-model="selectedEvent.submissionsStart">
-              <label>Submissions start</label>
-            </md-datepicker>
-            <md-datepicker class="medium-field" v-model="selectedEvent.submissionsEnd">
-              <label>Submissions end</label>
-            </md-datepicker>
+            <div class="flex-100 layout-row">
+              <md-datepicker class="medium-field" v-model="selectedEvent.submissionsStart">
+                <label>Submissions start</label>
+              </md-datepicker>
+              <md-datepicker class="medium-field" v-model="selectedEvent.submissionsEnd">
+                <label>Submissions end</label>
+              </md-datepicker>
+            </div>
 
-            <md-datepicker class="medium-field" v-model="selectedEvent.applicationsStart">
-              <label>Volunteer applications start</label>
-            </md-datepicker>
-            <md-datepicker class="medium-field" v-model="selectedEvent.applicationsEnd">
-              <label>Volunteer applications end</label>
-            </md-datepicker>
+            <div class="flex-100 layout-row">
+              <md-datepicker class="medium-field" v-model="selectedEvent.applicationsStart">
+                <label>Volunteer applications start</label>
+              </md-datepicker>
+              <md-datepicker class="medium-field" v-model="selectedEvent.applicationsEnd">
+                <label>Volunteer applications end</label>
+              </md-datepicker>
+            </div>
           </div>
         </form>
       </md-dialog-content>

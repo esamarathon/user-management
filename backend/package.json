@@ -11,11 +11,10 @@
     "express-jwt": "^5.3.1",
     "express-pino-logger": "^4.0.0",
     "express-ws": "^4.0.0",
-    "got": "^9.2.1",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",
     "mongoose": "^5.2.15",
-    "node-fetch": "^2.2.0",
+    "node-fetch": "^2.3.0",
     "pino": "^5.5.0",
     "pino-pretty": "^2.2.0"
   },
