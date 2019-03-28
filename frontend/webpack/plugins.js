@@ -3,7 +3,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HTMLPlugin = require('html-webpack-plugin');
 
 const MiniCssExtractPlugin = new _MiniCssExtractPlugin({
-  filename: '[name].bundle.css',
+  filename: '[hash].bundle.css',
   chunkFilename: '[id].css',
 });
 module.exports = {
