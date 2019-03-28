@@ -4,7 +4,7 @@
     <div class="flex-none layout-row" v-if="submissionsOpen">
       <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord && submissionList.length < 5">Submit run</md-button>
       <div class="no-discord flex-none" v-if="!user.connections.discord">
-        <md-icon>warning</md-icon> Please link your discord account to the users tool to be able to submit runs. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
+        <md-icon>warning</md-icon> Please link your discord account to the users tool and check your availability to be able to submit runs. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
         This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
       </div>
     </div>
@@ -23,9 +23,9 @@
           <div class="submission-body flex-none">Status: {{submission.status}}</div>
         </div>
         <div class="flex-none">
-          <md-button class="md-icon-button md-dark" @click="selectSubmission(submission)" :disabled="!submissionsOpen"><md-icon>edit</md-icon></md-button>
-          <md-button class="md-icon-button md-dark" @click="duplicateSubmission(submission)" :disabled="!submissionsOpen"><md-icon>library_add</md-icon></md-button>
-          <md-button class="md-icon-button md-dark" @click="deleteSubmission(submission)" :disabled="!submissionsOpen"><md-icon>delete</md-icon></md-button>
+          <md-button class="md-icon-button md-dark" @click="selectSubmission(submission)" :disabled="!submissionsOpen"><md-icon>edit</md-icon><md-tooltip md-direction="bottom" md-delay=150>Edit</md-tooltip></md-button>
+          <md-button class="md-icon-button md-dark" @click="duplicateSubmission(submission)" :disabled="!submissionsOpen"><md-icon>library_add</md-icon><md-tooltip md-direction="bottom" md-delay=150>Duplicate</md-tooltip></md-button>
+          <md-button class="md-icon-button md-dark" @click="deleteSubmission(submission)" :disabled="!submissionsOpen"><md-icon>delete</md-icon><md-tooltip md-direction="bottom" md-delay=150>Delete</md-tooltip></md-button>
         </div>
       </div>
     </div>

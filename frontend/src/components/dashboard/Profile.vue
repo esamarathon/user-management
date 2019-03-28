@@ -24,6 +24,11 @@
         </md-field>
       </div>
       <div class="details-row button-equivalent layout-row">
+        <div class="flex-20">
+          <md-icon>info</md-icon> Your phone number will only be used in emergencies to contact you or for SMS or push notifications, if you choose to receive those. You can leave it free.
+        </div>
+      </div>
+      <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Flag</div>
         <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
       </div>
@@ -31,12 +36,12 @@
         <div class="flex-10">Availability for {{currentEvent.name}}</div>
         <div class="layout-row flex layout-wrap">
           <div class="flex-none">
-            <md-datepicker class="medium-field" v-model="availabilityStart">
+            <md-datepicker class="medium-field" v-model="availabilityStart" :md-disabled-dates="disabledDatesFrom">
               <label>From</label>
             </md-datepicker>
           </div>
           <div class="flex-none">
-            <md-datepicker class="medium-field" v-model="availabilityEnd">
+            <md-datepicker class="medium-field" v-model="availabilityEnd" :md-disabled-dates="disabledDatesTo">
               <label>Until</label>
             </md-datepicker>
           </div>
