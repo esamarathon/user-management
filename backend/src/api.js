@@ -459,6 +459,12 @@ export async function inviteUser(req, res) {
           console.log(err);
           return res.status(500).end('User lookup failed.');
         }
+        // check again for race condition
+        const existingInvitation = await models.Invitation.findOne({ submission: req.body.submission, user });
+        if (existingInvitation) {
+          console.log('User already invited.');
+          return res.status(400).end('User already invited.');
+        }
       }
       const invitation = new models.Invitation({
         user: user._id,

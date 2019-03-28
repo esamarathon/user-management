@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import expressWs from 'express-ws';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 
 import settings from './settings';
 import {
@@ -34,6 +35,25 @@ app.use(jwt({
   algorithms: ['RS256'],
   credentialsRequired: false,
   requestProperty: 'jwt'
+}));
+
+function keyGenerator(req) {
+  if (req.jwt) {
+    return req.jwt.user.id;
+  }
+  return `${Math.random()}`;
+}
+
+app.use(rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+  keyGenerator
+}));
+
+app.use('/user/invite', rateLimit({
+  windowMs: 1000,
+  max: 1,
+  keyGenerator
 }));
 
 app.get('/login', handleLogin);
