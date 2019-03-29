@@ -47,7 +47,7 @@
               <span class="feeditem-event">{{feeditem.event.name}}</span>
               <span class="feeditem-time">{{formatTime(feeditem.time)}}</span>
             </div>
-            <span class="feeditem-text" v-linkified:options="{ nl2br: 'true' }">{{feeditem.text}}</span>
+            <linkified class="feeditem-text" :text="feeditem.text"></linkified>
           </div>
         </div>
       </div>

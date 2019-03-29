@@ -5,7 +5,6 @@ import VueMaterial from 'vue-material';
 import Vuex from 'vuex';
 import VueMoment from 'vue-moment';
 import Toasted from 'vue-toasted';
-import linkify from 'vue-linkify';
 
 import 'vue-material/dist/vue-material.min.css';
 import 'vue-material/dist/theme/default-dark.css';
@@ -31,7 +30,6 @@ Vue.component('radio-group', RadioGroup);
 Vue.component('video-button', VideoButton);
 Vue.component('md-autocomplete', MdAutocomplete);
 Vue.use(Toasted, { duration: 3000 });
-Vue.directive('linkified', linkify);
 
 const store = new Vuex.Store(vuexConfig);
 

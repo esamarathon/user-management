@@ -199,13 +199,13 @@ function calculateEventFeed(event) {
 
   // this can probably be improved
   if (event.submissionsStart && event.submissionsStart < now) {
-    ret.push({ event: event._id, text: `Submissions have been opened for ${event.name}. \nGo submit your runs at ${settings.frontend.baseurl}#/dashboard/submissions`, time: event.submissionsStart });
+    ret.push({ event: event._id, text: `Submissions have been opened for ${event.name}. \nGo submit your runs [{"name": "Submissions"}](here)`, time: event.submissionsStart });
   }
   if (event.submissionsEnd && event.submissionsEnd < now) {
     ret.push({ event: event._id, text: `Submissions are now closed for ${event.name}`, time: event.submissionsEnd });
   }
   if (event.applicationsStart && event.applicationsStart < now) {
-    ret.push({ event: event._id, text: `Volunteer applications have been opened for ${event.name}. \nGo apply at ${settings.frontend.baseurl}#/dashboard/applications`, time: event.applicationsStart });
+    ret.push({ event: event._id, text: `Volunteer applications have been opened for ${event.name}. \nGo apply [{"name": "Volunteers"}](here)`, time: event.applicationsStart });
   }
   if (event.applicationsEnd && event.applicationsEnd < now) {
     ret.push({ event: event._id, text: `Volunteer applications are now closed for ${event.name}`, time: event.applicationsEnd });

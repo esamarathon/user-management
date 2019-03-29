@@ -3,6 +3,7 @@ import Vue from 'vue';
 import { mapState } from 'vuex';
 import { getActivities, getFeed, respondToInvitation } from '../../api';
 import { formatTime } from '../../helpers';
+import linkified from './linkified';
 
 export default {
   name: 'Home',
@@ -44,5 +45,8 @@ export default {
     invitationList() {
       return _.filter(this.invitations, invitation => invitation.status === 'pending');
     },
+  },
+  components: {
+    linkified,
   },
 };
