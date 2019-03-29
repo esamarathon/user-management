@@ -25,6 +25,7 @@ module.exports = (env, argv) => {
     ],
     output: {
       path: path.resolve(__dirname, '../dist'),
+      publicPath: '/',
       filename: '[hash].bundle.js',
     },
     resolve: {
