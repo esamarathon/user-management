@@ -1,17 +1,18 @@
-import got from 'got';
-import crypto from 'crypto';
 import URL from 'url';
 import _ from 'lodash';
-// import mongoose from 'mongoose';
+import crypto from 'crypto';
+import { isDeepStrictEqual } from 'util';
 
+import mongoose from 'mongoose';
 import logger from './logger';
-import { twitchGet } from './twitchAPI';
 import settings from './settings';
-import { generateToken, decodeToken } from './auth';
 import { models } from './models';
-import { notify } from './helpers';
+import { twitchGet } from './twitchAPI';
+import { generateToken, decodeToken } from './auth';
+import { notify, httpPost, httpReq } from './helpers';
+import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion } from './discordWebhooks';
 
-export async function handleLogin(req, res, next) {
+export async function handleLogin(req, res) {
   const redirectUrl = req.query.state || settings.frontend.baseurl;
   const parsedRedirectUrl = URL.parse(redirectUrl);
   const domainFilter = new RegExp(settings.auth.domainFilter);
@@ -21,8 +22,7 @@ export async function handleLogin(req, res, next) {
   }
   try {
     logger.debug('Logging in...');
-    const tokenResponse = await got.post('https://api.twitch.tv/kraken/oauth2/token', {
-      form: true,
+    const tokenResponse = await httpPost('https://api.twitch.tv/kraken/oauth2/token', {
       body: {
         client_id: settings.twitch.clientID,
         client_secret: settings.twitch.clientSecret,
@@ -30,14 +30,13 @@ export async function handleLogin(req, res, next) {
         redirect_uri: `${settings.api.baseurl}login`,
         code: req.query.code,
         state: req.query.state
-      },
-      json: true
+      }
     });
-    const token = tokenResponse.body.access_token;
-    console.log('Token:', token);
-    const userResponse = (await twitchGet('https://api.twitch.tv/kraken/user', null, token)).body;
+    const token = tokenResponse.access_token;
+    if (!token) throw new Error('Access token could not be received');
+    const userResponse = await twitchGet('https://api.twitch.tv/kraken/user', null, token);
     console.log('User response:', userResponse);
-    if (userResponse) {
+    if (userResponse && userResponse._id) {
       // get user
       let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
       if (!user) {
@@ -51,8 +50,8 @@ export async function handleLogin(req, res, next) {
               logo: userResponse.logo,
               email: userResponse.email,
               oauthToken: token,
-              refreshToken: tokenResponse.body.refresh_token,
-              expiresAt: Date.now() + tokenResponse.body.expires_in * 1000
+              refreshToken: tokenResponse.refresh_token,
+              expiresAt: Date.now() + tokenResponse.expires_in * 1000
             }
           },
           flag: (req.header['CF-IPCountry'] || 'XX').toLowerCase()
@@ -70,8 +69,8 @@ export async function handleLogin(req, res, next) {
           logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their email to ${userResponse.email}`);
         }
         user.connections.twitch.oauthToken = token;
-        user.connections.twitch.refreshToken = tokenResponse.body.refresh_token;
-        user.connections.twitch.expiresAt = Date.now() + tokenResponse.body.expires_in * 1000;
+        user.connections.twitch.refreshToken = tokenResponse.refresh_token;
+        user.connections.twitch.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
         console.log('Updated user', user);
       }
 
@@ -98,9 +97,13 @@ export async function handleLogin(req, res, next) {
       res.redirect(redirectUrl);
       return;
     }
-    res.status(401).end('Invalid authentication');
+    res.redirect(redirectUrl);
     return;
-  } catch (err) { console.error(err); logger.error(err); next(err); }
+  } catch (err) {
+    console.error(err);
+    logger.error(err);
+    res.redirect(redirectUrl);
+  }
 }
 
 export async function handleDiscordLogin(req, res) {
@@ -113,45 +116,48 @@ export async function handleDiscordLogin(req, res) {
     return res.status(401).end('Not authenticated');
   }
   // check the csrf token against the state
-  if (req.cookies['discord-csrf'] && req.cookies['discord-csrf'] === req.query.state) {
-    res.clearCookie('discord-csrf');
-    // get the oauth token for discord
-    logger.debug('Loggin in to discord...');
-    const tokenResponse = await got.post('https://discordapp.com/api/oauth2/token', {
-      form: true,
-      body: {
-        client_id: settings.discord.clientID,
-        client_secret: settings.discord.clientSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: `${settings.api.baseurl}discord`,
-        code: req.query.code,
-        state: req.query.state
-      },
-      json: true
-    });
-    const token = tokenResponse.body.access_token;
-    const userResponse = await got.get('https://discordapp.com/api/users/@me', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      json: true
-    });
-    console.log('Discord user response:', userResponse.body);
-    const user = await models.User.findById(jwt.user.id);
-    user.connections.discord = {
-      id: userResponse.body.id,
-      name: userResponse.body.username,
-      discriminator: userResponse.body.discriminator,
-      avatar: userResponse.body.avatar,
-      public: true,
-      oauthToken: token,
-      refreshToken: tokenResponse.body.refresh_token,
-      expiresAt: Date.now() + tokenResponse.body.expires_in * 1000
-    };
-    await user.save();
-    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
+  try {
+    if (req.cookies['discord-csrf'] && req.cookies['discord-csrf'] === req.query.state) {
+      res.clearCookie('discord-csrf');
+      // get the oauth token for discord
+      logger.debug('Loggin in to discord...');
+      const tokenResponse = await httpPost('https://discordapp.com/api/oauth2/token', {
+        body: {
+          client_id: settings.discord.clientID,
+          client_secret: settings.discord.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: `${settings.api.baseurl}discord`,
+          code: req.query.code,
+          state: req.query.state
+        }
+      });
+      console.log('tokenResponse:', tokenResponse);
+      const token = tokenResponse.access_token;
+      if (!token) throw new Error('Invalid token');
+      const userResponse = await httpReq('https://discordapp.com/api/users/@me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log('Discord user response:', userResponse);
+      const user = await models.User.findById(jwt.user.id);
+      user.connections.discord = {
+        id: userResponse.id,
+        name: userResponse.username,
+        discriminator: userResponse.discriminator,
+        avatar: userResponse.avatar,
+        public: true,
+        oauthToken: token,
+        refreshToken: tokenResponse.refresh_token,
+        expiresAt: Date.now() + tokenResponse.expires_in * 1000
+      };
+      await user.save();
+      return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
+    }
+    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
+  } catch (err) {
+    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=0&error=${encodeURIComponent(err.toString())}`);
   }
-  return res.status(400).end('Invalid CSRF token.');
 }
 
 export async function handleDiscordLogout(req, res) {
@@ -185,6 +191,53 @@ export async function getActivities(req, res) {
     activities,
     invitations
   });
+}
+
+function calculateEventFeed(event) {
+  const now = Date.now();
+  const ret = [];
+
+  // this can probably be improved
+  if (event.submissionsStart && event.submissionsStart < now) {
+    ret.push({ event: event._id, text: `Submissions have been opened for ${event.name}. \nGo submit your runs [{"name": "Submissions"}](here)`, time: event.submissionsStart });
+  }
+  if (event.submissionsEnd && event.submissionsEnd < now) {
+    ret.push({ event: event._id, text: `Submissions are now closed for ${event.name}`, time: event.submissionsEnd });
+  }
+  if (event.applicationsStart && event.applicationsStart < now) {
+    ret.push({ event: event._id, text: `Volunteer applications have been opened for ${event.name}. \nGo apply [{"name": "Volunteers"}](here)`, time: event.applicationsStart });
+  }
+  if (event.applicationsEnd && event.applicationsEnd < now) {
+    ret.push({ event: event._id, text: `Volunteer applications are now closed for ${event.name}`, time: event.applicationsEnd });
+  }
+  if (event.startDate && event.startDate < now) {
+    ret.push({ event: event._id, text: `${event.name} has started!`, time: event.startDate });
+  }
+  if (event.endDate && event.endDate < now) {
+    ret.push({ event: event._id, text: `${event.name} has unfortunately ended`, time: event.endDate });
+  }
+
+  return ret;
+}
+
+async function calculateEventFeeds() {
+  const events = await models.Event.find({ status: { $eq: 'public' } });
+  return _.flatten(_.map(events, event => calculateEventFeed(event)));
+}
+
+export async function getFeed(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  let eventFeed = calculateEventFeeds();
+  const feed = await models.FeedItem.find(null, 'event text time', { sort: { time: -1 }, limit: 50 });
+  eventFeed = await eventFeed;
+  return res.json(_.sortBy(_.concat(feed, eventFeed), [feeditem => -feeditem.time]));
+}
+
+export async function getFeedForEvent(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const feed = await models.FeedItem.find({ event: req.params.event }).sort({ time: -1 })
+  .populate({ path: 'user', select: 'connections.twitch.displayName connections.twitch.name' });
+  return res.json(feed);
 }
 
 export async function getUserSubmissions(req, res) {
@@ -304,13 +357,14 @@ export async function updateUserSubmission(req, res) {
   const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations', 'incentives']);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
-
+  let changeType;
+  const oldVals = {};
   if (submission) {
     if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
-    if (validChanges.teams || validChanges.invitations) {
-      const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite._id.toString()));
-      const allMembers = _.map(_.flattenDeep([validChanges.invitations, _.map(validChanges.teams, team => team.members)]), member => member._id || member);
+    if ((validChanges.teams && validChanges.teams.length > 0) || (validChanges.invitations && validChanges.invitations.length > 0)) {
+      const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite && invite._id.toString()));
+      const allMembers = _.map(_.flattenDeep([validChanges.invitations || [], _.map(validChanges.teams, team => team.members) || []]), member => member._id || member);
 
       console.log('allInvites', allInvites);
       console.log('allMembers', allMembers);
@@ -331,20 +385,44 @@ export async function updateUserSubmission(req, res) {
       _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member && (member._id || member)); });
       validChanges.invitations = _.map(validChanges.invitations, invite => invite && (invite._id || invite));
     }
+    if (submission.status === 'stub' && validChanges.status === 'saved') changeType = 'new';
+    if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
+    if (submission.status === 'saved' && validChanges.status === 'saved') changeType = 'updated';
     console.log('Valid changes:', validChanges);
+    _.each(validChanges, (val, key) => {
+      if (!isDeepStrictEqual(submission[key], val)) oldVals[key] = submission[key];
+    });
     mergeNonArray(submission, validChanges);
   } else {
-    // cant set up invites or teams before the submission is created
+    // maximum of 5 submissions per user
+    const submissionAggregation = await models.Submission.aggregate([{ $match: { user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
+    console.log('Submission aggregation:', submissionAggregation);
+    if (submissionAggregation[0] && submissionAggregation[0].submissions >= 5) return res.status(400).end('Maximum number of submissions exceeded.');
+
+    // cant set up invites or teams before the submission is created, so we allow for the creation of stubs
     delete validChanges.invites;
     delete validChanges.teams;
+    delete validChanges.status;
     submission = new models.Submission({
       _id: req.body._id,
       user: req.jwt.user.id,
       event: req.body.event,
+      status: req.body.status || 'stub',
       ...validChanges
     });
+    if (submission.status === 'saved') changeType = 'new';
   }
   await submission.save();
+
+  if (changeType) {
+    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name connections.discord.discriminator')
+    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+    .execPopulate();
+    console.log('Submission user:', submission.user);
+    if (changeType === 'new') sendDiscordSubmission(submission);
+    if (changeType === 'updated') sendDiscordSubmissionUpdate(submission, oldVals);
+    if (changeType === 'deleted') sendDiscordSubmissionDeletion(submission);
+  }
   return res.json(submission);
 }
 
@@ -369,14 +447,14 @@ export async function inviteUser(req, res) {
         let userResponse;
         try {
           userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/${req.body.user}`);
-          console.log('User response:', userResponse.body);
+          console.log('User response:', userResponse);
           user = new models.User({
             connections: {
               twitch: {
-                name: userResponse.body.name,
-                displayName: userResponse.body.display_name,
-                id: userResponse.body._id,
-                logo: userResponse.body.logo
+                name: userResponse.name,
+                displayName: userResponse.display_name,
+                id: userResponse._id,
+                logo: userResponse.logo
               }
             }
           });
@@ -384,6 +462,12 @@ export async function inviteUser(req, res) {
         } catch (err) {
           console.log(err);
           return res.status(500).end('User lookup failed.');
+        }
+        // check again for race condition
+        const existingInvitation = await models.Invitation.findOne({ submission: req.body.submission, user });
+        if (existingInvitation) {
+          console.log('User already invited.');
+          return res.status(400).end('User already invited.');
         }
       }
       const invitation = new models.Invitation({
@@ -420,14 +504,22 @@ export async function respondToInvitation(req, res) {
         category: 'invitation',
         type: req.body.response,
         text: `${user.connections.twitch.displayName} ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType})!`,
-        icon: user.connections.twitch.logo
+        icon: user.connections.twitch.logo,
+        link: {
+          name: 'SubmissionDetails',
+          params: { id: invitation.submission._id }
+        }
       });
       // notify the invitee
       notify(user, {
         category: 'invitation',
         type: req.body.response,
         text: `You ${req.body.response} your invitation for the run ${invitation.submission.game} (${invitation.submission.category} ${invitation.submission.runType}) by ${invitation.createdBy.connections.twitch.displayName}!`,
-        icon: invitation.createdBy.connections.twitch.logo
+        icon: invitation.createdBy.connections.twitch.logo,
+        link: {
+          name: 'SubmissionDetails',
+          params: { id: invitation.submission._id }
+        }
       });
       return res.json(invitation);
     }
@@ -499,6 +591,49 @@ export async function getRoles(req, res) {
   return res.json(await models.Role.find());
 }
 
+export async function updateFeed(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, req.body.event, 'Edit Feed')) {
+    let feeditem = await models.FeedItem.findById(req.body._id).exec();
+
+    if (feeditem) {
+      delete req.body._id;
+      mergeNonArray(feeditem, req.body);
+      mergeNonArray(feeditem, { user: req.jwt.user.id });
+    } else {
+      feeditem = new models.FeedItem({
+        _id: req.body._id,
+        user: req.jwt.user.id,
+        event: req.body.event,
+        text: req.body.text,
+        time: req.body.time
+      });
+    }
+    console.log(feeditem);
+    await feeditem.save();
+    return res.json(feeditem);
+  }
+  return res.status(403).end('Access denied.');
+}
+
+export async function deleteFeed(req, res) {
+  if (!req.jwt) return res.status(401).end('Not authenticated.');
+  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  if (hasPermission(user, req.body.event, 'Edit Feed')) {
+    const feeditem = await models.FeedItem.findById(req.body._id).exec();
+
+    if (feeditem) {
+      await feeditem.delete();
+    } else {
+      res.status(404).end('Feed Item not found.');
+    }
+
+    return res.json({});
+  }
+  return res.status(403).end('Access denied.');
+}
+
 export async function getUsers(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
@@ -506,8 +641,7 @@ export async function getUsers(req, res) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
     console.log('Query:', query);
-    let result = await models.User.find(query, 'flag roles submissions applications connections');
-    console.log('Result:', result);
+    let result = await models.User.find(query, 'flag roles submissions applications connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.discord.name connections.discord.discriminator');
     result = _.map(result, item => ({
       _id: item._id,
       name: item.name,
@@ -521,7 +655,8 @@ export async function getUsers(req, res) {
           handle: item.connections.twitter && item.connections.twitter.handle
         },
         discord: {
-          name: item.connections.discord && item.connections.discord.name
+          name: item.connections.discord && item.connections.discord.name,
+          discriminator: item.connections.discord && item.connections.discord.discriminator
         }
       },
       flag: item.flag,

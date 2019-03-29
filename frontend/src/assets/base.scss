@@ -197,6 +197,8 @@ img.profilepic {
 
 .member {
   position: relative;
+  margin-right: 20px;
+  cursor: grab;
   &:before {
     content: '?';
     background-color: #333333;
@@ -243,4 +245,8 @@ img.profilepic {
 
 .handle {
   cursor: move;
+}
+
+.md-dialog {
+  transform: translateX(-50%) translateY(calc(-50% - .5px)); /* fixes https://github.com/esamarathon/user-management/issues/12, hopefully */
 }

@@ -14,6 +14,8 @@ import AdminUsers from '../components/dashboard/admin/Users.vue';
 import AdminRuns from '../components/dashboard/admin/Runs.vue';
 import AdminVolunteers from '../components/dashboard/admin/Volunteers.vue';
 import AdminEvents from '../components/dashboard/admin/Events.vue';
+import AdminFeed from '../components/dashboard/admin/Feed.vue';
+import settings from '../settings';
 
 Vue.use(Router);
 
@@ -21,6 +23,7 @@ Vue.component('router-link', Vue.options.components.RouterLink);
 Vue.component('router-view', Vue.options.components.RouterView);
 
 export default new Router({
+  mode: settings.vue.mode,
   routes: [
     {
       path: '/',
@@ -92,6 +95,11 @@ export default new Router({
               name: 'Volunteers',
               alias: 'volunteers/:type',
               component: AdminVolunteers,
+            },
+            {
+              path: 'feed',
+              name: 'Feed',
+              component: AdminFeed,
             },
           ],
         },

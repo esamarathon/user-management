@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import './db';
+import logger from './logger';
 
 const TwitchConnection = new mongoose.Schema({
   name: String,
@@ -73,7 +74,10 @@ const User = new mongoose.Schema({
 
 User.virtual('name').get(function getUserName() {
   let name = this.connections.twitch.displayName;
-  if (name.toLowerCase() !== this.connections.twitch.name) name += ` (${this.connections.twitch.name})`;
+  if (!name) {
+    logger.fatal('User', this, 'has no display name?');
+  }
+  if (name && name.toLowerCase() !== this.connections.twitch.name) name += ` (${this.connections.twitch.name})`;
   return name;
 });
 
@@ -181,6 +185,14 @@ const Activity = new mongoose.Schema({
   timestamps: true
 });
 
+const FeedItem = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
+  text: String,
+  icon: String,
+  time: Date
+});
+
 export const schemas = {
   User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, Invitation
 };
@@ -191,5 +203,6 @@ export const models = {
   Submission: mongoose.model('submission', Submission),
   Application: mongoose.model('application', Application),
   Activity: mongoose.model('activity', Activity),
-  Invitation: mongoose.model('invitation', Invitation)
+  Invitation: mongoose.model('invitation', Invitation),
+  FeedItem: mongoose.model('feeditem', FeedItem)
 };

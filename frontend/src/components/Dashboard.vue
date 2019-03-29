@@ -1,27 +1,27 @@
 <template>
   <div class="dashboard flex-100 layout-column">
     <md-toolbar class="header layout-row layout-between layout-padding md-primary" md-theme="header">
-      <div class="menu-button flex-none layout-row">
-        <md-menu md-direction="bottom-end" class="menu-button">
-          <md-button md-menu-trigger class="md-icon-button">
-            <md-icon>menu</md-icon>
-          </md-button>
-          <md-menu-content>
-            <md-menu-item @click="logout()">Log out</md-menu-item>
-          </md-menu-content>
-        </md-menu>
+      <div class="flex-none left-menu layout-row">
+        <div class="esa-logo"><img src="../assets/esa-logo.png"></div>
+        <div>
         <md-field class="compact">
           <label for="event">Event</label>
           <md-select v-model="currentEventID" name="event" id="event">
             <md-option v-for="possibleEvent in eventList" :value="possibleEvent._id" :key="possibleEvent._id">{{possibleEvent.name}}</md-option>
           </md-select>
         </md-field>
+        </div>
       </div>
       <div class="flex-none">
-        <div class="user-info flex-none">
-          {{(user && user.connections.twitch.displayName) || ''}}
-          <img class="profile-pic" :src="(user && user.connections.twitch.logo) || ''">
-        </div>
+        <md-menu md-direction="bottom-end" class="menu-button" md-align-trigger>
+          <div md-menu-trigger class="user-info">
+            {{(user && user.connections.twitch.displayName) || ''}}
+            <img class="profile-pic" :src="(user && user.connections.twitch.logo) || ''">
+          </div>
+          <md-menu-content>
+            <md-menu-item @click="logout()">Log out</md-menu-item>
+          </md-menu-content>
+        </md-menu>
       </div>
     </md-toolbar>
     <div class="wrapper layout-row layout-start-stretch flex-100">
@@ -71,7 +71,12 @@
             <md-icon>event</md-icon>
             <span class="md-list-item-text">Events</span>
           </md-list-item>
+          <md-list-item v-if="hasAnyPermission('Edit Feed', 'Admin')" :to="{name:'Feed'}">
+            <md-icon>announcement</md-icon>
+            <span class="md-list-item-text">Feed</span>
+          </md-list-item>
         </md-list>
+        <div class="">Made by <a href="https://twitter.com/cbenni_o">@cbenni_o</a></div>
       </div>
       <div class="content flex-100 layout-padding layout-column">
         <router-view></router-view>
@@ -93,6 +98,7 @@
     border-radius: 5px 0 0 5px;
     padding-left: 8px;
     height: 36px;
+    cursor: pointer;
 
     .profile-pic {
       height: 36px;
@@ -138,11 +144,27 @@
 
 @media screen and (max-width: 1000px) {
   .navigation {
-    width: 73px;
+    width: 72px;
+
+    .md-subheader {
+      text-indent: -999px;
+      border-bottom: 1px solid rgba(255,255,255,0.7);
+      max-height: 1px;
+      min-height: 0px;
+    }
   }
 }
 
 .menu-button {
   margin-right: 12px;
+}
+
+.left-menu {
+  height: 100%;
+}
+
+.esa-logo, .esa-logo img {
+  height: 48px;
+  margin-right: 8px;
 }
 </style>

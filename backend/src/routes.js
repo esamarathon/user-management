@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import expressWs from 'express-ws';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 
 import settings from './settings';
 import {
@@ -13,7 +14,8 @@ import {
   requestSensitiveData, getRoles, updateRole,
   getUsers, getUserApplications, getUserSubmissions,
   updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission,
-  updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser
+  updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser, getFeed,
+  getFeedForEvent, updateFeed, deleteFeed
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
@@ -35,6 +37,25 @@ app.use(jwt({
   requestProperty: 'jwt'
 }));
 
+function keyGenerator(req) {
+  if (req.jwt) {
+    return req.jwt.user.id;
+  }
+  return `${Math.random()}`;
+}
+
+app.use(rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 100,
+  keyGenerator
+}));
+
+app.use('/user/invite', rateLimit({
+  windowMs: 1000,
+  max: 1,
+  keyGenerator
+}));
+
 app.get('/login', handleLogin);
 app.get('/discord', handleDiscordLogin);
 app.delete('/discord', handleDiscordLogout);
@@ -52,6 +73,8 @@ app.post('/user/submission', updateUserSubmission);
 app.post('/user/invite', inviteUser);
 app.post('/invitation/respond', respondToInvitation);
 app.get('/activities', getActivities);
+app.get('/feed', getFeed);
+app.get('/feed/:event/', getFeedForEvent);
 // ------------------------------------------------------
 // Admin APIs
 app.get('/users', getUsers);
@@ -63,6 +86,8 @@ app.get('/applications', getApplications);
 app.get('/submissions', getSubmissions);
 app.get('/submission/:id', getSubmission);
 app.post('/decision/runs', updateRunDecision);
+app.post('/feed', updateFeed);
+app.delete('/feed', deleteFeed);
 
 app.get('/sensitive', requestSensitiveData);
 

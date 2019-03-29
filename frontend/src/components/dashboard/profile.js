@@ -3,13 +3,20 @@ import { mapState, mapGetters } from 'vuex';
 import settings from '../../settings';
 import { generateID, setCookie } from '../../helpers';
 
-
 export default {
   name: 'Profile',
-  data: () => ({
+  data: _this => ({
     phoneNum: '',
     discordInvite: settings.discord.invite,
+    disabledDatesFrom(date) {
+      return date > new Date(_this.availabilityEnd);
+    },
+    disabledDatesTo(date) {
+      return date < new Date(_this.availabilityStart);
+    },
   }),
+  created() {
+  },
   methods: {
     flagSelected(selected) {
       this.$store.dispatch('updateUser', { flag: selected.iso });

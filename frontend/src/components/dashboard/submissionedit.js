@@ -38,7 +38,7 @@ function getDisplayName(user) {
   return user.name;
 }
 
-const estimate = helpers.regex('estimate', /\d{1,2}:[0-5]\d/);
+const estimate = helpers.regex('estimate', /^\d{1,2}:[0-5]\d$/);
 
 const twitchUserCache = {};
 const twitchGameCache = {};
@@ -59,12 +59,12 @@ export default {
   methods: {
     async initTeams() {
       console.log('Initializing teams');
-      if (this.selectedSubmission.runType !== 'solo' && !this.selectedSubmission.teams) {
+      if (this.selectedSubmission.runType !== 'solo' && (!this.selectedSubmission.teams || this.selectedSubmission.teams.length === 0)) {
         this.selectedSubmission.teams = [{
           name: 'Team 1',
           members: [],
         }];
-        this.selectedSubmission.invitations = [];
+        this.selectedSubmission.invitations = this.selectedSubmission.invitations || [];
         const selfInvite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, this.user.connections.twitch.id]); // invites yourself
         console.log('Self invite:', selfInvite);
       }
@@ -89,8 +89,8 @@ export default {
       this.userToAdd = ''; */
       let twitchUser = this.twitchUserCache[this.userToAdd];
       if (!twitchUser && this.userToAdd) {
-        const response = await makeTwitchRequest('https://api.twitch.tv/kraken/users/', { query: { login: this.userToAdd } });
-        twitchUser = response[0];
+        const response = await makeTwitchRequest(`https://api.twitch.tv/kraken/users/?login=${this.userToAdd}`);
+        twitchUser = response.users[0];
       }
       if (!twitchUser) {
         this.$toasted.error(`Invalid user ${this.userToAdd}`);
@@ -98,10 +98,12 @@ export default {
       }
       console.log('Inviting', this.userToAdd, twitchUser);
       try {
-        const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, `${this.twitchUserCache[this.userToAdd]._id}`]);
+        const invite = await this.$store.dispatch('inviteUser', [this.selectedSubmission, `${twitchUser._id}`]);
         this.$toasted.info('User successfully invited!');
         console.log('Invited user:', invite);
+        this.userToAdd = '';
       } catch (err) {
+        console.log(err);
         this.$toasted.error(`User could not be invited: ${err.message}`);
       }
     },
@@ -154,10 +156,10 @@ export default {
       }
       return null;
     },
-    saveSubmission() {
+    saveSubmission(status) {
       this.$v.$touch();
       if (!this.$v.$invalid) {
-        this.$emit('submit', this.selectedSubmission);
+        this.$emit('submit', status);
       }
     },
     addIncentive(type) {

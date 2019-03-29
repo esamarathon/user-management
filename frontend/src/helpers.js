@@ -63,7 +63,7 @@ export function getVideoData(url) {
         embedUrl: `https://player.twitch.tv/?autoplay=false&video=v${match[1]}`,
       };
     }
-    if (match = /clips.twitch.tv\/(\w+)/g.exec(url)) { // eslint-disable-line no-cond-assign
+    if ((match = /clips.twitch.tv\/(\w+)/g.exec(url)) || (match = /twitch.tv\/\w+\/clip\/(\w+)/g.exec(url))) { // eslint-disable-line no-cond-assign
       return {
         type: 'twitch',
         embedUrl: `https://clips.twitch.tv/embed?clip=${match[1]}`,
@@ -106,4 +106,10 @@ export function moreThan(other) {
 
 export function moreEqThan(other) {
   return (value, parentVm) => !value || value >= helpers.ref(other, this, parentVm);
+}
+
+export function formatTime(time) {
+  return new Date(time).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
+  });
 }

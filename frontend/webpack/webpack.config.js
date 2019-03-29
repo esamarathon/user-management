@@ -21,6 +21,7 @@ module.exports = (env, argv) => {
       plugins.MiniCssExtractPlugin,
       plugins.VueLoaderPlugin,
       plugins.HTMLWebpackPlugin,
+      plugins.FaviconsPlugin,
     ],
     output: {
       path: path.resolve(__dirname, '../dist'),

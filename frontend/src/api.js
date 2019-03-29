@@ -20,7 +20,7 @@ export async function makeRequest(endpoint, options) {
     return JSON.parse(await response.text());
   }
   console.log('fetch error:', `Call to ${endpoint} returned with status ${response.status}${response.body ? `: ${response.body}` : ''}`);
-  throw new Error(response.text() || `Error ${response.status}`);
+  throw new Error(await response.text() || `Error ${response.status}`);
 }
 
 export async function makeTwitchRequest(endpoint, options, token) {
@@ -97,6 +97,14 @@ export function getDecisions(eventID, type) {
   return makeRequest(`${settings.api.baseurl}decisions/runs`, { query: { event: eventID, type } });
 }
 
+export function getFeed() {
+  return makeRequest(`${settings.api.baseurl}feed`);
+}
+
+export function getFeedByEvent(eventID) {
+  return makeRequest(`${settings.api.baseurl}feed/${eventID}`);
+}
+
 export function flattenChanges(obj) {
   const res = {};
   _.each(obj, (val, key) => {
@@ -128,6 +136,7 @@ export function updateApplication(changes) {
 }
 
 export function updateSubmission(changes) {
+  console.log('Saving submission (3)', changes);
   return makePOST(`${settings.api.baseurl}user/submission`, changes);
 }
 
@@ -153,4 +162,12 @@ export function updateRole(role) {
 
 export function updateDecision(data) {
   return makePOST(`${settings.api.baseurl}decision/runs`, data);
+}
+
+export function updateFeed(data) {
+  return makePOST(`${settings.api.baseurl}feed`, data);
+}
+
+export function deleteFeed(data) {
+  return makePOST(`${settings.api.baseurl}feed`, data, { method: 'DELETE' });
 }

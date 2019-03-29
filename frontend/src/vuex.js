@@ -125,6 +125,7 @@ export default {
       return setUser(user);
     },
     saveSubmission({ commit }, submission) {
+      console.log('Saving submission(2)', JSON.stringify(submission), submission.status);
       commit('saveSubmission', submission);
       return updateSubmission(submission);
     },
