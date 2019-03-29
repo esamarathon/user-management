@@ -64,7 +64,7 @@
               </md-autocomplete>
               <md-button @click="inviteUser()">Send invite</md-button>
             </div>
-            <draggable v-model="selectedSubmission.invitations" group="members">
+            <draggable v-model="selectedSubmission.invitations" group="members" class="layout-row layout-wrap">
               <div class="member" v-for="invitation in selectedSubmission.invitations" :key="invitation._id" :class="invitation.status">
                 <img :src="invitation.user.connections.twitch.logo" class="profilepic"> {{invitation.user.connections.twitch.displayName}}
               </div>

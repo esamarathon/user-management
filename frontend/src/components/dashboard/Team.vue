@@ -8,15 +8,11 @@
     </div>
     <div class="members layout-column">
       <span class="compact-title">Members:</span>
-      <draggable v-model="info.members" group="members" class="test" tag="div">
+      <draggable v-model="info.members" group="members" class="drag-target" tag="div">
         <div class="member" v-for="member in info.members" :key="member._id" :class="member.status">
           <img :src="member.user.connections.twitch.logo" class="profilepic invitation"> {{member.user.connections.twitch.displayName}}
         </div>
       </draggable>
-      <!-- <div class="member" v-for="member in info.members" :key="member._id">
-        <img :src="member.name" class="profile-pic"> {{member.name}}
-      </div>
-      <md-button :click="addMember()">Add team member</md-button>-->
     </div>
   </div>
 </template>
@@ -42,6 +38,26 @@
     }
 
     padding: 8px;
+  }
+}
+
+.drag-target {
+  background-color: rgba(200,200,255,0.1);
+  border: 1px dashed rgba(200,200,255,0.5);
+  min-height: 50px;
+  position: relative;
+  padding: 4px;
+
+  &:empty:before {
+    content: 'Drag members here';
+    width: 100%;
+    display: block;
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba(255,255,255,0.8);
   }
 }
 </style>
