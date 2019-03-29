@@ -152,11 +152,11 @@ export async function handleDiscordLogin(req, res) {
         expiresAt: Date.now() + tokenResponse.expires_in * 1000
       };
       await user.save();
-      return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=1`);
+      return res.redirect(`${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/profile?discord_linked=1`);
     }
-    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
+    return res.redirect(`${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
   } catch (err) {
-    return res.redirect(`${settings.frontend.baseurl}#/dashboard/profile?discord_linked=0&error=${encodeURIComponent(err.toString())}`);
+    return res.redirect(`${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/profile?discord_linked=0&error=${encodeURIComponent(err.toString())}`);
   }
 }
 
