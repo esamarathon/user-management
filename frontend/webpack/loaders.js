@@ -53,17 +53,14 @@ const CSSLoader = {
   ],
 };
 
-const SCSSLoader = {
+const SCSSLoader = (env, argv) => ({
   test: /\.scss$/,
   use: [
-    {
-      loader: MiniCssExtractPlugin.loader,
-    },
-    // "style-loader",
+    argv.mode === 'development' ? 'style-loader' : MiniCssExtractPlugin.loader,
     'css-loader',
     'sass-loader',
   ],
-};
+});
 
 const FileLoader = {
   test: /\.(png|svg|jpg|gif)$/,

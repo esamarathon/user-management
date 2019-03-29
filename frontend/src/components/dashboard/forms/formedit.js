@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import MultipleChoice from './MultipleChoice';
-import ListEdit from './ListEdit';
-import Dropdown from './Dropdown';
-import ShortText from './ShortText';
-import LongText from './LongText';
+import MultipleChoice from './MultipleChoice.vue';
+import ListEdit from './ListEdit.vue';
+import Dropdown from './Dropdown.vue';
+import ShortText from './ShortText.vue';
+import LongText from './LongText.vue';
 
 export default {
   name: 'FormEdit',

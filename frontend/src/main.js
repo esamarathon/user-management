@@ -11,12 +11,12 @@ import 'vue-material/dist/theme/default-dark.css';
 
 import './assets/base.scss';
 
-import App from './App';
+import App from './App.vue';
 import router from './router';
 import FlagsDropdown from './components/dashboard/flag-dropdown.vue';
-import RadioGroup from './components/dashboard/RadioGroup';
-import VideoButton from './components/dashboard/admin/VideoButton';
-import MdAutocomplete from './components/dashboard/vendor/MdAutocomplete';
+import RadioGroup from './components/dashboard/RadioGroup.vue';
+import VideoButton from './components/dashboard/admin/VideoButton.vue';
+import MdAutocomplete from './components/dashboard/vendor/MdAutocomplete.vue';
 import vuexConfig from './vuex';
 import settings from './settings';
 

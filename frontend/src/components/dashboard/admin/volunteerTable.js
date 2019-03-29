@@ -1,4 +1,4 @@
-import PrettyFormat from '../forms/PrettyFormat';
+import PrettyFormat from '../forms/PrettyFormat.vue';
 
 export default {
   name: 'VolunteerTable',
