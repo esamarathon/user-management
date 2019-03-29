@@ -2,7 +2,7 @@
   "presets": [
     ["@babel/preset-env", {
       "modules": false,
-      "targets": "> 10%"
+      "targets": "> 1%"
     }]
   ],
   "plugins": []

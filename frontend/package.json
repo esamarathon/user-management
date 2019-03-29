@@ -11,6 +11,7 @@
     "build": "webpack -p --config ./webpack/webpack.config.js"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.0",
     "flags-dropdown-vue": "^1.0.3",
     "fuzzysearch": "^1.0.3",
     "is-promise": "^2.1.0",
