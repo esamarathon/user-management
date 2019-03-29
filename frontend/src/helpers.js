@@ -73,12 +73,10 @@ export function getVideoData(url) {
       type: 'unknown',
       linkUrl: url,
       host: urlObj.hostname,
-      unknown: false,
     };
   }
   return {
     type: 'none',
-    unknown: false,
   };
 }
 
