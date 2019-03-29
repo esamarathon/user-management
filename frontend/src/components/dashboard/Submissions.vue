@@ -29,7 +29,7 @@
         </div>
       </div>
     </div>
-    <submission-edit :selectedSubmission="selectedSubmission" @submit="saveSubmission()" @cancel="showDialog=false" :showDialog.sync="showDialog"></submission-edit>
+    <submission-edit :selectedSubmission="selectedSubmission" @submit="saveSubmission" @cancel="showDialog=false" :showDialog.sync="showDialog"></submission-edit>
   </div>
 </template>
 

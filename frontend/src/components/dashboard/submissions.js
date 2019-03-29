@@ -33,37 +33,41 @@ export default {
     this.$store.dispatch('getSubmissions');
   },
   methods: {
-    newSubmission() {
+    async newSubmission() {
       const newSubmission = _.merge(_.cloneDeep(emptySubmission), {
         event: this.currentEvent._id,
         _id: generateID(),
       });
       this.selectedSubmission = newSubmission;
-      this.saveSubmission('stub');
-      this.showDialog = true;
+      if (await this.saveSubmission('stub')) this.showDialog = true;
+      else this.selectedSubmission = null;
     },
-    saveSubmission(status) {
+    async saveSubmission(status) {
       console.log('Saving submission', this.selectedSubmission);
-      this.selectedSubmission.status = status || 'saved';
       try {
-        this.$store.dispatch('saveSubmission', this.selectedSubmission);
+        this.selectedSubmission.status = status || 'saved';
+        await this.$store.dispatch('saveSubmission', this.selectedSubmission);
         this.showDialog = false;
       } catch (err) {
-        this.$toasted.error(`Could not save submission: ${err.message}`);
+        console.log(err);
+        this.$toasted.error(`Could not save or create submission: ${err.message}`);
+        return false;
       }
+      return true;
     },
     selectSubmission(submission) {
       this.selectedSubmission = _.merge(_.cloneDeep(emptySubmission), _.cloneDeep(submission));
       this.showDialog = true;
       console.log('Editing submission', submission);
     },
-    duplicateSubmission(submission) {
+    async duplicateSubmission(submission) {
       this.selectedSubmission = _.cloneDeep(submission);
       this.selectedSubmission._id = generateID();
       this.selectedSubmission.teams = null;
       this.selectedSubmission.invitations = null;
       this.selectedSubmission.runType = 'solo';
       this.selectedSubmission.status = 'stub';
+      await this.saveSubmission('stub');
       this.showDialog = true;
     },
     deleteSubmission(submission) {

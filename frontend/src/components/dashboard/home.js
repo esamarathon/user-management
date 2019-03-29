@@ -32,7 +32,7 @@ export default {
       const result = await getActivities();
       const { activities, invitations } = result;
       this.activities = activities;
-      this.invitations = _.filter(invitations, invitation => (['saved', 'accepted'].includes(invitation.submission.status) && invitation.user !== invitation.createdBy._id && invitation.submission));
+      this.invitations = _.filter(invitations, invitation => (invitation.submission && ['saved', 'accepted'].includes(invitation.submission.status) && invitation.user !== invitation.createdBy._id));
       _.each(this.invitations, (invitation) => {
         Vue.set(invitation, 'class', invitation.status);
         invitation.submission.event = _.find(this.events, { _id: invitation.submission.event });

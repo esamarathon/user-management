@@ -103,6 +103,7 @@ export default {
         console.log('Invited user:', invite);
         this.userToAdd = '';
       } catch (err) {
+        console.log(err);
         this.$toasted.error(`User could not be invited: ${err.message}`);
       }
     },
@@ -155,10 +156,10 @@ export default {
       }
       return null;
     },
-    saveSubmission() {
+    saveSubmission(status) {
       this.$v.$touch();
       if (!this.$v.$invalid) {
-        this.$emit('submit', this.selectedSubmission);
+        this.$emit('submit', status);
       }
     },
     addIncentive(type) {

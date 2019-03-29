@@ -12,7 +12,7 @@ import { generateToken, decodeToken } from './auth';
 import { notify, httpPost, httpReq } from './helpers';
 import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion } from './discordWebhooks';
 
-export async function handleLogin(req, res, next) {
+export async function handleLogin(req, res) {
   const redirectUrl = req.query.state || settings.frontend.baseurl;
   const parsedRedirectUrl = URL.parse(redirectUrl);
   const domainFilter = new RegExp(settings.auth.domainFilter);
@@ -33,10 +33,10 @@ export async function handleLogin(req, res, next) {
       }
     });
     const token = tokenResponse.access_token;
-    console.log('Token:', token);
+    if (!token) throw new Error('Access token could not be received');
     const userResponse = await twitchGet('https://api.twitch.tv/kraken/user', null, token);
     console.log('User response:', userResponse);
-    if (userResponse) {
+    if (userResponse && userResponse._id) {
       // get user
       let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
       if (!user) {
@@ -97,9 +97,13 @@ export async function handleLogin(req, res, next) {
       res.redirect(redirectUrl);
       return;
     }
-    res.status(401).end('Invalid authentication');
+    res.redirect(redirectUrl);
     return;
-  } catch (err) { console.error(err); logger.error(err); next(err); }
+  } catch (err) {
+    console.error(err);
+    logger.error(err);
+    res.redirect(redirectUrl);
+  }
 }
 
 export async function handleDiscordLogin(req, res) {
@@ -637,8 +641,7 @@ export async function getUsers(req, res) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
     console.log('Query:', query);
-    let result = await models.User.find(query, 'flag roles submissions applications connections');
-    console.log('Result:', result);
+    let result = await models.User.find(query, 'flag roles submissions applications connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.discord.name connections.discord.discriminator');
     result = _.map(result, item => ({
       _id: item._id,
       name: item.name,

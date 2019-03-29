@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import './db';
+import logger from './logger';
 
 const TwitchConnection = new mongoose.Schema({
   name: String,
@@ -73,7 +74,10 @@ const User = new mongoose.Schema({
 
 User.virtual('name').get(function getUserName() {
   let name = this.connections.twitch.displayName;
-  if (name.toLowerCase() !== this.connections.twitch.name) name += ` (${this.connections.twitch.name})`;
+  if (!name) {
+    logger.fatal('User', this, 'has no display name?');
+  }
+  if (name && name.toLowerCase() !== this.connections.twitch.name) name += ` (${this.connections.twitch.name})`;
   return name;
 });
 

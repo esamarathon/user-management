@@ -12,19 +12,19 @@
   },
   "dependencies": {
     "flags-dropdown-vue": "^1.0.3",
+    "fuzzysearch": "^1.0.3",
+    "is-promise": "^2.1.0",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",
     "vue": "^2.5.17",
+    "vue-linkify": "^1.0.1",
     "vue-material": "^1.0.0-beta-10.2",
     "vue-moment": "^4.0.0",
     "vue-router": "^3.0.2",
     "vue-toasted": "^1.1.26",
-    "vue-linkify": "^1.0.1",
     "vuedraggable": "^2.19.2",
     "vuelidate": "^0.7.4",
-    "vuex": "^3.0.1",
-    "is-promise": "^2.1.0",
-    "fuzzysearch": "^1.0.3"
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.1.0",

@@ -31,8 +31,10 @@ export function notify(user, data) {
   // TODO: emit activity to rabbit
 }
 
-export function httpReq(url, params) {
-  return fetch(url, params).then(res => res.json());
+export async function httpReq(url, params) {
+  const result = await fetch(url, params);
+  if (result) return result.json();
+  throw new Error(result);
 }
 
 export function httpPost(url, params) {

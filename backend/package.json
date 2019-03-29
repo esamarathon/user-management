@@ -10,6 +10,7 @@
     "express": "^4.16.3",
     "express-jwt": "^5.3.1",
     "express-pino-logger": "^4.0.0",
+    "express-rate-limit": "^3.4.0",
     "express-ws": "^4.0.0",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",

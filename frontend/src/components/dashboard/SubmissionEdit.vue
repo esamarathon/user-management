@@ -159,7 +159,7 @@
     </md-dialog-content>
     <md-dialog-actions>
       <md-button class="md-accent" @click="$emit('cancel')">Cancel</md-button>
-      <md-button class="md-primary" @click="saveSubmission()">Save</md-button>
+      <md-button class="md-primary" @click="saveSubmission('saved')">Save</md-button>
     </md-dialog-actions>
   </md-dialog>
 </template>

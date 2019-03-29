@@ -20,7 +20,7 @@ export async function makeRequest(endpoint, options) {
     return JSON.parse(await response.text());
   }
   console.log('fetch error:', `Call to ${endpoint} returned with status ${response.status}${response.body ? `: ${response.body}` : ''}`);
-  throw new Error(response.text() || `Error ${response.status}`);
+  throw new Error(await response.text() || `Error ${response.status}`);
 }
 
 export async function makeTwitchRequest(endpoint, options, token) {
@@ -136,6 +136,7 @@ export function updateApplication(changes) {
 }
 
 export function updateSubmission(changes) {
+  console.log('Saving submission (3)', changes);
   return makePOST(`${settings.api.baseurl}user/submission`, changes);
 }
 
