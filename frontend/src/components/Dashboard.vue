@@ -76,6 +76,7 @@
             <span class="md-list-item-text">Feed</span>
           </md-list-item>
         </md-list>
+        <div class="">Made by <a href="https://twitter.com/cbenni_o">@cbenni_o</a></div>
       </div>
       <div class="content flex-100 layout-padding layout-column">
         <router-view></router-view>

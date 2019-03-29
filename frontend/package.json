@@ -5,7 +5,7 @@
   "author": "CBenni <levelcarnage@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "webpack-dev-server --inline --progress --hot --config ./webpack/webpack.config.js",
+    "dev": "webpack-dev-server --inline --progress --hot --history-api-fallback --config ./webpack/webpack.config.js",
     "start": "npm run dev",
     "lint": "eslint --ext .js,.vue src",
     "build": "webpack -p --config ./webpack/webpack.config.js"
@@ -44,6 +44,7 @@
     "eslint-loader": "^2.1.2",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-vue": "^5.2.2",
+    "favicons-webpack-plugin": "^0.0.9",
     "file-loader": "^3.0.1",
     "friendly-errors-webpack-plugin": "^1.6.1",
     "html-webpack-plugin": "^3.2.0",
