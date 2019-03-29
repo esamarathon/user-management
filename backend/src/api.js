@@ -655,7 +655,8 @@ export async function getUsers(req, res) {
           handle: item.connections.twitter && item.connections.twitter.handle
         },
         discord: {
-          name: item.connections.discord && item.connections.discord.name
+          name: item.connections.discord && item.connections.discord.name,
+          discriminator: item.connections.discord && item.connections.discord.discriminator
         }
       },
       flag: item.flag,

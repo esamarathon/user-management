@@ -7,7 +7,7 @@
         <md-table-row slot="md-table-row" slot-scope="{ item }">
           <md-table-cell md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
           <md-table-cell md-label="Twitter">{{item.connections.twitter.handle ? "@"+item.connections.twitter.handle : ""}}</md-table-cell>
-          <md-table-cell md-label="Discord">{{item.connections.discord.name ? "@"+item.connections.discord.name : ""}}</md-table-cell>
+          <md-table-cell md-label="Discord">{{item.connections.discord.name ? item.connections.discord.name + "#" + item.connections.discord.discriminator : ""}}</md-table-cell>
           <md-table-cell md-label="Flag" md-sort-by="name"><i :class="`flag flag-${item.flag||'xx'}`" ></i></md-table-cell>
           <md-table-cell md-label="Roles">{{roleString(item)}}</md-table-cell>
           <md-table-cell md-label="" class="table-buttons"><md-button class="md-icon-button" @click="editUser(item)"><md-icon>edit</md-icon></md-button></md-table-cell>
