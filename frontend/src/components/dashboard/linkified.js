@@ -11,7 +11,7 @@ export default Vue.component('linkified', {
       lastIndex = m.index + m[0].length;
       try {
         const routerLink = JSON.parse(m[1]);
-        parts.push(c('router-link', { props: { to: routerLink } }, m[2] || m[1].name));
+        parts.push(c('router-link', { props: { to: routerLink } }, m[2] || routerLink.name));
       } catch (err) {
         parts.push(c('a', { attrs: { href: `${m[1]}` } }, m[2] || m[1]));
       }

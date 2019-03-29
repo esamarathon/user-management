@@ -63,7 +63,7 @@ export default {
       return formatTime(time);
     },
     formatText(text) {
-      return text.length > 100 ? `${text.substr(0, 97)}...` : text;
+      return text.length > 200 ? `${text.substr(0, 197)}...` : text;
     },
   },
 };
