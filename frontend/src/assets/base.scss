@@ -85,21 +85,6 @@ body, html {
   flex-basis: 100%;
 }
 
-.flex-50 {
-  flex-grow: 0;
-  flex-basis: 50%;
-}
-
-.flex-45 {
-  flex-grow: 0;
-  flex-basis: 45%;
-}
-
-.flex-25 {
-  flex-grow: 0;
-  flex-basis: 25%;
-}
-
 .flex-10 {
   flex-grow: 0;
   flex-basis: 10%;
@@ -108,6 +93,36 @@ body, html {
 .flex-20 {
   flex-grow: 0;
   flex-basis: 20%;
+}
+
+.flex-25 {
+  flex-grow: 0;
+  flex-basis: 25%;
+}
+
+.flex-30 {
+  flex-grow: 0;
+  flex-basis: 25%;
+}
+
+.flex-35 {
+  flex-grow: 0;
+  flex-basis: 25%;
+}
+
+.flex-40 {
+  flex-grow: 0;
+  flex-basis: 25%;
+}
+
+.flex-45 {
+  flex-grow: 0;
+  flex-basis: 45%;
+}
+
+.flex-50 {
+  flex-grow: 0;
+  flex-basis: 50%;
 }
 
 .flex-none {

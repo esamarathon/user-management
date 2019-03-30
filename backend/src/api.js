@@ -12,6 +12,9 @@ import { generateToken, decodeToken } from './auth';
 import { notify, httpPost, httpReq } from './helpers';
 import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion } from './discordWebhooks';
 
+
+const historySep = settings.vue.mode === 'history' ? '' : '#/';
+
 export async function handleLogin(req, res) {
   const redirectUrl = req.query.state || settings.frontend.baseurl;
   const parsedRedirectUrl = URL.parse(redirectUrl);
@@ -152,11 +155,11 @@ export async function handleDiscordLogin(req, res) {
         expiresAt: Date.now() + tokenResponse.expires_in * 1000
       };
       await user.save();
-      return res.redirect(`${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/profile?discord_linked=1`);
+      return res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?discord_linked=1`);
     }
-    return res.redirect(`${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
+    return res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
   } catch (err) {
-    return res.redirect(`${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/profile?discord_linked=0&error=${encodeURIComponent(err.toString())}`);
+    return res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?discord_linked=0&error=${encodeURIComponent(err.toString())}`);
   }
 }
 
@@ -357,6 +360,7 @@ export async function updateUserSubmission(req, res) {
   const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations', 'incentives']);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
+  if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
   const oldVals = {};
   if (submission) {
@@ -395,7 +399,7 @@ export async function updateUserSubmission(req, res) {
     mergeNonArray(submission, validChanges);
   } else {
     // maximum of 5 submissions per user
-    const submissionAggregation = await models.Submission.aggregate([{ $match: { user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
+    const submissionAggregation = await models.Submission.aggregate([{ $match: { event: mongoose.Types.ObjectId(req.body.event), user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
     console.log('Submission aggregation:', submissionAggregation);
     if (submissionAggregation[0] && submissionAggregation[0].submissions >= 5) return res.status(400).end('Maximum number of submissions exceeded.');
 
@@ -548,11 +552,12 @@ function hasPermission(user, eventID, permission) {
   console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
   return !!_.find(user.roles, userRole => {
     console.log('Checking userRole', userRole);
+    if (!userRole.event) {
+      return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
+    }
     if (userRole.event.equals(eventID)) {
       // only apply local permissions to local roles
       if ((userRole.role.permissions.includes(permission) || userRole.role.permissions.includes('*')) && settings.permissions.includes(permission)) return true;
-    } else if (!userRole.event) {
-      return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
     }
     return false;
   });
@@ -655,28 +660,7 @@ export async function getUsers(req, res) {
   if (hasPermission(user, null, 'Edit Users')) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
-    console.log('Query:', query);
     const result = await models.User.find(query, 'flag roles submissions applications availability connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.discord.name connections.discord.discriminator');
-    /* result = _.map(result, item => ({
-      _id: item._id,
-      name: item.name,
-      connections: {
-        twitch: {
-          id: item.connections.twitch.id,
-          name: item.connections.twitch.name,
-          logo: item.connections.twitch.logo
-        },
-        twitter: {
-          handle: item.connections.twitter && item.connections.twitter.handle
-        },
-        discord: {
-          name: item.connections.discord && item.connections.discord.name,
-          discriminator: item.connections.discord && item.connections.discord.discriminator
-        }
-      },
-      flag: item.flag,
-      roles: item.roles
-    })); */
     return res.json(result);
   }
   return res.status(403).end('Access denied.');
@@ -703,13 +687,22 @@ export async function getSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.query.event) return res.status(400).end('Missing query parameter event');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+
+  let runs = [];
   if (hasPermission(user, req.query.event, runDecisionPermission)) {
-    return res.json(await models.Submission.find({ event: req.query.event, status: 'saved' })
+    console.log('Has permission');
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } })
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
-    .exec());
+    .exec();
+  } else {
+    console.log('Doesnt have permission');
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game leaderboards category platform estimate runType teams')
+    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+    .exec();
   }
-  return res.status(403).end('Access denied.');
+  return res.json(runs);
 }
 
 export async function getSubmission(req, res) {

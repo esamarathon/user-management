@@ -7,12 +7,13 @@ export default {
   name: 'SubmissionDetails',
   data: () => ({
     s: null,
+    event: { name: '' },
   }),
   props: ['submission'],
   async created() {
     this.s = _.isObject(this.submission) ? this.submission : await getSubmission(this.submission || this.$route.params.id);
-    this.s.event = _.find(this.events, { _id: this.s.event });
     console.log('Got submission', this.s);
+    this.event = _.find(this.events, { _id: this.s.event._id || this.s.event }) || { name: '' };
   },
   computed: {
     ...mapState(['events']),

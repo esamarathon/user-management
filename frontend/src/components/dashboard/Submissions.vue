@@ -1,6 +1,11 @@
 <template>
   <div class="layout-column" v-if="submissions">
-    <h1>Your submissions for {{currentEvent.name}}</h1>
+    <div class="layout-row layout-between-center">
+      <h1>Your submissions for {{currentEvent.name}}</h1>
+    </div>
+    <div>
+      You can see all submissions by everyone <router-link :to="{name:'PublicSubmissions'}">here</router-link>
+    </div>
     <div class="flex-none layout-row" v-if="submissionsOpen">
       <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord && submissionList.length < 5">Submit run</md-button>
       <div class="no-discord flex-none" v-if="!user.connections.discord">

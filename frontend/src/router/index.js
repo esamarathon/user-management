@@ -16,6 +16,7 @@ import AdminVolunteers from '../components/dashboard/admin/Volunteers.vue';
 import AdminEvents from '../components/dashboard/admin/Events.vue';
 import AdminFeed from '../components/dashboard/admin/Feed.vue';
 import settings from '../settings';
+import publicsubmissions from '../components/dashboard/PublicSubmissions.vue';
 
 Vue.use(Router);
 
@@ -49,6 +50,11 @@ export default new Router({
           path: 'profile',
           name: 'Profile',
           component: DashboardProfile,
+        },
+        {
+          path: 'submissions/public',
+          name: 'PublicSubmissions',
+          component: publicsubmissions,
         },
         {
           path: 'submissions/:id',

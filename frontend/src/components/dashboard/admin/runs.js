@@ -133,10 +133,10 @@ export default {
   },
   methods: {
     async loadRuns() {
-      const runs = await getRuns(this.currentEvent._id);
-      console.log('Runs:', runs);
+      const runsResponse = await getRuns(this.currentEvent._id);
+      console.log('Runs:', runsResponse);
 
-      this.runs = _.map(_.filter(runs, run => run.status !== 'deleted'),
+      this.runs = _.map(_.filter(runsResponse, run => run.status !== 'deleted'),
         (run) => {
           const ownDecisions = this.createCutObject();
           const ownExplanations = this.createCutObject();

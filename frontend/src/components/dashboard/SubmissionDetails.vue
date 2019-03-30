@@ -1,6 +1,6 @@
 <template>
   <div class="layout-column" v-if="s">
-    <h1>Submission details for {{name}} at {{s.event.name}}</h1>
+    <h1>Submission details for {{name}} at {{event.name}}</h1>
     <div class="submission-details layout-column">
       <div class="details-row layout-row">
         <div class="flex-25">Name</div>
