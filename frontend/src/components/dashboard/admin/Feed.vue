@@ -1,6 +1,6 @@
 <template>
   <div class="layout-column" v-if="events && user">
-    <h1>Events</h1>
+    <h1>Feed</h1>
     <div class="flex-none">
       <md-button class="md-primary md-raised" @click="newFeedItem()" v-if="currentEvent">New FeedItem</md-button>
     </div>
@@ -22,7 +22,7 @@
       <md-dialog-content>
         <form v-if="selectedFeedItem" class="layout-padding">
           <div class="layout-row layout-wrap">
-            <md-field class="large-field">
+            <md-field class="large-field feed-textarea">
               <label for="name">Text</label>
               <md-textarea name="text" id="text" v-model="selectedFeedItem.text" placeholder="Put your news text here."/>
             </md-field>
@@ -50,5 +50,10 @@
   .event-header {
     font-size: large;
   }
+}
+
+.feed-textarea textarea {
+  width: 500px;
+  height: 300px;
 }
 </style>

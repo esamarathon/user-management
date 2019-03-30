@@ -67,7 +67,7 @@ export function sendDiscordSubmission(submission) {
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
     description: `${twitchName} has just submited a new run!\n\n` // eslint-disable-line prefer-template
-    + (discordUser ? `**Discord user:** <@!${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
+    + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`
@@ -157,7 +157,7 @@ export function sendDiscordSubmissionDeletion(submission) {
     title: 'A run has been deleted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
     description: `${twitchName} has just deleted a run!\n\n` // eslint-disable-line prefer-template
-    + (discordUser ? `**Discord user:** <@!${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
+    + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`

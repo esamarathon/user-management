@@ -128,8 +128,13 @@ body, html {
   flex-wrap: wrap;
 }
 
-.md-dialog.big-dialog .md-dialog-container {
-  max-width: 900px;
+@media (min-width: 600px) {
+  .md-dialog.big-dialog {
+    width: 900px;
+    .md-dialog-container {
+      width: 100%;
+    }
+  }
 }
 
 .md-field.compact {

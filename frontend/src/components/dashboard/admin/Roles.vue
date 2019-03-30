@@ -32,8 +32,16 @@
                 <md-option v-for="permission in permissions" :key="permission" :value="permission">
                   {{permission}}
                 </md-option>
+                <md-optgroup label="Global permissions">
+                  <md-option v-for="permission in globalPermissions" :key="permission" :value="permission">
+                    {{permission}}
+                  </md-option>
+                </md-optgroup>
               </md-select>
             </md-field>
+            <div class="medium-field flex-25 layout-padding">
+              <strong>Note:</strong> Global permissions only apply if the role is applied to the user globally.
+            </div>
           </div>
           <div class="layout-column" v-if="!selectedRole.special">
             <div class="layout-row">

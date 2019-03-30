@@ -4,6 +4,7 @@ import { mergeNonArray } from './helpers';
 import {
   updateUser, getEvents, getUser, updateEvent, getRoles, updateRole, getUserApplications, getUserSubmissions, updateSubmission, updateApplication, invite, setUser, discordLogout,
 } from './api';
+import settings from './settings';
 
 export default {
   state: {
@@ -163,8 +164,11 @@ export default {
       if (!state.user) return [];
       const perms = [];
       _.each(state.user.roles, (eventRole) => {
-        if (!eventRole.event || eventRole.event === state.currentEventID) {
-          perms.push(...eventRole.role.permissions);
+        // global roles get all perms
+        if (!eventRole.event) perms.push(...eventRole.role.permissions);
+        else if (eventRole.event === state.currentEventID) {
+          // event roles only get event perms
+          perms.push(..._.filter(eventRole.role.permissions, perm => settings.permissions.includes(perm)));
         }
       });
       console.log('Permissions:', perms);

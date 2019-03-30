@@ -44,7 +44,8 @@ const Role = new mongoose.Schema({
   name: String,
   special: Boolean,
   permissions: [String],
-  form: [Question]
+  form: [Question],
+  readOnly: Boolean
 });
 
 const UserRole = new mongoose.Schema({

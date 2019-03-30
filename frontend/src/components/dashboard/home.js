@@ -4,6 +4,7 @@ import { mapState } from 'vuex';
 import { getActivities, getFeed, respondToInvitation } from '../../api';
 import { formatTime } from '../../helpers';
 import linkified from './linkified';
+import settings from '../../settings';
 
 export default {
   name: 'Home',
@@ -11,6 +12,7 @@ export default {
     activities: [],
     invitations: [],
     feed: [],
+    discordInvite: settings.discord.invite,
   }),
   async created() {
     this.updateActivities();
@@ -41,7 +43,7 @@ export default {
     },
   },
   computed: {
-    ...mapState(['events']),
+    ...mapState(['events', 'user']),
     invitationList() {
       return _.filter(this.invitations, invitation => invitation.status === 'pending');
     },

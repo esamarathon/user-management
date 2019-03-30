@@ -532,6 +532,7 @@ export async function respondToInvitation(req, res) {
 async function updateModel(Model, data, markModified) {
   let item = await Model.findOne({ _id: data._id }).exec();
   if (item) {
+    if (item.readOnly === true) throw new Error('Item is read only!');
     delete data._id;
     mergeNonArray(item, data);
     _.each(markModified, prop => item.markModified(prop));
@@ -556,8 +557,12 @@ export async function updateEvent(req, res) {
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (hasPermission(user, req.body._id, 'Manage Events')) {
     console.log('Updating event with', req.body);
-    const result = await updateModel(models.Event, req.body);
-    return res.json(result);
+    try {
+      const result = await updateModel(models.Event, req.body);
+      return res.json(result);
+    } catch (err) {
+      return res.status(400).end(err.message);
+    }
   }
   return res.status(403).end('Access denied.');
 }
@@ -567,8 +572,12 @@ export async function updateRole(req, res) {
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (hasPermission(user, null, 'Manage Roles')) {
     console.log('Updating role with', req.body);
-    const result = await updateModel(models.Role, req.body);
-    return res.json(result);
+    try {
+      const result = await updateModel(models.Role, req.body);
+      return res.json(result);
+    } catch (err) {
+      return res.status(400).end(err.message);
+    }
   }
   return res.status(403).end('Access denied.');
 }
@@ -641,8 +650,8 @@ export async function getUsers(req, res) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
     console.log('Query:', query);
-    let result = await models.User.find(query, 'flag roles submissions applications connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.discord.name connections.discord.discriminator');
-    result = _.map(result, item => ({
+    const result = await models.User.find(query, 'flag roles submissions applications availability connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.discord.name connections.discord.discriminator');
+    /* result = _.map(result, item => ({
       _id: item._id,
       name: item.name,
       connections: {
@@ -661,7 +670,7 @@ export async function getUsers(req, res) {
       },
       flag: item.flag,
       roles: item.roles
-    }));
+    })); */
     return res.json(result);
   }
   return res.status(403).end('Access denied.');

@@ -5,9 +5,9 @@
     <div class="user-list">
       <md-table class="users transparent-table" v-model="users" md-sort="id">
         <md-table-row slot="md-table-row" slot-scope="{ item }">
-          <md-table-cell md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
-          <md-table-cell md-label="Twitter">{{item.connections.twitter.handle ? "@"+item.connections.twitter.handle : ""}}</md-table-cell>
-          <md-table-cell md-label="Discord">{{item.connections.discord.name ? item.connections.discord.name + "#" + item.connections.discord.discriminator : ""}}</md-table-cell>
+          <md-table-cell md-label="Name" md-sort-by="name">{{item.connections.twitch.displayName}}</md-table-cell>
+          <md-table-cell md-label="Twitter">{{item.connections.twitter ? "@"+item.connections.twitter.handle : ""}}</md-table-cell>
+          <md-table-cell md-label="Discord">{{item.connections.discord ? item.connections.discord.name + "#" + item.connections.discord.discriminator : ""}}</md-table-cell>
           <md-table-cell md-label="Flag"><i :class="`flag flag-${item.flag||'xx'}`" ></i></md-table-cell>
           <md-table-cell md-label="Roles">{{roleString(item)}}</md-table-cell>
           <md-table-cell md-label="" class="table-buttons"><md-button class="md-icon-button" @click="editUser(item)"><md-icon>edit</md-icon></md-button></md-table-cell>
@@ -20,7 +20,33 @@
     <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false" v-if="selectedUser">
       <md-dialog-title>Edit user {{selectedUser.name}}</md-dialog-title>
       <md-dialog-content>
-        {{selectedUser}}
+        <div class="layout-row">
+          <div class="flex-none">
+            <img :src="selectedUser.connections.twitch.logo" class="rounded-profilepic">
+          </div>
+          <div class="layout-column flex">
+            <div class="layout-row">
+              <div class="flex-20">Twitch name</div>
+              <div class="medium-field">{{selectedUser.connections.twitch.displayName}}</div>
+            </div>
+            <div v-if="selectedUser.connections.discord" class="layout-row">
+              <div class="flex-20">Discord user</div>
+              <div class="medium-field">{{selectedUser.connections.discord.name}}#{{selectedUser.connections.discord.discriminator}}</div>
+            </div>
+            <div v-if="selectedUser.connections.twitter" class="layout-row">
+              <div class="flex-20">Twitter handle</div>
+              <div class="medium-field">@{{selectedUser.connections.twitter.handle}}</div>
+            </div>
+            <div class="layout-row">
+              <div class="flex-20">Availability</div>
+              <div class="medium-field">{{getAvailability(selectedUser)}}</div>
+            </div>
+            <div class="layout-row">
+              <div class="flex-20">Flag</div>
+              <div class="medium-field"><i :class="['flag-overlay flag', `flag-${selectedUser.flag||'xx'}`]"></i></div>
+            </div>
+          </div>
+        </div>
         <h2>Roles</h2>
         <div v-for="eventRole in selectedUser.roles" :key="eventRole._id">
           <!--{{eventRole}}-->
@@ -67,65 +93,7 @@
 </template>
 
 
-<script>
-import _ from 'lodash';
-import { getUsers } from '../../../api';
-import { mapState } from 'vuex';
-import { generateID, mergeNonArray } from '../../../helpers';
-
-export default {
-  name: "Users",
-  data: ()=>({
-    users: [],
-    pages: [],
-    searchTerm: "",
-    showDialog: false,
-    selectedUser: null,
-    roleAdd: null
-  }),
-  async created() {
-    if(!this.roles) await this.$store.dispatch("getRoles");
-    this.users = await getUsers();
-    _.each(this.users, user => {
-      _.each(user.roles, eventRole => {
-        if(!eventRole.event) eventRole.event = "global";
-        eventRole.role = _.find(this.roles, {_id: eventRole.role});
-      });
-    });
-  },
-  methods: {
-    editUser(user) {
-      this.selectedUser = _.cloneDeep(user);
-      this.showDialog = true;
-    },
-    async saveUser() {
-      await this.$store.dispatch("saveUser", this.selectedUser);
-      mergeNonArray(_.find(this.users, {_id: this.selectedUser._id}), this.selectedUser);
-      this.showDialog = false;
-      this.selectedUser = null;
-    },
-    deleteRole(role) {
-      this.selectedUser.roles.splice(this.selectedUser.roles.indexOf(role),1);
-    },
-    addRole(role) {
-      if(!role) return;
-      this.selectedUser.roles.push({
-        _id: generateID(),
-        event: "global",
-        role: _.find(this.roles, {_id: role})
-      });
-      console.log(this.selectedUser.roles);
-    },
-    roleString(user) {
-      const result = _.map(_.filter(user.roles, eventRole => eventRole.event === "global" || eventRole.event === this.currentEventID), eventRole => eventRole.role.name).join(", ");
-      return result;
-    }
-  },
-  computed: {
-    ...mapState(['events', 'roles', 'currentEventID']),
-  }
-}
-</script>
+<script src="./users.js"></script>
 
 <style lang="scss">
 .table-buttons {
@@ -141,4 +109,11 @@ export default {
     font-size: large;
   }
 }
+
+img.rounded-profilepic {
+  height: 100px;
+  border-radius: 10px;
+  margin-right: 16px;
+}
+
 </style>

@@ -12,6 +12,7 @@ export default {
     selectedRole: null,
     showDialog: false,
     permissions: settings.permissions,
+    globalPermissions: settings.globalPermissions,
   }),
   created() {
     this.$store.dispatch('getRoles');
