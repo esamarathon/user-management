@@ -547,8 +547,14 @@ function hasPermission(user, eventID, permission) {
   // if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
   console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
   return !!_.find(user.roles, userRole => {
-    if (userRole.event && userRole.event !== 'global' && userRole.event !== eventID) return false;
-    return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
+    console.log('Checking userRole', userRole);
+    if (userRole.event.equals(eventID)) {
+      // only apply local permissions to local roles
+      if ((userRole.role.permissions.includes(permission) || userRole.role.permissions.includes('*')) && settings.permissions.includes(permission)) return true;
+    } else if (!userRole.event) {
+      return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
+    }
+    return false;
   });
 }
 

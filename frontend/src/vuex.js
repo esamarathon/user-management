@@ -169,6 +169,8 @@ export default {
         else if (eventRole.event === state.currentEventID) {
           // event roles only get event perms
           perms.push(..._.filter(eventRole.role.permissions, perm => settings.permissions.includes(perm)));
+          // handle * permission by adding all the event permissions
+          if (eventRole.role.permissions.includes('*')) perms.push(...settings.permissions);
         }
       });
       console.log('Permissions:', perms);

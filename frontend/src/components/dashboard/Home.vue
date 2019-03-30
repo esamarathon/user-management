@@ -19,7 +19,7 @@
       </div>
       <div class="home-column flex-100">
         <h2>Invitations</h2>
-        <div class="no-discord flex-none" v-if="!user.connections.discord && invitationList.length > 0">
+        <div class="no-discord flex-none" v-if="user && !user.connections.discord && invitationList.length > 0">
           <md-icon>warning</md-icon> Please link your discord account to the users tool and check your availability to be able to accept invitations. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
           This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
         </div>
@@ -33,7 +33,7 @@
               <span class="run-name">{{invitation.submission.game}} ({{invitation.submission.category}} {{invitation.submission.runType}})</span>
               run at <span class="event-name">{{invitation.submission.event.name}}</span> &mdash; <router-link :to="{name: 'SubmissionDetails', params: { id: invitation.submission._id }}">Details</router-link>
             </div>
-            <div class="flex-none layout-row layout-wrap accept-buttons" v-if="user.connections.discord">
+            <div class="flex-none layout-row layout-wrap accept-buttons" v-if="user && user.connections.discord">
               <md-button class="md-icon-button accept-button" @click="respondToInvitation(invitation, 'accepted')"><md-icon>check</md-icon></md-button><span><!-- seperates the buttons --></span>
               <md-button class="md-icon-button decline-button" @click="respondToInvitation(invitation, 'denied')"><md-icon>clear</md-icon></md-button>
             </div>
