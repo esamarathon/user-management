@@ -100,10 +100,10 @@
             <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxLength">Please provide at most 1000 characters of comment</span>
           </md-field>
           <div class="incentives flex-100 layout-column">
-            <div class="layout-row layout-start-center">
+            <div class="layout-row layout-start-center layout-wrap">
               <md-button @click="addIncentive('incentive')" class="md-primary md-raised flex-none">Add incentive</md-button>
               <md-button @click="addIncentive('bidwar')" class="md-primary md-raised flex-none">Add bidwar</md-button>
-              <div class="hint"><md-icon>info</md-icon> Please note that incentives or bidwars should not add more than 5 minutes to your run!</div>
+              <div class="hint flex"><md-icon>info</md-icon> Please note that incentives or bidwars should not add more than 5 minutes to your run!</div>
             </div>
             <div class="incentive" v-for="(incentive, index) in selectedSubmission.incentives" :key="incentive._id">
               <div class="incentive-header">{{incentive.type}}</div>
@@ -175,6 +175,7 @@
 
   .submission-header {
     font-size: large;
+    word-break: break-word;
   }
 }
 
@@ -210,5 +211,9 @@
   }
 }
 
+.hint {
+  width: 50%;
+  min-width: 200px;
+}
 
 </style>

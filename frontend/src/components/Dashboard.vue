@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard flex-100 layout-column">
     <md-toolbar class="header layout-row layout-between layout-padding md-primary" md-theme="header">
-      <div class="flex-none left-menu layout-row">
-        <div class="esa-logo"><img src="../assets/esa-logo.png"></div>
+      <div class="flex left-menu layout-row">
+        <div class="esa-logo" @click="collapseNavMobile = !collapseNavMobile"><img src="../assets/esa-logo.png"></div>
         <div>
-        <md-field class="compact">
+        <md-field class="compact event-selector">
           <label for="event">Event</label>
           <md-select v-model="currentEventID" name="event" id="event">
             <md-option v-for="possibleEvent in eventList" :value="possibleEvent._id" :key="possibleEvent._id">{{possibleEvent.name}}</md-option>
@@ -15,7 +15,7 @@
       <div class="flex-none">
         <md-menu md-direction="bottom-end" class="menu-button" md-align-trigger>
           <div md-menu-trigger class="user-info">
-            {{(user && user.connections.twitch.displayName) || ''}}
+            <span class="user-name">{{(user && user.connections.twitch.displayName) || ''}}</span>
             <img class="profile-pic" :src="(user && user.connections.twitch.logo) || ''">
           </div>
           <md-menu-content>
@@ -25,7 +25,7 @@
       </div>
     </md-toolbar>
     <div class="wrapper layout-row layout-start-stretch flex-100">
-      <div class="navigation flex-none layout-padding layout-column" :class="{collapsed: collapseNav}">
+      <div class="navigation flex-none layout-padding layout-column" :class="{collapsed: collapseNav, 'collapsed-mobile': collapseNavMobile}">
         <md-button class="collapse-nav md-icon-button flex-none" @click="collapseNav = !collapseNav">
           <md-icon>slideshow</md-icon>
         </md-button>
@@ -76,7 +76,7 @@
             <span class="md-list-item-text">Feed</span>
           </md-list-item>
         </md-list>
-        <div class="">Made by <a href="https://twitter.com/cbenni_o">@cbenni_o</a></div>
+        <div class="shill">Made by <a href="https://twitter.com/cbenni_o">@cbenni_o</a></div>
       </div>
       <div class="content flex-100 layout-padding layout-column">
         <router-view></router-view>
@@ -115,6 +115,7 @@
   width: 280px;
   background-color: #1F2741;
   transition: width 0.1s;
+  z-index: 99;
 
   .collapse-nav {
     align-self: flex-end;
@@ -152,6 +153,43 @@
       max-height: 1px;
       min-height: 0px;
     }
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .md-menu.menu-button {
+    margin-right: 0;
+  }
+  .header {
+    z-index: 999;
+  }
+  .header .user-info {
+    height: auto;
+    padding: 0;
+    .user-name {
+      display: none;
+    }
+    img.profile-pic {
+      margin: 0;
+      width: 48px;
+      height: 48px;
+    }
+    padding-left: 0;
+  }
+  .navigation {
+    position: absolute;
+    transition: transform 0.5s;
+    border-bottom: 1px solid;
+    border-bottom-color: rgba(0,0,0,0.22);
+    &.collapsed-mobile {
+      transform: translateY(-100%);
+    }
+    .collapse-nav {
+      display: none;
+    }
+  }
+  .shill {
+    display: none;
   }
 }
 

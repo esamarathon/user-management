@@ -12,12 +12,15 @@ export default {
     // this should probably be vuex
     eventID: null,
     collapseNav: false,
+    collapseNavMobile: false,
   }),
   async created() {
     if (!jwt) this.$router.push({ name: 'Login' });
 
     this.$store.dispatch('getEvents');
     this.$store.dispatch('getUser');
+
+    setTimeout(() => { this.collapseNavMobile = true; }, 10);
   },
   methods: {
     async logout() {
@@ -39,6 +42,11 @@ export default {
       get() {
         return _.filter(this.events, event => event.status === 'public');
       },
+    },
+  },
+  watch: {
+    $route(to, from) {
+      this.collapseNavMobile = true;
     },
   },
 };

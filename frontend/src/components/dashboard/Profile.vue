@@ -110,6 +110,18 @@
   }
 }
 
+@media screen and (max-width: 500px) {
+  .details-row {
+  &.button-equivalent {
+    padding: 8px 16px;
+
+    .flex-10 {
+      min-width: 100px;
+    }
+  }
+}
+}
+
 img.logo {
   height: 24px;
   margin-right: 8px;
@@ -158,8 +170,9 @@ img.big-logo {
 }
 
 .discord-connection {
-  width: 20%;
-  min-width: 400px;
+  min-width: 20%;
+  width: 400px;
+  max-width: 80%;
   background-color: #2C2F33;
 }
 

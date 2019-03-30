@@ -49,6 +49,7 @@
   max-width: 520px;
 
   .submission-header {
+    word-break: break-word;
     font-size: large;
   }
 }
