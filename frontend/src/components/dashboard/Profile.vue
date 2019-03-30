@@ -110,7 +110,7 @@
   }
 }
 
-@media screen and (max-width: 500px) {
+@media (max-width: 500px) {
   .details-row {
   &.button-equivalent {
     padding: 8px 16px;

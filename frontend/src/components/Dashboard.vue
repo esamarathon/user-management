@@ -143,7 +143,7 @@
   }
 }
 
-@media screen and (max-width: 1000px) {
+@media (max-width: 1000px) {
   .navigation {
     width: 72px;
 
@@ -156,7 +156,7 @@
   }
 }
 
-@media screen and (max-width: 500px) {
+@media (max-width: 500px) {
   .md-menu.menu-button {
     margin-right: 0;
   }

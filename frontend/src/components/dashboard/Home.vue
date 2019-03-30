@@ -2,7 +2,7 @@
   <div class="layout-column flex-100">
     <h1>Home</h1>
     <div class="home-dashboard layout-row flex-100">
-      <div class="home-column flex-100">
+      <div class="home-column flex-100 activities">
         <h2>Activity</h2>
         <div class="activity layout-row" v-for="activity in activities" :key="activity.id">
           <!--<span class="activity-category" :class="activity.category">{{activity.category}}</span>
@@ -17,7 +17,7 @@
           </div>
         </div>
       </div>
-      <div class="home-column flex-100">
+      <div class="home-column flex-100 invitations" :class="{'empty': invitationList.length === 0}">
         <h2>Invitations</h2>
         <div class="no-discord flex-none" v-if="user && !user.connections.discord && invitationList.length > 0">
           <md-icon>warning</md-icon> Please link your discord account to the users tool and check your availability to be able to accept invitations. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
@@ -40,7 +40,7 @@
           </div>
         </transition-group>
       </div>
-      <div class="home-column flex-100">
+      <div class="home-column flex-100 feed">
         <h2>Feed</h2>
         <div class="feeditem layout-row" v-for="feeditem in feed" :key="feeditem.id">
           <div class="flex-none" v-if="feeditem.icon">
@@ -132,6 +132,27 @@
 @media(max-width: 1600px) {
   .accept-buttons {
     flex-direction: column;
+  }
+}
+@media (max-width: 600px) {
+  .home-dashboard {
+    flex-direction: column;
+    .home-column {
+      max-height: 500px;
+      overflow: auto;
+    }
+    .invitations {
+      order: 1;
+      &.empty {
+        order: 4;
+      }
+    }
+    .activities {
+      order: 2;
+    }
+    .feed {
+      order: 3;
+    }
   }
 }
 
