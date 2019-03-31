@@ -208,7 +208,7 @@ export default {
       category: {
         required,
         minLength: minLength(3),
-        maxLength: maxLength(25),
+        maxLength: maxLength(50),
       },
       estimate: {
         required,
