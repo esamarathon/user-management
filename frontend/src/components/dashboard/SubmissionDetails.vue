@@ -1,6 +1,9 @@
 <template>
   <div class="layout-column" v-if="s">
     <h1>Submission details for {{name}} at {{event.name}}</h1>
+    <div v-if="hasAnyPermission('Edit Runs', 'Admin')" class="flex-none layout-row">
+      <md-button class="md-icon-button flex-none" @click="editRun(s)"><md-icon>edit</md-icon></md-button>
+    </div>
     <div class="submission-details layout-column">
       <div class="details-row layout-row">
         <div class="flex-25">Submit by</div>
@@ -45,6 +48,7 @@
         </div>
       </div>
     </div>
+    <submission-edit :selectedSubmission="selectedRun" @submit="saveRun" @cancel="showDialog=false" :showDialog.sync="showDialog"></submission-edit>
   </div>
 </template>
 

@@ -143,7 +143,7 @@ export function sendDiscordSubmissionUpdate(user, submission, changes) {
 }
 
 
-export function sendDiscordSubmissionDeletion(user, submission) {
+export function sendDiscordSubmissionDeletion(user, submission, changeType) {
   const submitterTwitchUser = submission.user.connections.twitch;
   const userTwitchUser = user.connections.twitch;
   const submitterTwitchName = submitterTwitchUser.displayName.toLowerCase() === submitterTwitchUser.name ? submitterTwitchUser.displayName : `${submitterTwitchUser.displayName} (${submitterTwitchUser.name})`;
@@ -159,9 +159,9 @@ export function sendDiscordSubmissionDeletion(user, submission) {
   incentives = _.map(incentives, 'name').join(', ');
   bidwars = _.map(bidwars, 'name').join(', ');
   privateWebhook({
-    title: 'A run has been deleted!',
+    title: `A run has been ${changeType}!`,
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-    description: `${userTwitchName} has just deleted a run!\n\n` // eslint-disable-line prefer-template
+    description: `${userTwitchName} has just ${changeType} a run!\n\n` // eslint-disable-line prefer-template
     + `**Submit by:** ${submitterTwitchName}\n`
     + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`

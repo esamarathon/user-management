@@ -2,7 +2,7 @@
   <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false">
     <md-dialog-title>Submit run</md-dialog-title>
     <md-dialog-content ref="dialog">
-      <form v-if="selectedSubmission" class="layout-padding">
+      <form v-if="selectedSubmission" class="layout-padding" autocomplete="off">
         <div class="layout-row layout-wrap">
           <md-field class="large-field flex-none" :class="getValidationClass('game')">
             <label for="game">Game</label>
@@ -23,7 +23,18 @@
             <span class="md-error" v-if="!$v.selectedSubmission.leaderboards.required">The leaderboards URL is required</span>
             <span class="md-error" v-else-if="!$v.selectedSubmission.leaderboards.url">Invalid leaderboards URL</span>
           </md-field>
-          <div class="spacer flex-45"></div>
+          <md-field class="small-field flex-25" v-if="hasAnyPermission('Edit Runs', 'Admin')">
+            <label for="status">Status</label>
+            <md-select v-model="selectedSubmission.status" name="status" id="status" @md-selected="initTeams()">
+              <md-option value="stub" disabled>Stub</md-option>
+              <md-option value="saved">Saved</md-option>
+              <md-option value="deleted">Deleted</md-option>
+              <md-option value="accepted" disabled>Accepted</md-option>
+              <md-option value="denied" disabled>Denied</md-option>
+            </md-select>
+          </md-field>
+          <div class="spacer flex-10" v-if="hasAnyPermission('Edit Runs', 'Admin')"></div>
+          <div class="spacer flex-45" v-else></div>
           <md-field class="small-field flex-none" :class="getValidationClass('category')">
             <label for="category">Category</label>
             <md-input name="category" id="category" v-model="selectedSubmission.category" />

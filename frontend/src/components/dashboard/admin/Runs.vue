@@ -16,10 +16,12 @@
     </div>
     <md-table class="runs transparent-table" v-model="runList" md-sort="id" v-if="runList">
       <md-table-row slot="md-table-row" slot-scope="{ item }" :style="{'border-left-color': getStatusIndicatorColor(item)}">
-        <md-table-cell>
+        <md-table-cell class="buttons-cell">
           <div class="layout-column">
-            <div><md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button></div>
-            <div v-if="hasAnyPermission('Edit Runs', 'Admin')"><md-button class="md-icon-button" @click="editRun(item)"><md-icon>edit</md-icon></md-button></div>
+            <div class="flex-none"><md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button></div>
+            <div v-if="hasAnyPermission('Edit Runs', 'Admin')" class="flex-none layout-row">
+              <md-button class="md-icon-button flex-none" @click="editRun(item)"><md-icon>edit</md-icon></md-button>
+            </div>
           </div>
         </md-table-cell>
         <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">

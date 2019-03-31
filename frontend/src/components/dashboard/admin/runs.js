@@ -242,10 +242,6 @@ export default {
       console.log('Editing run', run, this.selectedRun2);
       this.showDialog2 = true;
     },
-    deleteRun(run) {
-      run.status = 'deleted';
-      this.$store.dispatch('saveSubmission', run.data);
-    },
     async saveRun(status) {
       console.log('Saving submission', this.selectedRun);
       try {

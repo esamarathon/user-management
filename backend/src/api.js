@@ -404,7 +404,8 @@ export async function updateUserSubmission(req, res) {
         }
       }
       if (allInvites.size > 0) {
-        res.status(400).end('Missing invites.');
+        console.log('Missing invites:', allInvites);
+        return res.status(400).end('Missing invites.');
       }
       // strip everything but the IDs to prevent overwriting of invites
       _.each(validChanges.teams, team => { team.members = _.map(team.members, member => member && (member._id || member)); });
@@ -412,6 +413,7 @@ export async function updateUserSubmission(req, res) {
     }
     if (submission.status === 'stub' && validChanges.status === 'saved') changeType = 'new';
     if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
+    if (submission.status === 'deleted' && validChanges.status !== 'deleted') changeType = 'undeleted';
     if (submission.status === 'saved' && validChanges.status === 'saved') changeType = 'updated';
     _.each(validChanges, (val, key) => {
       if (!isDeepStrictEqual(submission[key], val)) oldVals[key] = submission[key];
@@ -442,10 +444,9 @@ export async function updateUserSubmission(req, res) {
     await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name connections.discord.discriminator connections.srdotcom.name')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .execPopulate();
-    console.log('Submission user:', submission.user);
     if (changeType === 'new') sendDiscordSubmission(user || submission.user, submission);
     if (changeType === 'updated') sendDiscordSubmissionUpdate(user || submission.user, submission, oldVals);
-    if (changeType === 'deleted') sendDiscordSubmissionDeletion(user || submission.user, submission);
+    if (changeType === 'deleted' || changeType === 'undeleted') sendDiscordSubmissionDeletion(user || submission.user, submission, changeType);
   }
   return res.json(submission);
 }
@@ -698,12 +699,13 @@ export async function getSubmissions(req, res) {
     runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } })
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+    .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .exec();
   } else {
     console.log('Doesnt have permission');
     runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game leaderboards category platform estimate runType teams')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
-    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName' } })
     .exec();
   }
   return res.json(runs);
@@ -712,9 +714,10 @@ export async function getSubmissions(req, res) {
 export async function getSubmission(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.params.id) return res.status(400).end('Missing query parameter id');
-  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams video comment status incentives')
+  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams invitations video comment status incentives')
   .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
+  .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .exec());
 }
 
