@@ -29,7 +29,6 @@ export default {
     async saveSubmission(status) {
       console.log('Saving submission', this.selectedSubmission);
       try {
-        this.selectedSubmission.status = status || 'saved';
         await this.$store.dispatch('saveSubmission', this.selectedSubmission);
         this.showDialog = false;
       } catch (err) {

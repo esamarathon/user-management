@@ -242,10 +242,9 @@ export default {
       console.log('Editing run', run, this.selectedRun2);
       this.showDialog2 = true;
     },
-    async saveRun(status) {
+    async saveRun() {
       console.log('Saving submission', this.selectedRun);
       try {
-        this.selectedRun2.status = status || 'saved';
         await this.$store.dispatch('saveSubmission', this.selectedRun2);
         this.showDialog2 = false;
       } catch (err) {

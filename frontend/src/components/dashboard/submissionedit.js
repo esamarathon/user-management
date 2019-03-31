@@ -156,10 +156,11 @@ export default {
       }
       return null;
     },
-    saveSubmission(status) {
+    saveSubmission() {
       this.$v.$touch();
       if (!this.$v.$invalid) {
-        this.$emit('submit', status);
+        if (this.selectedSubmission.status === 'stub') this.selectedSubmission.status = 'saved';
+        this.$emit('submit', this.selectedSubmission.status);
       }
     },
     addIncentive(type) {
