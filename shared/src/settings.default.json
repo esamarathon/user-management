@@ -40,7 +40,8 @@
       "name": "Scheduling",
       "permissions": [
         "Approve Submissions",
-        "Edit Schedule"
+        "Edit Schedule",
+        "Edit Runs"
       ],
       "special": true
     },
@@ -78,7 +79,8 @@
     "Approve Volunteers",
     "Approve Donations",
     "Read Donations",
-    "Moderate Omnibar"
+    "Moderate Omnibar",
+    "Edit Submissions"
   ],
   "globalPermissions": [
     "Edit Users",

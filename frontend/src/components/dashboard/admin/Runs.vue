@@ -19,7 +19,7 @@
         <md-table-cell>
           <div class="layout-column">
             <div><md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button></div>
-            <div><md-button class="md-icon-button" @click="editRun(item)"><md-icon>edit</md-icon></md-button></div>
+            <div v-if="hasAnyPermission('Edit Runs', 'Admin')"><md-button class="md-icon-button" @click="editRun(item)"><md-icon>edit</md-icon></md-button></div>
           </div>
         </md-table-cell>
         <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">
