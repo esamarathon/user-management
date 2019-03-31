@@ -8,16 +8,18 @@
       <div class="infinite-td flex-20 estimate">Platform</div>
       <div class="infinite-td flex-10 platform">Estimate</div>
     </div>
-    <RecycleScroller class="infinite-table flex-100" :items="runs" :item-size="55" key-field="_id">
+    <RecycleScroller class="infinite-table flex-100" :items="runs" :item-size="itemSize" key-field="_id">
       <template v-slot="{ item }">
         <div class="infinite-tr run layout-row layout-start-center">
           <div class="infinite-td flex-10 view">
             <md-button class="md-icon-button" @click="selectRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
           </div>
-          <div class="infinite-td flex-30 name">{{item.game}} ({{item.category}} {{item.runType}})</div>
-          <div class="infinite-td flex-30 runners">{{getRunners(item)}}</div>
-          <div class="infinite-td flex-20 platform">{{item.platform}}</div>
-          <div class="infinite-td flex-10 estimate">{{item.estimate}}</div>
+          <div class="flex info-items layout-row">
+            <div class="infinite-td flex-30 name">{{item.game}} ({{item.category}}{{item.runType === 'solo' ? '' : ' '+item.runType}})</div>
+            <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{getRunners(item)}}</div>
+            <div class="infinite-td flex-20 platform"><span class="mobile-description">Platform: </span>{{item.platform}}</div>
+            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.estimate}}</div>
+          </div>
         </div>
       </template>
     </RecycleScroller>
@@ -65,5 +67,34 @@
 
 .width-200 {
   width: 200px;
+}
+
+.mobile-description {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .infinite-table {
+    .infinite-td {
+      padding: 0;
+    }
+  }
+  .table-header {
+    display: none;
+  }
+  .infinite-tr .info-items {
+    flex-direction: column;
+  }
+  .run {
+    height: 140px;
+  }
+  .infinite-td.name {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .mobile-description {
+    display: initial;
+    font-weight: bold;
+  }
 }
 </style>

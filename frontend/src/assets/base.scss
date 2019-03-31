@@ -169,6 +169,7 @@ body, html {
 .small-field {
   min-width: 80px;
   width: auto;
+  max-width: 200px;
 }
 
 .medium-field {
@@ -276,4 +277,12 @@ img.profilepic {
   .md-dialog .md-dialog-actions {
     padding-right: 40px;
   }
+
+  .hide-xs {
+    display: none;
+  }
+}
+
+h1, h2, h3 {
+  line-height: 1.0;
 }

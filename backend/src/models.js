@@ -24,9 +24,8 @@ const DiscordConnection = new mongoose.Schema({
   expiresAt: String
 });
 
-const SpeedrunConnection = new mongoose.Schema({
-  name: String,
-  token: String
+const SrDotComConnection = new mongoose.Schema({
+  name: String
 });
 
 const TwitterConnection = new mongoose.Schema({
@@ -64,7 +63,7 @@ const User = new mongoose.Schema({
   connections: {
     twitch: TwitchConnection,
     discord: DiscordConnection,
-    speedrun: SpeedrunConnection,
+    srdotcom: SrDotComConnection,
     twitter: TwitterConnection
   },
   phone_display: String, // first and last characters from the phone number
@@ -133,7 +132,6 @@ const Submission = new mongoose.Schema({
   teams: [Team],
   video: String,
   comment: String,
-  description: String,
   status: String,
   notes: [Note],
   decisions: [RunDecision],
@@ -195,7 +193,7 @@ const FeedItem = new mongoose.Schema({
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SpeedrunConnection, Invitation
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation
 };
 export const models = {
   Event: mongoose.model('event', Event),

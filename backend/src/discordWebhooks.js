@@ -42,9 +42,9 @@ async function privateWebhook(data) {
   }
 }
 
-export function sendDiscordSubmission(submission) {
-  const twitchUser = submission.user.connections.twitch;
-  const twitchName = twitchUser.displayName.toLowerCase() === twitchUser.name ? twitchUser.displayName : `${twitchUser.displayName} (${twitchUser.name})`;
+export function sendDiscordSubmission(user, submission) {
+  const submitterTwitchUser = submission.user.connections.twitch;
+  const submitterTwitchName = submitterTwitchUser.displayName.toLowerCase() === submitterTwitchUser.name ? submitterTwitchUser.displayName : `${submitterTwitchUser.displayName} (${submitterTwitchUser.name})`;
   const discordUser = submission.user.connections.discord;
   let category = submission.category;
   let teams = '';
@@ -58,7 +58,7 @@ export function sendDiscordSubmission(submission) {
   publicWebhook({
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-    description: `${twitchName} has just submited a new run!\n\n`
+    description: `${submitterTwitchName} has just submited a new run!\n\n`
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}`
@@ -66,7 +66,7 @@ export function sendDiscordSubmission(submission) {
   privateWebhook({
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-    description: `${twitchName} has just submited a new run!\n\n` // eslint-disable-line prefer-template
+    description: `${submitterTwitchName} has just submited a new run!\n\n` // eslint-disable-line prefer-template
     + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
@@ -79,9 +79,11 @@ export function sendDiscordSubmission(submission) {
   });
 }
 
-export function sendDiscordSubmissionUpdate(submission, changes) {
-  const twitchUser = submission.user.connections.twitch;
-  const twitchName = twitchUser.displayName.toLowerCase() === twitchUser.name ? twitchUser.displayName : `${twitchUser.displayName} (${twitchUser.name})`;
+export function sendDiscordSubmissionUpdate(user, submission, changes) {
+  const submitterTwitchUser = submission.user.connections.twitch;
+  const userTwitchUser = user.connections.twitch;
+  const submitterTwitchName = submitterTwitchUser.displayName.toLowerCase() === submitterTwitchUser.name ? submitterTwitchUser.displayName : `${submitterTwitchUser.displayName} (${submitterTwitchUser.name})`;
+  const userTwitchName = userTwitchUser.displayName.toLowerCase() === userTwitchUser.name ? userTwitchUser.displayName : `${userTwitchUser.displayName} (${userTwitchUser.name})`;
   const discordUser = submission.user.connections.discord;
   let category = submission.category;
   let teams = '';
@@ -134,15 +136,18 @@ export function sendDiscordSubmissionUpdate(submission, changes) {
     privateWebhook({
       title: 'A run has been updated!',
       url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-      description: `${twitchName} has just updated an existing run!\n\n\n${discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : ''}${updates.join('\n')}`
+      description: `${userTwitchName} has just updated an existing run!\n\n\n**Submit by:** ${submitterTwitchName}\n`
+      + `${discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : ''}${updates.join('\n')}`
     });
   }
 }
 
 
-export function sendDiscordSubmissionDeletion(submission) {
-  const twitchUser = submission.user.connections.twitch;
-  const twitchName = twitchUser.displayName.toLowerCase() === twitchUser.name ? twitchUser.displayName : `${twitchUser.displayName} (${twitchUser.name})`;
+export function sendDiscordSubmissionDeletion(user, submission) {
+  const submitterTwitchUser = submission.user.connections.twitch;
+  const userTwitchUser = user.connections.twitch;
+  const submitterTwitchName = submitterTwitchUser.displayName.toLowerCase() === submitterTwitchUser.name ? submitterTwitchUser.displayName : `${submitterTwitchUser.displayName} (${submitterTwitchUser.name})`;
+  const userTwitchName = userTwitchUser.displayName.toLowerCase() === userTwitchUser.name ? userTwitchUser.displayName : `${userTwitchUser.displayName} (${userTwitchUser.name})`;
   const discordUser = submission.user.connections.discord;
   let category = submission.category;
   let teams = '';
@@ -156,7 +161,8 @@ export function sendDiscordSubmissionDeletion(submission) {
   privateWebhook({
     title: 'A run has been deleted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-    description: `${twitchName} has just deleted a run!\n\n` // eslint-disable-line prefer-template
+    description: `${userTwitchName} has just deleted a run!\n\n` // eslint-disable-line prefer-template
+    + `**Submit by:** ${submitterTwitchName}\n`
     + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`

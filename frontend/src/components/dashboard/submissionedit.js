@@ -194,9 +194,12 @@ export default {
       game: {
         required,
         minLength: minLength(1),
+        maxLength: maxLength(50),
       },
       twitchGame: {
         required,
+        minLength: minLength(1),
+        maxLength: maxLength(50),
       },
       leaderboards: {
         required,
@@ -205,6 +208,7 @@ export default {
       category: {
         required,
         minLength: minLength(3),
+        maxLength: maxLength(25),
       },
       estimate: {
         required,
@@ -213,15 +217,11 @@ export default {
       platform: {
         required,
         minLength: minLength(1),
+        maxLength: maxLength(25),
       },
       video: {
         required,
         url,
-      },
-      description: {
-        required,
-        minLength: minLength(100),
-        maxLength: maxLength(1000),
       },
       comment: {
         required,

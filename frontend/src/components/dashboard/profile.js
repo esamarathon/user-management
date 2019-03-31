@@ -24,6 +24,9 @@ export default {
     twitterUpdated() {
       this.$store.dispatch('updateUser', { connections: { twitter: { handle: this.user.connections.twitter.handle.replace('@', '') } } });
     },
+    srdotcomUpdated() {
+      this.$store.dispatch('updateUser', { connections: { srdotcom: { name: this.user.connections.srdotcom.name } } });
+    },
     phoneUpdated() {
       setTimeout(() => {
         this.$store.dispatch('updateUser', { phone: this.phoneNum });
@@ -47,6 +50,15 @@ export default {
       set(handle) {
         console.log('Setting handle to', handle.replace('@', ''));
         this.$store.commit('updateUser', { connections: { twitter: { handle: handle.replace('@', '') } } });
+      },
+    },
+    srdotcomName: {
+      get() {
+        if (!this.user.connections || !this.user.connections.srdotcom) return '';
+        return this.user.connections.srdotcom.name;
+      },
+      set(name) {
+        this.$store.commit('updateUser', { connections: { srdotcom: { name: name.trim() } } });
       },
     },
     phoneNumber: {

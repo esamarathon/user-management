@@ -3,6 +3,10 @@
     <h1>Submission details for {{name}} at {{event.name}}</h1>
     <div class="submission-details layout-column">
       <div class="details-row layout-row">
+        <div class="flex-25">Submit by</div>
+        <div class="flex"><a :href="s.user.connections.srdotcom && `https://speedrun.com/user/${s.user.connections.srdotcom.name}`">{{s.user.connections.twitch.displayName}}</a></div>
+      </div>
+      <div class="details-row layout-row">
         <div class="flex-25">Name</div>
         <div class="flex"><a :href="s.leaderboards">{{name}}</a></div>
       </div>
@@ -14,17 +18,13 @@
         <div class="flex-25">Estimate</div>
         <div class="flex">{{s.estimate}}</div>
       </div>
-      <div class="details-row layout-row">
-        <div class="flex-25">teams</div>
+      <div class="details-row layout-row" v-if="s.runType !== 'solo'">
+        <div class="flex-25">Teams</div>
         <div class="flex">{{teamString}}</div>
       </div>
       <div class="details-row layout-row">
         <div class="flex-25">Category</div>
         <div class="flex">{{s.category}}</div>
-      </div>
-      <div class="details-row layout-row">
-        <div class="flex-25 noshrink">Description</div>
-        <div class="flex pre">{{s.description}}</div>
       </div>
       <div class="details-row layout-row">
         <div class="flex-25 noshrink">Comment</div>

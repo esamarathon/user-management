@@ -2,24 +2,8 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 
 import SubmissionEdit from './SubmissionEdit.vue';
-import { generateID } from '../../helpers';
+import { generateID, emptySubmission } from '../../helpers';
 import settings from '../../settings';
-
-const emptySubmission = {
-  game: '',
-  twitchGame: '',
-  leaderboards: '',
-  category: '',
-  platform: '',
-  status: 'stub',
-  estimate: '',
-  comment: '',
-  description: '',
-  runType: 'solo',
-  teams: null,
-  invitations: null,
-  incentives: [],
-};
 
 export default {
   name: 'Submissions',

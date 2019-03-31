@@ -113,3 +113,18 @@ export function formatTime(time) {
     year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
   });
 }
+
+export const emptySubmission = {
+  game: '',
+  twitchGame: '',
+  leaderboards: '',
+  category: '',
+  platform: '',
+  status: 'stub',
+  estimate: '',
+  comment: '',
+  runType: 'solo',
+  teams: null,
+  invitations: null,
+  incentives: [],
+};

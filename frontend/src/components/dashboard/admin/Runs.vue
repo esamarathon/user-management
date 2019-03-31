@@ -16,17 +16,21 @@
     </div>
     <md-table class="runs transparent-table" v-model="runList" md-sort="id" v-if="runList">
       <md-table-row slot="md-table-row" slot-scope="{ item }" :style="{'border-left-color': getStatusIndicatorColor(item)}">
-        <md-table-cell><md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button></md-table-cell>
+        <md-table-cell>
+          <div class="layout-column">
+            <div><md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button></div>
+            <div><md-button class="md-icon-button" @click="editRun(item)"><md-icon>edit</md-icon></md-button></div>
+          </div>
+        </md-table-cell>
         <md-table-cell v-if="showColumns['Submitted by']" md-label="Submitted by" md-sort-by="userName">
           {{item.userName}}
         </md-table-cell>
         <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name" class="textbreak width-200">{{item.name}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform" class="textbreak">{{item.platform}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate" class="textbreak">{{item.estimate}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform" class="textbreak">{{item.data.platform}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate" class="textbreak">{{item.data.estimate}}</md-table-cell>
         <md-table-cell v-if="showColumns['Players']" md-label="Players">{{item.players}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Description']" md-label="Description" class="textbreak">{{item.description}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Comment']" md-label="Comment" class="textbreak">{{item.comment}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Video']" md-label="Video"><video-button :url="item.video"></video-button></md-table-cell>
+        <md-table-cell v-if="showColumns['Comment']" md-label="Comment" class="textbreak">{{item.data.comment}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Video']" md-label="Video"><video-button :url="item.data.video"></video-button></md-table-cell>
         <md-table-cell v-if="showColumns['Decision']" md-label="Decision">
           <div class="layout-row">
             <div class="layout-column flex-none">
@@ -57,6 +61,7 @@
         <md-button class="md-accent" @click="showDialog = false">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
+    <submission-edit :selectedSubmission="selectedRun2" @submit="saveRun" @cancel="showDialog2=false" :showDialog.sync="showDialog2"></submission-edit>
   </div>
 </template>
 

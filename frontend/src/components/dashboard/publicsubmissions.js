@@ -1,5 +1,6 @@
 import { mapState, mapGetters } from 'vuex';
 import { RecycleScroller } from 'vue-virtual-scroller';
+import VueScreenSize from 'vue-screen-size';
 import { getRuns } from '../../api';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { teamsToString } from '../../helpers';
@@ -38,9 +39,13 @@ export default {
     runList() {
       return this.runs;
     },
+    itemSize() {
+      return this.$vssWidth < 1000 ? 140 : 55;
+    },
   },
   components: {
     RecycleScroller,
     SubmissionDetails,
   },
+  mixins: [VueScreenSize.VueScreenSizeMixin],
 };

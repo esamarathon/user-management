@@ -8,6 +8,7 @@
           <md-table-cell md-label="Name" md-sort-by="name">{{item.connections.twitch.displayName}}</md-table-cell>
           <md-table-cell md-label="Twitter">{{item.connections.twitter ? "@"+item.connections.twitter.handle : ""}}</md-table-cell>
           <md-table-cell md-label="Discord">{{item.connections.discord ? item.connections.discord.name + "#" + item.connections.discord.discriminator : ""}}</md-table-cell>
+          <md-table-cell md-label="Speedrun.com"><a :href="`https://speedrun.com/user/${item.connections.srdotcom ? item.connections.srdotcom.name : ''}`">{{item.connections.srdotcom ? item.connections.srdotcom.name : ""}}</a></md-table-cell>
           <md-table-cell md-label="Flag"><i :class="`flag flag-${item.flag||'xx'}`" ></i></md-table-cell>
           <md-table-cell md-label="Roles">{{roleString(item)}}</md-table-cell>
           <md-table-cell md-label="" class="table-buttons"><md-button class="md-icon-button" @click="editUser(item)"><md-icon>edit</md-icon></md-button></md-table-cell>
@@ -35,7 +36,11 @@
             </div>
             <div v-if="selectedUser.connections.twitter" class="layout-row">
               <div class="flex-20">Twitter handle</div>
-              <div class="medium-field">@{{selectedUser.connections.twitter.handle}}</div>
+              <div class="medium-field">{{selectedUser.connections.twitter ? '@'+selectedUser.connections.twitter.handle : ''}}</div>
+            </div>
+            <div v-if="selectedUser.connections.srdotcom" class="layout-row">
+              <div class="flex-20">Speedrun.com name</div>
+              <div class="medium-field" v-if="item.connections.srdotcom"><a :href="`https://speedrun.com/user/${item.connections.srdotcom.name}`">{{selectedUser.connections.srdotcom.name}}</a></div>
             </div>
             <div class="layout-row">
               <div class="flex-20">Availability</div>

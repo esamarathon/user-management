@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
-import { getUserName, teamsToString } from '../../../helpers';
+import { getUserName, teamsToString, emptySubmission } from '../../../helpers';
 import { getRuns, updateDecision } from '../../../api';
 import submissionDetails from '../SubmissionDetails.vue';
+import submissionEdit from '../SubmissionEdit.vue';
 
 const basicButtons = [
   {
@@ -74,7 +75,6 @@ const columns = [
   'Platform',
   'Estimate',
   'Comment',
-  'Description',
   'Video',
   'Decision',
 ];
@@ -103,7 +103,9 @@ export default {
     activeColumns: activeColumns.slice(),
     filteredRuns: null,
     showDialog: false,
+    showDialog2: false,
     selectedRun: null,
+    selectedRun2: null,
   }),
   computed: {
     ...mapState(['user']),
@@ -160,14 +162,10 @@ export default {
           }
           return {
             _id: run._id,
+            data: run,
             userName: getUserName(run.user),
             name: `${run.game} (${run.category} ${run.runType})`,
             players: teamsToString(run.teams),
-            estimate: run.estimate,
-            platform: run.platform,
-            comment: run.comment,
-            description: run.description,
-            video: run.video,
             explanation: ownExplanations,
             decision: ownDecisions,
             otherDecisions,
@@ -239,6 +237,28 @@ export default {
       this.selectedRun = run._id;
       this.showDialog = true;
     },
+    editRun(run) {
+      this.selectedRun2 = _.merge(_.cloneDeep(emptySubmission), _.cloneDeep(run.data));
+      console.log('Editing run', run, this.selectedRun2);
+      this.showDialog2 = true;
+    },
+    deleteRun(run) {
+      run.status = 'deleted';
+      this.$store.dispatch('saveSubmission', run.data);
+    },
+    async saveRun(status) {
+      console.log('Saving submission', this.selectedRun);
+      try {
+        this.selectedRun2.status = status || 'saved';
+        await this.$store.dispatch('saveSubmission', this.selectedRun2);
+        this.showDialog2 = false;
+      } catch (err) {
+        console.log(err);
+        this.$toasted.error(`Could not save or create submission: ${err.message}`);
+        return false;
+      }
+      return true;
+    },
   },
   watch: {
     currentEvent() {
@@ -247,5 +267,6 @@ export default {
   },
   components: {
     submissionDetails,
+    submissionEdit,
   },
 };

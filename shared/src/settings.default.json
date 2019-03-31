@@ -2,7 +2,7 @@
   "auth": {
     "algorithm": "RS256",
     "cookieOptions": {},
-    "domainFilter": ".*",
+    "domainFilter": "^((?:.*\\.)?esamarathon.com|127.0.0.1)$",
     "encryptionKey": null
   },
   "logger": {

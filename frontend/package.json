@@ -21,6 +21,7 @@
     "vue-material": "^1.0.0-beta-10.2",
     "vue-moment": "^4.0.0",
     "vue-router": "^3.0.2",
+    "vue-screen-size": "^1.0.0",
     "vue-toasted": "^1.1.26",
     "vue-virtual-scroller": "^1.0.0-rc.2",
     "vuedraggable": "^2.19.2",

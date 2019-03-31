@@ -15,8 +15,25 @@ import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissi
 
 const historySep = settings.vue.mode === 'history' ? '' : '#/';
 
+function hasPermission(user, eventID, permission) {
+  // if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
+  console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
+  return !!_.find(user.roles, userRole => {
+    console.log('Checking userRole', userRole);
+    if (!userRole.event) {
+      return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
+    }
+    if (userRole.event.equals(eventID)) {
+      // only apply local permissions to local roles
+      if ((userRole.role.permissions.includes(permission) || userRole.role.permissions.includes('*')) && settings.permissions.includes(permission)) return true;
+    }
+    return false;
+  });
+}
+
 export async function handleLogin(req, res) {
-  const redirectUrl = req.query.state || settings.frontend.baseurl;
+  const [csrf, redirect] = req.query.state.split(':');
+  const redirectUrl = decodeURIComponent(redirect || '') || settings.frontend.baseurl;
   const parsedRedirectUrl = URL.parse(redirectUrl);
   const domainFilter = new RegExp(settings.auth.domainFilter);
   if (!domainFilter.test(parsedRedirectUrl.hostname)) {
@@ -24,83 +41,88 @@ export async function handleLogin(req, res) {
     return;
   }
   try {
-    logger.debug('Logging in...');
-    const tokenResponse = await httpPost('https://api.twitch.tv/kraken/oauth2/token', {
-      body: {
-        client_id: settings.twitch.clientID,
-        client_secret: settings.twitch.clientSecret,
-        grant_type: 'authorization_code',
-        redirect_uri: `${settings.api.baseurl}login`,
-        code: req.query.code,
-        state: req.query.state
-      }
-    });
-    const token = tokenResponse.access_token;
-    if (!token) throw new Error('Access token could not be received');
-    const userResponse = await twitchGet('https://api.twitch.tv/kraken/user', null, token);
-    console.log('User response:', userResponse);
-    if (userResponse && userResponse._id) {
-      // get user
-      let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
-      if (!user) {
-        user = new models.User({
-          connections: {
-            twitch:
-            {
-              name: userResponse.name,
-              displayName: userResponse.display_name,
-              id: userResponse._id,
-              logo: userResponse.logo,
-              email: userResponse.email,
-              oauthToken: token,
-              refreshToken: tokenResponse.refresh_token,
-              expiresAt: Date.now() + tokenResponse.expires_in * 1000
-            }
-          },
-          flag: (req.header['CF-IPCountry'] || 'XX').toLowerCase()
-        });
-        console.log('Created new user', user);
-      } else {
-        if (user.connections.twitch.name !== userResponse.name) {
-          user.connections.twitch.name = userResponse.name;
-          logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their name to ${userResponse.name}`);
+    if (req.cookies['esa-csrf'] && req.cookies['esa-csrf'] === csrf) {
+      res.clearCookie('esa-csrf');
+      logger.debug('Logging in...');
+      const tokenResponse = await httpPost('https://api.twitch.tv/kraken/oauth2/token', {
+        body: {
+          client_id: settings.twitch.clientID,
+          client_secret: settings.twitch.clientSecret,
+          grant_type: 'authorization_code',
+          redirect_uri: `${settings.api.baseurl}login`,
+          code: req.query.code,
+          state: req.query.state
         }
-        user.connections.twitch.displayName = userResponse.display_name;
-        user.connections.twitch.logo = userResponse.logo;
-        if (user.connections.twitch.email !== userResponse.email) {
-          user.connections.twitch.email = userResponse.email;
-          logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their email to ${userResponse.email}`);
-        }
-        user.connections.twitch.oauthToken = token;
-        user.connections.twitch.refreshToken = tokenResponse.refresh_token;
-        user.connections.twitch.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
-        console.log('Updated user', user);
-      }
-
-      console.log('Default Admins:', settings.defaultAdmins);
-      if (settings.defaultAdmins.includes(userResponse._id) && user.roles.length === 0) {
-        const adminRole = await models.Role.findOne({ permissions: '*' }).exec();
-        if (adminRole) {
-          logger.info('Making user', user, 'an admin!');
-          user.roles.push({
-            event: null,
-            role: adminRole
+      });
+      const token = tokenResponse.access_token;
+      if (!token) throw new Error('Access token could not be received');
+      const userResponse = await twitchGet('https://api.twitch.tv/kraken/user', null, token);
+      console.log('User response:', userResponse);
+      if (userResponse && userResponse._id) {
+        // get user
+        let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
+        if (!user) {
+          user = new models.User({
+            connections: {
+              twitch:
+              {
+                name: userResponse.name,
+                displayName: userResponse.display_name,
+                id: userResponse._id,
+                logo: userResponse.logo,
+                email: userResponse.email,
+                oauthToken: token,
+                refreshToken: tokenResponse.refresh_token,
+                expiresAt: Date.now() + tokenResponse.expires_in * 1000
+              }
+            },
+            flag: (req.header['CF-IPCountry'] || 'XX').toLowerCase()
           });
+          console.log('Created new user', user);
         } else {
-          logger.error('Tried to make', user, 'an admin, but no admin role exists!');
+          if (user.connections.twitch.name !== userResponse.name) {
+            user.connections.twitch.name = userResponse.name;
+            logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their name to ${userResponse.name}`);
+          }
+          user.connections.twitch.displayName = userResponse.display_name;
+          user.connections.twitch.logo = userResponse.logo;
+          if (user.connections.twitch.email !== userResponse.email) {
+            user.connections.twitch.email = userResponse.email;
+            logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their email to ${userResponse.email}`);
+          }
+          user.connections.twitch.oauthToken = token;
+          user.connections.twitch.refreshToken = tokenResponse.refresh_token;
+          user.connections.twitch.expiresAt = Date.now() + tokenResponse.expires_in * 1000;
+          console.log('Updated user', user);
         }
+
+        console.log('Default Admins:', settings.defaultAdmins);
+        if (settings.defaultAdmins.includes(userResponse._id) && user.roles.length === 0) {
+          const adminRole = await models.Role.findOne({ permissions: '*' }).exec();
+          if (adminRole) {
+            logger.info('Making user', user, 'an admin!');
+            user.roles.push({
+              event: null,
+              role: adminRole
+            });
+          } else {
+            logger.error('Tried to make', user, 'an admin, but no admin role exists!');
+          }
+        }
+
+        await user.save();
+
+        const jwt = generateToken(token, { twitchID: userResponse._id, name: user.name, id: user._id });
+        res.cookie('esa-jwt', jwt, settings.auth.cookieOptions);
+
+        console.log('Redirecting to', redirectUrl);
+        res.redirect(redirectUrl);
+        return;
       }
-
-      await user.save();
-
-      const jwt = generateToken(token, { twitchID: userResponse._id, name: user.name, id: user._id });
-      res.cookie('esa-jwt', jwt, settings.auth.cookieOptions);
-
-      console.log('Redirecting to', redirectUrl);
       res.redirect(redirectUrl);
       return;
     }
-    res.redirect(redirectUrl);
+    res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
     return;
   } catch (err) {
     console.error(err);
@@ -246,7 +268,7 @@ export async function getFeedForEvent(req, res) {
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
-  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams video comment description status notes invitations incentives')
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams video comment status notes invitations incentives')
   .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } }));
 }
@@ -284,6 +306,7 @@ export function parseDuration(duration) {
 const allowedUserModifications = new Map([
   ['flag', _.set],
   ['connections.twitter.handle', _.set],
+  ['connections.srdotcom.name', _.set],
   ['phone', (obj, prop, val) => {
     obj.phone_encrypted = encryptPhoneNumber();
     obj.phone_display = maskPhone(val);
@@ -357,32 +380,30 @@ export async function updateUserSubmission(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   let submission = await models.Submission.findById(req.body._id).exec();
   // console.log(`Found existing submission for ${req.body._id}:`, submission);
-  const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'description', 'invitations', 'incentives']);
+  const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives']);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
   if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
   const oldVals = {};
+  let user;
   if (submission) {
-    if (!submission.user.equals(req.jwt.user.id)) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
+    user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
+    // users can only edit their own runs (unless they have the Edit Runs permission)
+    if (!submission.user.equals(req.jwt.user.id) && !hasPermission(user, req.body.event, 'Edit Runs')) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
     if ((validChanges.teams && validChanges.teams.length > 0) || (validChanges.invitations && validChanges.invitations.length > 0)) {
       const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite && invite._id.toString()));
       const allMembers = _.map(_.flattenDeep([validChanges.invitations || [], _.map(validChanges.teams, team => team.members) || []]), member => member._id || member);
 
-      console.log('allInvites', allInvites);
-      console.log('allMembers', allMembers);
-
       // make sure no invites got added or removed
       for (let i = 0; i < allMembers.length; ++i) {
         const member = allMembers[i];
         if (!allInvites.delete(member._id || member)) {
-          console.log('Duplicate or invalid invite:', member);
           return res.status(400).end('Duplicate or invalid invite.');
         }
       }
       if (allInvites.size > 0) {
-        console.log('Missing invites:', allInvites);
         res.status(400).end('Missing invites.');
       }
       // strip everything but the IDs to prevent overwriting of invites
@@ -392,7 +413,6 @@ export async function updateUserSubmission(req, res) {
     if (submission.status === 'stub' && validChanges.status === 'saved') changeType = 'new';
     if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
     if (submission.status === 'saved' && validChanges.status === 'saved') changeType = 'updated';
-    console.log('Valid changes:', validChanges);
     _.each(validChanges, (val, key) => {
       if (!isDeepStrictEqual(submission[key], val)) oldVals[key] = submission[key];
     });
@@ -419,13 +439,13 @@ export async function updateUserSubmission(req, res) {
   await submission.save();
 
   if (changeType) {
-    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name connections.discord.discriminator')
+    await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name connections.discord.discriminator connections.srdotcom.name')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .execPopulate();
     console.log('Submission user:', submission.user);
-    if (changeType === 'new') sendDiscordSubmission(submission);
-    if (changeType === 'updated') sendDiscordSubmissionUpdate(submission, oldVals);
-    if (changeType === 'deleted') sendDiscordSubmissionDeletion(submission);
+    if (changeType === 'new') sendDiscordSubmission(user || submission.user, submission);
+    if (changeType === 'updated') sendDiscordSubmissionUpdate(user || submission.user, submission, oldVals);
+    if (changeType === 'deleted') sendDiscordSubmissionDeletion(user || submission.user, submission);
   }
   return res.json(submission);
 }
@@ -547,22 +567,6 @@ async function updateModel(Model, data, markModified) {
   return item.save();
 }
 
-function hasPermission(user, eventID, permission) {
-  // if (!mongoose.Types.ObjectId.isValid(eventID)) return false;
-  console.log('Checking user', user.roles, 'for permission', permission, 'in event', eventID);
-  return !!_.find(user.roles, userRole => {
-    console.log('Checking userRole', userRole);
-    if (!userRole.event) {
-      return userRole.role.permissions.includes('*') || userRole.role.permissions.includes(permission);
-    }
-    if (userRole.event.equals(eventID)) {
-      // only apply local permissions to local roles
-      if ((userRole.role.permissions.includes(permission) || userRole.role.permissions.includes('*')) && settings.permissions.includes(permission)) return true;
-    }
-    return false;
-  });
-}
-
 export async function updateEvent(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
@@ -660,7 +664,7 @@ export async function getUsers(req, res) {
   if (hasPermission(user, null, 'Edit Users')) {
     const query = {};
     if (req.query.name) query.connections.twitch.name = { $search: req.query.name };
-    const result = await models.User.find(query, 'flag roles submissions applications availability connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.discord.name connections.discord.discriminator');
+    const result = await models.User.find(query, 'flag roles submissions applications availability connections.twitch.id connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.twitter.handle connections.srdotcom.name connections.discord.name connections.discord.discriminator');
     return res.json(result);
   }
   return res.status(403).end('Access denied.');
@@ -692,13 +696,13 @@ export async function getSubmissions(req, res) {
   if (hasPermission(user, req.query.event, runDecisionPermission)) {
     console.log('Has permission');
     runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } })
-    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .exec();
   } else {
     console.log('Doesnt have permission');
     runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game leaderboards category platform estimate runType teams')
-    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .exec();
   }
@@ -708,8 +712,8 @@ export async function getSubmissions(req, res) {
 export async function getSubmission(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.params.id) return res.status(400).end('Missing query parameter id');
-  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams video comment description status incentives')
-  .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo')
+  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams video comment status incentives')
+  .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .exec());
 }

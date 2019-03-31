@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-column" v-if="submissions">
+  <div class="layout-column" v-if="submissions && user">
     <div class="layout-row layout-between-center">
       <h1>Your submissions for {{currentEvent.name}}</h1>
     </div>
@@ -7,9 +7,9 @@
       You can see all submissions by everyone <router-link :to="{name:'PublicSubmissions'}">here</router-link>
     </div>
     <div class="flex-none layout-row" v-if="submissionsOpen">
-      <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord && submissionList.length < 5">Submit run</md-button>
-      <div class="no-discord flex-none" v-if="!user.connections.discord">
-        <md-icon>warning</md-icon> Please link your discord account to the users tool and check your availability to be able to submit runs. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
+      <md-button class="md-primary md-raised" @click="newSubmission()" v-if="user.connections.discord && user.connections.srdotcom && user.connections.srdotcom.name && submissionList.length < 5">Submit run</md-button>
+      <div class="no-discord flex-100" v-if="!user.connections.discord || !user.connections.srdotcom || !user.connections.srdotcom.name">
+        <md-icon>warning</md-icon> Please link your discord account to the users tool, provide your speedrun.com user name and check your availability to be able to submit runs. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
         This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
       </div>
     </div>
@@ -78,6 +78,7 @@
 }
 
 .submissions-closed, .no-discord {
+  max-width: 1000px;
   padding: 8px;
   margin: 8px;
   background-color: rgba(255, 0, 0, 0.4);
