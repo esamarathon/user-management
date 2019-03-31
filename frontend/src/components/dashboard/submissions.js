@@ -26,7 +26,7 @@ export default {
       if (await this.saveSubmission('stub')) this.showDialog = true;
       else this.selectedSubmission = null;
     },
-    async saveSubmission(status) {
+    async saveSubmission() {
       console.log('Saving submission', this.selectedSubmission);
       try {
         await this.$store.dispatch('saveSubmission', this.selectedSubmission);
