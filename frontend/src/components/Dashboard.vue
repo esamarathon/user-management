@@ -3,8 +3,8 @@
     <md-toolbar class="header layout-row layout-between layout-padding md-primary" md-theme="header">
       <div class="flex left-menu layout-row">
         <div class="esa-logo" @click="collapseNavMobile = !collapseNavMobile"><img src="../assets/esa-logo.png"></div>
-        <div class="flex">
-          <md-field class="compact event-selector">
+        <div class="flex event-selector">
+          <md-field class="compact">
             <label for="event">Event</label>
             <md-select v-model="currentEventID" name="event" id="event">
               <md-option v-for="possibleEvent in eventList" :value="possibleEvent._id" :key="possibleEvent._id">{{possibleEvent.name}}</md-option>
@@ -194,6 +194,10 @@
   .event-selector {
     max-width: 80%;
   }
+}
+
+.event-selector {
+  max-width: 200px;
 }
 
 .menu-button {
