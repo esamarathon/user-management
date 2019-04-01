@@ -113,7 +113,7 @@
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .details-row {
     &.button-equivalent {
       padding: 8px 16px;

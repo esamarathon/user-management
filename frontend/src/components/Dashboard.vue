@@ -3,13 +3,13 @@
     <md-toolbar class="header layout-row layout-between layout-padding md-primary" md-theme="header">
       <div class="flex left-menu layout-row">
         <div class="esa-logo" @click="collapseNavMobile = !collapseNavMobile"><img src="../assets/esa-logo.png"></div>
-        <div>
-        <md-field class="compact event-selector">
-          <label for="event">Event</label>
-          <md-select v-model="currentEventID" name="event" id="event">
-            <md-option v-for="possibleEvent in eventList" :value="possibleEvent._id" :key="possibleEvent._id">{{possibleEvent.name}}</md-option>
-          </md-select>
-        </md-field>
+        <div class="flex">
+          <md-field class="compact event-selector">
+            <label for="event">Event</label>
+            <md-select v-model="currentEventID" name="event" id="event">
+              <md-option v-for="possibleEvent in eventList" :value="possibleEvent._id" :key="possibleEvent._id">{{possibleEvent.name}}</md-option>
+            </md-select>
+          </md-field>
         </div>
       </div>
       <div class="flex-none">
@@ -156,7 +156,7 @@
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 600px) {
   .md-menu.menu-button {
     margin-right: 0;
   }
@@ -190,6 +190,9 @@
   }
   .shill {
     display: none;
+  }
+  .event-selector {
+    max-width: 80%;
   }
 }
 

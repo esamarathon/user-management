@@ -138,6 +138,7 @@
   .home-dashboard {
     flex-direction: column;
     .home-column {
+      min-height: 300px;
       max-height: 500px;
       overflow: auto;
     }
