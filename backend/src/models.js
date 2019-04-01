@@ -71,6 +71,7 @@ const User = new mongoose.Schema({
   roles: [UserRole],
   availability: [UserAvailability]
 });
+User.index({ 'connections.twitch.id': 1 });
 
 User.virtual('name').get(function getUserName() {
   let name = this.connections.twitch.displayName;
@@ -96,6 +97,8 @@ const Invitation = new mongoose.Schema({
 }, {
   timestamps: true
 });
+Invitation.index({ user: 1 });
+Invitation.index({ submission: 1 });
 
 const Team = new mongoose.Schema({
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'invitation' }],
@@ -137,13 +140,18 @@ const Submission = new mongoose.Schema({
   decisions: [RunDecision],
   invitations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'invitation' }],
   incentives: [Incentive]
+}, {
+  timestamps: true
 });
+Submission.index({ user: 1 });
 
 const VolunteerDecision = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
   cut: String,
   decision: String,
   explanation: String
+}, {
+  timestamps: true
 });
 
 const Application = new mongoose.Schema({
@@ -155,6 +163,7 @@ const Application = new mongoose.Schema({
   comment: String,
   decisions: [VolunteerDecision]
 });
+Application.index({ user: 1 });
 
 const Link = new mongoose.Schema({
   name: String,
@@ -171,6 +180,8 @@ const Event = new mongoose.Schema({
   applicationsStart: Date,
   applicationsEnd: Date,
   volunteersNeeded: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }]
+}, {
+  timestamps: true
 });
 
 const Activity = new mongoose.Schema({
@@ -183,6 +194,7 @@ const Activity = new mongoose.Schema({
 }, {
   timestamps: true
 });
+Activity.index({ user: 1 });
 
 const FeedItem = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
@@ -190,7 +202,10 @@ const FeedItem = new mongoose.Schema({
   text: String,
   icon: String,
   time: Date
+}, {
+  timestamps: true
 });
+FeedItem.index({ event: 1 });
 
 export const schemas = {
   User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation
