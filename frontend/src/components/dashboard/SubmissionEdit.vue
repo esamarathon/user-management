@@ -102,7 +102,8 @@
             <span class="md-error" v-else-if="!$v.selectedSubmission.video.url">Invalid video URL</span>
           </md-field>
           <md-field class="large-field flex-100" :class="getValidationClass('comment')">
-            <md-textarea name="comment" id="comment" v-model="selectedSubmission.comment" placeholder="Comment (short description of the game, special requirements for the console or setup, ...)" md-counter="100" />
+            <label for="comment">Comment (short description of the game, special requirements for the console or setup, ...)</label>
+            <md-textarea name="comment" id="comment" v-model="selectedSubmission.comment" md-counter="100" />
             <span class="md-error" v-if="!$v.selectedSubmission.comment.required">A comment is required</span>
             <span class="md-error" v-else-if="!$v.selectedSubmission.comment.minLength">Please provide at least 100 characters of comment.</span>
             <span class="md-error" v-else-if="!$v.selectedSubmission.comment.maxLength">Please provide at most 1000 characters of comment</span>

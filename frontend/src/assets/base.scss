@@ -191,6 +191,10 @@ body, html {
       padding: 0;
     }
 
+    &:not(.md-autogrow).md-has-value .md-textarea {
+      padding-top: 16px;
+    }
+
     &.md-invalid:before {
       opacity: 1;
     }
