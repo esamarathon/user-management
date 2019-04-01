@@ -40,7 +40,7 @@
             </div>
             <div v-if="selectedUser.connections.srdotcom" class="layout-row">
               <div class="flex-20">Speedrun.com name</div>
-              <div class="medium-field" v-if="item.connections.srdotcom"><a :href="`https://speedrun.com/user/${item.connections.srdotcom.name}`">{{selectedUser.connections.srdotcom.name}}</a></div>
+              <div class="medium-field" v-if="item.connections.srdotcom"><a :href="`https://speedrun.com/user/${selectedUser.connections.srdotcom.name}`">{{selectedUser.connections.srdotcom.name}}</a></div>
             </div>
             <div class="layout-row">
               <div class="flex-20">Availability</div>
