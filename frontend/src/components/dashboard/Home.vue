@@ -121,6 +121,10 @@
     height: 2.5em;
     margin-right: 8px;
   }
+
+  .feeditem-text {
+    white-space: pre;
+  }
 }
 
 .home-column {
