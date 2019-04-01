@@ -3,10 +3,6 @@ import _ from 'lodash';
 import settings from './settings';
 import logger from './logger';
 
-export function teamsToString(teams) {
-  return _.map(teams, team => _.map(team.members, member => member.user && member.user.connections.twitch.displayName).join(', ')).join(' vs ');
-}
-
 async function publicWebhook(data) {
   try {
     logger.debug('Sending public webhook', data);
@@ -47,10 +43,8 @@ export function sendDiscordSubmission(user, submission) {
   const submitterTwitchName = submitterTwitchUser.displayName.toLowerCase() === submitterTwitchUser.name ? submitterTwitchUser.displayName : `${submitterTwitchUser.displayName} (${submitterTwitchUser.name})`;
   const discordUser = submission.user.connections.discord;
   let category = submission.category;
-  let teams = '';
   if (submission.runType !== 'solo') {
     category += ` (${submission.runType})`;
-    teams = teamsToString(submission.teams);
   }
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
@@ -58,7 +52,7 @@ export function sendDiscordSubmission(user, submission) {
   publicWebhook({
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-    description: `${submitterTwitchName} has just submited a new run!\n\n`
+    description: `${submitterTwitchName} has just submitted a new run!\n\n`
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}`
@@ -66,13 +60,13 @@ export function sendDiscordSubmission(user, submission) {
   privateWebhook({
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
-    description: `${submitterTwitchName} has just submited a new run!\n\n` // eslint-disable-line prefer-template
+    description: `${submitterTwitchName} has just submitted a new run!\n\n` // eslint-disable-line prefer-template
     + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
     + `**Game:** ${submission.game}\n`
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`
     + `**Estimate:** ${submission.estimate}\n`
-    + (teams ? `**Players:** ${teams}\n` : '')
+    + `**Runners:** ${submission.runners}\n`
     + `**Video:** ${submission.video}\n`
     + (incentives ? `**Incentives:** ${incentives}\n` : '')
     + (bidwars ? `**Bid wars:** ${bidwars}` : '')
@@ -86,24 +80,9 @@ export function sendDiscordSubmissionUpdate(user, submission, changes) {
   const userTwitchName = userTwitchUser.displayName.toLowerCase() === userTwitchUser.name ? userTwitchUser.displayName : `${userTwitchUser.displayName} (${userTwitchUser.name})`;
   const discordUser = submission.user.connections.discord;
   let category = submission.category;
-  let teams = '';
   if (submission.runType !== 'solo') {
     category += ` (${submission.runType})`;
-    teams = teamsToString(submission.teams);
   }
-
-  let teamsChanged = false;
-  _.each(submission.teams, (team, i) => {
-    if (!changes.teams[i]) {
-      teamsChanged = true;
-      return;
-    }
-    _.each(team.members, (member, j) => {
-      if (!member._id.equals(changes.teams[i].members[j])) {
-        teamsChanged = true;
-      }
-    });
-  });
 
   let oldCategory = `${changes.category || submission.category}`;
   if ((changes.runType && changes.runType !== 'solo') || submission.runType !== 'solo') {
@@ -124,7 +103,7 @@ export function sendDiscordSubmissionUpdate(user, submission, changes) {
     category !== oldCategory && `**Category:** ${category} (was: ${oldCategory})`,
     changes.platform && `**Platform:** ${submission.platform} (was: ${changes.platform})`,
     changes.estimate && `**Estimate:** ${submission.estimate} (was: ${changes.estimate})`,
-    teamsChanged && `**Players:** ${teams}`,
+    changes.runners && `**Runners:** ${submission.runners} (was: ${changes.runners})`,
     changes.video && `**Video:** ${submission.video} (was: ${changes.video})`,
     incentives !== oldIncentives && `**Incentives:** ${incentives} (were: ${oldIncentives})`,
     bidwars !== oldBidwars && `**Bid wars:** ${bidwars} (were: ${oldBidwars})`
@@ -150,10 +129,8 @@ export function sendDiscordSubmissionDeletion(user, submission, changeType) {
   const userTwitchName = userTwitchUser.displayName.toLowerCase() === userTwitchUser.name ? userTwitchUser.displayName : `${userTwitchUser.displayName} (${userTwitchUser.name})`;
   const discordUser = submission.user.connections.discord;
   let category = submission.category;
-  let teams = '';
   if (submission.runType !== 'solo') {
     category += ` (${submission.runType})`;
-    teams = teamsToString(submission.teams);
   }
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
@@ -168,7 +145,7 @@ export function sendDiscordSubmissionDeletion(user, submission, changeType) {
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}\n`
     + `**Estimate:** ${submission.estimate}\n`
-    + (teams ? `**Players:** ${teams}\n` : '')
+    + `**Runners:** ${submission.runners}\n`
     + `**Video:** ${submission.video}\n`
     + (incentives ? `**Incentives:** ${incentives}\n` : '')
     + (bidwars ? `**Bid wars:** ${bidwars}` : '')

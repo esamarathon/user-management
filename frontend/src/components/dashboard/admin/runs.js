@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
-import { getUserName, teamsToString, emptySubmission } from '../../../helpers';
-import { getRuns, updateDecision } from '../../../api';
+import { getUserName, emptySubmission } from '../../../helpers';
+import { getRuns, updateDecision, getSubmission } from '../../../api';
 import submissionDetails from '../SubmissionDetails.vue';
 import submissionEdit from '../SubmissionEdit.vue';
 
@@ -71,7 +71,7 @@ const decisionValues = {
 const columns = [
   'Submitted by',
   'Name',
-  'Players',
+  'Runners',
   'Platform',
   'Estimate',
   'Comment',
@@ -81,7 +81,7 @@ const columns = [
 const activeColumns = [
   'Submitted by',
   'Name',
-  'Players',
+  'Runners',
   'Platform',
   'Estimate',
   'Video',
@@ -165,7 +165,6 @@ export default {
             data: run,
             userName: getUserName(run.user),
             name: `${run.game} (${run.category} ${run.runType})`,
-            players: teamsToString(run.teams),
             explanation: ownExplanations,
             decision: ownDecisions,
             otherDecisions,
@@ -237,8 +236,8 @@ export default {
       this.selectedRun = run._id;
       this.showDialog = true;
     },
-    editRun(run) {
-      this.selectedRun2 = _.merge(_.cloneDeep(emptySubmission), _.cloneDeep(run.data));
+    async editRun(run) {
+      this.selectedRun2 = _.merge(_.cloneDeep(emptySubmission), await getSubmission(run._id));
       console.log('Editing run', run, this.selectedRun2);
       this.showDialog2 = true;
     },

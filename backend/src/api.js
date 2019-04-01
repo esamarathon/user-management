@@ -9,8 +9,12 @@ import settings from './settings';
 import { models } from './models';
 import { twitchGet } from './twitchAPI';
 import { generateToken, decodeToken } from './auth';
-import { notify, httpPost, httpReq } from './helpers';
-import { sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion } from './discordWebhooks';
+import {
+  notify, httpPost, httpReq, teamsToString
+} from './helpers';
+import {
+  sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion
+} from './discordWebhooks';
 
 
 const historySep = settings.vue.mode === 'history' ? '' : '#/';
@@ -268,7 +272,7 @@ export async function getFeedForEvent(req, res) {
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
-  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams video comment status notes invitations incentives')
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams runners video comment status notes invitations incentives')
   .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } }));
 }
@@ -378,7 +382,10 @@ export async function updateUserApplication(req, res) {
 export async function updateUserSubmission(req, res) {
   // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  let submission = await models.Submission.findById(req.body._id).exec();
+  let submission = await models.Submission.findById(req.body._id)
+  .populate({ path: 'user', select: 'connections.twitch.displayName connections.twitch.name' })
+  .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.name' } })
+  .exec();
   // console.log(`Found existing submission for ${req.body._id}:`, submission);
   const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives']);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
@@ -386,15 +393,18 @@ export async function updateUserSubmission(req, res) {
   if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
   const oldVals = {};
-  let user;
+  const user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
   if (submission) {
-    user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
     // users can only edit their own runs (unless they have the Edit Runs permission)
     if (!submission.user.equals(req.jwt.user.id) && !hasPermission(user, req.body.event, 'Edit Runs')) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
     // validate invites and teams
     if ((validChanges.teams && validChanges.teams.length > 0) || (validChanges.invitations && validChanges.invitations.length > 0)) {
       const allInvites = new Set(_.map(await models.Invitation.find({ submission: req.body._id }), invite => invite && invite._id.toString()));
       const allMembers = _.map(_.flattenDeep([validChanges.invitations || [], _.map(validChanges.teams, team => team.members) || []]), member => member._id || member);
+
+      // update the runners
+      const runType = validChanges.runType || submission.runType;
+      validChanges.runners = runType === 'solo' ? submission.user.connections.twitch.displayName : teamsToString(validChanges.teams || submission.teams);
 
       // make sure no invites got added or removed
       for (let i = 0; i < allMembers.length; ++i) {
@@ -434,6 +444,7 @@ export async function updateUserSubmission(req, res) {
       user: req.jwt.user.id,
       event: req.body.event,
       status: req.body.status || 'stub',
+      runners: user.connections.twitch.displayName,
       ...validChanges
     });
     if (submission.status === 'saved') changeType = 'new';
@@ -696,16 +707,13 @@ export async function getSubmissions(req, res) {
   let runs = [];
   if (hasPermission(user, req.query.event, runDecisionPermission)) {
     console.log('Has permission');
-    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } })
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game category platform estimate runType runners video comment decisions')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
-    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
-    .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .exec();
   } else {
     console.log('Doesnt have permission');
-    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game leaderboards category platform estimate runType teams')
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game category platform estimate runType runners')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
-    .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName' } })
     .exec();
   }
   return res.json(runs);
@@ -714,7 +722,7 @@ export async function getSubmissions(req, res) {
 export async function getSubmission(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.params.id) return res.status(400).end('Missing query parameter id');
-  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams invitations video comment status incentives')
+  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams runners invitations video comment status incentives')
   .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })

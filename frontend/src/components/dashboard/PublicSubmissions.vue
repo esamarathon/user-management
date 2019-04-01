@@ -16,7 +16,7 @@
           </div>
           <div class="flex info-items layout-row">
             <div class="infinite-td flex-30 name">{{item.game}} ({{item.category}}{{item.runType === 'solo' ? '' : ' '+item.runType}})</div>
-            <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{getRunners(item)}}</div>
+            <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{item.runners}}</div>
             <div class="infinite-td flex-20 platform"><span class="mobile-description">Platform: </span>{{item.platform}}</div>
             <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.estimate}}</div>
           </div>

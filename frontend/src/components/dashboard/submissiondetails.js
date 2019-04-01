@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { mapState } from 'vuex';
 import { getSubmission } from '../../api';
-import { teamsToString, emptySubmission } from '../../helpers';
+import { emptySubmission, mergeNonArray } from '../../helpers';
 import SubmissionEdit from './SubmissionEdit.vue';
 
 export default {
@@ -27,7 +27,8 @@ export default {
     async saveRun() {
       console.log('Saving submission', this.selectedRun);
       try {
-        await this.$store.dispatch('saveSubmission', this.selectedRun);
+        const res = await this.$store.dispatch('saveSubmission', this.selectedRun);
+        mergeNonArray(this.s, res);
         this.showDialog = false;
       } catch (err) {
         console.log(err);
@@ -43,9 +44,6 @@ export default {
       if (!this.s) return '';
       if (this.s.runType === 'solo') return `${this.s.game} (${this.s.category})`;
       return `${this.s.game} (${this.s.category} ${this.s.runType})`;
-    },
-    teamString() {
-      return teamsToString(this.s.teams); // _.map(this.s.teams, team => _.map(team.members, member => member.user.connections.twitch.displayName).join(', ')).join(' vs ');
     },
     incentives() {
       return _.filter(this.s.incentives, i => i.type === 'incentive');

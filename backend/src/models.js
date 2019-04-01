@@ -133,6 +133,7 @@ const Submission = new mongoose.Schema({
   estimate: String,
   runType: String, // 'solo', race', 'coop', 'relay'
   teams: [Team],
+  runners: String, // this is a cached version of the team or just the runner display name in case of solo runs
   video: String,
   comment: String,
   status: String,
@@ -207,10 +208,19 @@ const FeedItem = new mongoose.Schema({
 });
 FeedItem.index({ event: 1 });
 
+const Migration = new mongoose.Schema({
+  id: String,
+  description: String,
+  result: Object
+}, {
+  timestamps: true
+});
+
 export const schemas = {
   User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation
 };
 export const models = {
+  Migration: mongoose.model('migration', Migration),
   Event: mongoose.model('event', Event),
   User: mongoose.model('user', User),
   Role: mongoose.model('role', Role),

@@ -22,8 +22,8 @@
         <div class="flex">{{s.estimate}}</div>
       </div>
       <div class="details-row layout-row" v-if="s.runType !== 'solo'">
-        <div class="flex-25">Teams</div>
-        <div class="flex">{{teamString}}</div>
+        <div class="flex-25">Runners</div>
+        <div class="flex">{{s.runners}}</div>
       </div>
       <div class="details-row layout-row">
         <div class="flex-25">Category</div>
@@ -48,7 +48,7 @@
         </div>
       </div>
     </div>
-    <submission-edit :selectedSubmission="selectedRun" @submit="saveRun" @cancel="showDialog=false" :showDialog.sync="showDialog"></submission-edit>
+    <submission-edit v-if="showDialog" :selectedSubmission="selectedRun" @submit="saveRun" @cancel="showDialog=false" :showDialog.sync="showDialog"></submission-edit>
   </div>
 </template>
 

@@ -52,3 +52,7 @@ export function httpPost(url, params) {
   console.log('HTTP POST params:', p, p.body.toString());
   return httpReq(url, p);
 }
+
+export function teamsToString(teams) {
+  return _.map(teams, team => _.map(team.members, member => member.user && member.user.connections.twitch.displayName).join(', ')).join(' vs ');
+}

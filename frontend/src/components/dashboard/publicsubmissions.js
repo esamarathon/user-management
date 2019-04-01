@@ -3,7 +3,6 @@ import { RecycleScroller } from 'vue-virtual-scroller';
 import VueScreenSize from 'vue-screen-size';
 import { getRuns } from '../../api';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
-import { teamsToString } from '../../helpers';
 import SubmissionDetails from './SubmissionDetails.vue';
 
 export default {
@@ -22,14 +21,11 @@ export default {
     },
   },
   methods: {
-    getRunners(run) {
-      return run.runType === 'solo' ? run.user.connections.twitch.displayName : teamsToString(run.teams);
-    },
     async updateRuns() {
       if (this.currentEventID) this.runs = await getRuns(this.currentEventID);
     },
     selectRun(run) {
-      this.selectedRun = run;
+      this.selectedRun = run._id;
       this.showDialog = true;
     },
   },

@@ -30,7 +30,7 @@
         <md-table-cell v-if="showColumns['Name']" md-label="Name" md-sort-by="name" class="textbreak width-200">{{item.name}}</md-table-cell>
         <md-table-cell v-if="showColumns['Platform']" md-label="Platform" md-sort-by="platform" class="textbreak">{{item.data.platform}}</md-table-cell>
         <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate" class="textbreak">{{item.data.estimate}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Players']" md-label="Players">{{item.players}}</md-table-cell>
+        <md-table-cell v-if="showColumns['Runners']" md-label="Runners">{{item.data.runners}}</md-table-cell>
         <md-table-cell v-if="showColumns['Comment']" md-label="Comment" class="textbreak">{{item.data.comment}}</md-table-cell>
         <md-table-cell v-if="showColumns['Video']" md-label="Video"><video-button :url="item.data.video"></video-button></md-table-cell>
         <md-table-cell v-if="showColumns['Decision']" md-label="Decision">

@@ -43,10 +43,10 @@
             <span class="md-error" v-else-if="!$v.selectedSubmission.category.maxLength">Category name too long!</span>
           </md-field>
           <md-field class="small-field flex-none" :class="getValidationClass('estimate')">
-            <label for="estimate">Estimate [hh:mm]</label>
+            <label for="estimate">Estimate [hh:mm:ss]</label>
             <md-input name="estimate" id="estimate" v-model="selectedSubmission.estimate" />
             <span class="md-error" v-if="!$v.selectedSubmission.estimate.required">The estimate is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.estimate.estimate">Please provide the estimate in hh:mm format.</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.estimate.estimate">Please provide the estimate in hh:mm:ss format.</span>
           </md-field>
           <md-autocomplete class="small-field" v-model="selectedSubmission.platform" :md-options="platforms" :class="getValidationClass('platform')">
             <label>Platform</label>
