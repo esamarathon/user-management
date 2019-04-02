@@ -44,7 +44,7 @@
 <script src="./publicsubmissions.js">
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .content-holder {
   max-height: calc(100vh - 80px);
 }

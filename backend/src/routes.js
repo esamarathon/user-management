@@ -28,7 +28,9 @@ const server = http.Server(app);
 expressWs(app, server);
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  maxAge: 3600
+}));
 
 app.use(jwt({
   secret: publicKey,

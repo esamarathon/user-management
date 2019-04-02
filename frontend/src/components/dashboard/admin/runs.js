@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
+import VueScreenSize from 'vue-screen-size';
+import { RecycleScroller } from 'vue-virtual-scroller';
 import { getUserName, emptySubmission } from '../../../helpers';
 import { getRuns, updateDecision, getSubmission } from '../../../api';
-import submissionDetails from '../SubmissionDetails.vue';
-import submissionEdit from '../SubmissionEdit.vue';
+import SubmissionDetails from '../SubmissionDetails.vue';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const basicButtons = [
   {
@@ -88,6 +90,14 @@ const activeColumns = [
   'Decision',
 ];
 
+function search(items, string) {
+  const needle = string.toLowerCase();
+  return _.filter(items, item => item.name.toLowerCase().includes(needle)
+    || item.data.platform.toLowerCase().includes(needle)
+    || item.data.runType.toLowerCase().includes(needle)
+    || item.data.runners.toLowerCase().includes(needle));
+}
+
 export default {
   name: 'Admin',
   async created() {
@@ -97,15 +107,14 @@ export default {
     rounds: [{ name: 'First cut', buttons: basicButtons },
       { name: 'Second cut', buttons: basicButtons },
       { name: 'Final selection', buttons: finalButtons }],
-    runs: null,
+    runs: [],
     currentRoundName: 'First cut',
     columns,
     activeColumns: activeColumns.slice(),
-    filteredRuns: null,
     showDialog: false,
-    showDialog2: false,
     selectedRun: null,
-    selectedRun2: null,
+    searchTerm: '',
+    orders: [['createdAt', 'asc']],
   }),
   computed: {
     ...mapState(['user']),
@@ -116,14 +125,16 @@ export default {
         return _.find(this.rounds, { name: this.currentRoundName });
       },
     },
-    runList: {
-      get() {
-        if (!this.filteredRuns) this.filteredRuns = _.filter(this.runs, run => run.validCuts[this.currentRoundName]);
-        return this.filteredRuns;
-      },
-      set(sortedRuns) {
-        this.filteredRuns = sortedRuns;
-      },
+    runList() {
+      const filteredRuns = _.filter(this.runs, run => run.validCuts[this.currentRoundName]);
+      if (this.searchTerm) return _.orderBy(search(filteredRuns, this.searchTerm), ..._.zip(...this.orders));
+      return _.orderBy(filteredRuns, ..._.zip(...this.orders));
+    },
+    orderDirections() {
+      return _.fromPairs(this.orders);
+    },
+    itemSize() {
+      return this.$vssWidth < 1600 ? 300 : 75;
     },
     showColumns: {
       get() {
@@ -253,6 +264,15 @@ export default {
       }
       return true;
     },
+    toggleOrder(name) {
+      // toggles the order in which a column is ordered
+      const index = _.findIndex(this.orders, { 0: name });
+      if (index >= 0) {
+        const item = this.orders.splice(index, 1)[0];
+        this.orders.unshift(item);
+        item[1] = item[1] === 'asc' ? 'desc' : 'asc';
+      } else this.orders.unshift([name, 'asc']);
+    },
   },
   watch: {
     currentEvent() {
@@ -260,7 +280,8 @@ export default {
     },
   },
   components: {
-    submissionDetails,
-    submissionEdit,
+    RecycleScroller,
+    SubmissionDetails,
   },
+  mixins: [VueScreenSize.VueScreenSizeMixin],
 };

@@ -1,34 +1,39 @@
 <template>
   <div class="layout-column flex-100 content-holder" v-if="currentEvent">
     <h1>Runs submitted to {{currentEvent.name}}</h1>
-    <div class="flex-none layout-row">
-      <md-field class="flex-10">
-        <md-icon>search</md-icon>
-        <md-input v-model="searchTerm"></md-input>
-      </md-field>
+    <div class="flex-none layout-row layout-start-center">
+      <md-tabs class="transparent-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
+        <md-tab v-for="round in rounds" :key="round.name" :md-label="round.name" :id="round.name"></md-tab>
+      </md-tabs>
+      <div class="flex-10">
+        <md-field class="very-compact">
+          <md-icon>search</md-icon>
+          <md-input v-model="searchTerm"></md-input>
+        </md-field>
+      </div>
     </div>
     <div class="table-header layout-row">
-      <div class="infinite-td flex-10 view"></div>
-      <div class="infinite-td flex-30 name orderable" :class="'order-'+(orderDirections.name || 'none')" @click="toggleOrder('name')">Name</div>
-      <div class="infinite-td flex-30 runners orderable" :class="'order-'+(orderDirections.runners || 'none')" @click="toggleOrder('runners')">Runner(s)</div>
-      <div class="infinite-td flex-20 platform orderable" :class="'order-'+(orderDirections.platform || 'none')" @click="toggleOrder('platform')">Platform</div>
-      <div class="infinite-td flex-10 estimate orderable" :class="'order-'+(orderDirections.estimate || 'none')" @click="toggleOrder('estimate')">Estimate</div>
-      <div class="infinite-td flex-10 estimate">Video</div>
-      <div class="infinite-td flex-10 estimate">Decisions</div>
+      <div class="infinite-td flex-5 view"></div>
+      <div class="infinite-td flex-20 name orderable" :class="'order-'+(orderDirections.name || 'none')" @click="toggleOrder('name')">Name</div>
+      <div class="infinite-td flex-20 runners orderable" :class="'order-'+(orderDirections['data.runners'] || 'none')" @click="toggleOrder('data.runners')">Runner(s)</div>
+      <div class="infinite-td flex-10 platform orderable" :class="'order-'+(orderDirections['data.platform'] || 'none')" @click="toggleOrder('data.platform')">Platform</div>
+      <div class="infinite-td flex-10 estimate orderable" :class="'order-'+(orderDirections['data.estimate'] || 'none')" @click="toggleOrder('data.estimate')">Estimate</div>
+      <div class="infinite-td flex-5 estimate">Video</div>
+      <div class="infinite-td flex-35 estimate">Decisions</div>
     </div>
     <RecycleScroller class="infinite-table flex-100" :items="runList" :item-size="itemSize" key-field="_id">
       <template v-slot="{ item }">
-        <div class="infinite-tr run layout-row layout-start-center">
-          <div class="infinite-td flex-10 view">
-            <md-button class="md-icon-button" @click="selectRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
+        <div class="infinite-tr run layout-row layout-start-center" :class="{ 'run-accepted': item.cutTotals[currentRoundName] > 0, 'run-declined': item.cutTotals[currentRoundName] < 0 }">
+          <div class="infinite-td flex-5 view">
+            <md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
           </div>
           <div class="flex info-items layout-row">
-            <div class="infinite-td flex-30 name">{{item.name}}</div>
-            <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{item.runners}}</div>
-            <div class="infinite-td flex-20 platform"><span class="mobile-description">Platform: </span>{{item.platform}}</div>
-            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.estimate}}</div>
-            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Video: </span><video-button :url="item.video"></video-button></div>
-            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Decisions: </span>
+            <div class="infinite-td flex-20 name">{{item.name}}</div>
+            <div class="infinite-td flex-20 runners"><span class="mobile-description">Runners: </span>{{item.data.runners}}</div>
+            <div class="infinite-td flex-10 platform"><span class="mobile-description">Platform: </span>{{item.data.platform}}</div>
+            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.data.estimate}}</div>
+            <div class="infinite-td flex-5 video layout-row layout-start-center"><span class="mobile-description">Video: </span><video-button :url="item.data.video"></video-button></div>
+            <div class="infinite-td flex-35 decisions"><span class="mobile-description">Decisions: </span>
               <div class="layout-row">
                 <div class="layout-column flex-none">
                   <div class="layout-row flex-none">
@@ -64,9 +69,6 @@
   <div class="layout-column" v-if="currentEvent">
     <h1>Runs submitted to {{currentEvent.name}}</h1>
     <div class="layout-row layout-between-start">
-      <md-tabs class="transparent-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
-        <md-tab v-for="round in rounds" :key="round.name" :md-label="round.name" :id="round.name"></md-tab>
-      </md-tabs>
       <div class="flex">
         <md-field>
           <label>Show columns...</label>
@@ -108,14 +110,14 @@
         <md-button class="md-accent" @click="showDialog = false">Close</md-button>
       </md-dialog-actions>
     </md-dialog>
-    <submission-edit :selectedSubmission="selectedRun2" @submit="saveRun" @cancel="showDialog2=false" :showDialog.sync="showDialog2"></submission-edit>
-  </div> -->
+    <submission-edit :selectedSubmission="selectedRun2" @submit="saveRun" @cancel="showDialog2=false" :showDialog.sync="showDialog2"></submission-edit> -->
+  </div>
 </template>
 
 <script src="./runs.js">
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .md-icon-button.decision-button i.md-icon.md-theme-default.md-icon-font {
   color: white;
 }
@@ -150,7 +152,97 @@
   word-break: break-word;
 }
 
+.infinite-table, .table-header {
+  font-size: 12px;
+  .infinite-td {
+    font-size: 13px;
+    padding: 6px 20px 6px 20px;
+    &.view {
+      padding: 0;
+    }
+  }
+
+  .infinite-tr {
+    transition: .3s cubic-bezier(.4,0,.2,1);
+    transition-property: background-color;
+    will-change: background-color;
+    &:hover {
+      background-color: rgba(255,255,255,0.1);
+    }
+    border-top: 1px solid rgba(255,255,255,0.12);
+
+    border-left: 2px solid transparent;
+    &.run-accepted {
+      border-left-color: #33cc33;
+    }
+    &.run-declined {
+      border-left-color: #cc3333;
+    }
+  }
+}
+
+.infinite-table .infinite-tr .info-items .infinite-td {
+  padding: 8px;
+}
+
+.table-header .infinite-td.orderable {
+  cursor: pointer;
+  &:before {
+    content: 'arrow_upward';
+    font-family: 'Material Icons';
+    position: relative;
+    top: 2px;
+    margin-right: 8px;
+    transition: transform 0.25s;
+    display: inline-block;
+  }
+  &.order-none:before {
+    visibility: hidden;
+  }
+  &.order-asc:before {
+    transform: rotate(180deg);
+  }
+}
+
+.content-holder {
+  max-height: calc(100vh - 80px);
+}
+
+.run {
+  height: 75px;
+}
+
 .width-200 {
   width: 200px;
 }
+
+.mobile-description {
+  display: none;
+}
+
+@media (max-width: 1600px) {
+  .infinite-table {
+    .infinite-td {
+      padding: 0;
+    }
+  }
+  .table-header {
+    display: none;
+  }
+  .infinite-tr .info-items {
+    flex-direction: column;
+  }
+  .run {
+    height: 300px;
+  }
+  .infinite-td.name {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  .mobile-description {
+    display: initial;
+    font-weight: bold;
+  }
+}
+
 </style>
