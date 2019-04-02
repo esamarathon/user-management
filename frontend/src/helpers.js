@@ -69,6 +69,12 @@ export function getVideoData(url) {
         embedUrl: `https://clips.twitch.tv/embed?clip=${match[1]}`,
       };
     }
+    if ((match = /speedrun\.com\/[^/]+\/run\/(\w+)/g.exec(url))) { // eslint-disable-line no-cond-assign
+      return {
+        type: 'speedrun.com',
+        linkUrl: url,
+      };
+    }
     return {
       type: 'unknown',
       linkUrl: url,

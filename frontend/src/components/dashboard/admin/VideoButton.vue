@@ -6,6 +6,9 @@
     <md-button class="md-icon-button twitch" v-if="videoInfo.type === 'twitch'" @click="showDialog = true">
       <img src="../../../assets/twitch_logo.png">
     </md-button>
+    <md-button class="md-icon-button srdotcom" v-if="videoInfo.type === 'speedrun.com'" :href="url" target="_blank">
+      <img src="../../../assets/speedrun_com_logo.png">
+    </md-button>
     <md-button class="unknown md-icon-button" v-if="videoInfo.type === 'unknown'" :href="url" target="_blank">
       <img :src="'//'+videoInfo.host+'/favicon.ico'" @error="noLogo = true" v-if="!noLogo">
       <span v-if="noLogo">?</span>
