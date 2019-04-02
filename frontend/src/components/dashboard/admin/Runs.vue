@@ -1,4 +1,66 @@
 <template>
+  <div class="layout-column flex-100 content-holder" v-if="currentEvent">
+    <h1>Runs submitted to {{currentEvent.name}}</h1>
+    <div class="flex-none layout-row">
+      <md-field class="flex-10">
+        <md-icon>search</md-icon>
+        <md-input v-model="searchTerm"></md-input>
+      </md-field>
+    </div>
+    <div class="table-header layout-row">
+      <div class="infinite-td flex-10 view"></div>
+      <div class="infinite-td flex-30 name orderable" :class="'order-'+(orderDirections.name || 'none')" @click="toggleOrder('name')">Name</div>
+      <div class="infinite-td flex-30 runners orderable" :class="'order-'+(orderDirections.runners || 'none')" @click="toggleOrder('runners')">Runner(s)</div>
+      <div class="infinite-td flex-20 platform orderable" :class="'order-'+(orderDirections.platform || 'none')" @click="toggleOrder('platform')">Platform</div>
+      <div class="infinite-td flex-10 estimate orderable" :class="'order-'+(orderDirections.estimate || 'none')" @click="toggleOrder('estimate')">Estimate</div>
+      <div class="infinite-td flex-10 estimate">Video</div>
+      <div class="infinite-td flex-10 estimate">Decisions</div>
+    </div>
+    <RecycleScroller class="infinite-table flex-100" :items="runList" :item-size="itemSize" key-field="_id">
+      <template v-slot="{ item }">
+        <div class="infinite-tr run layout-row layout-start-center">
+          <div class="infinite-td flex-10 view">
+            <md-button class="md-icon-button" @click="selectRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
+          </div>
+          <div class="flex info-items layout-row">
+            <div class="infinite-td flex-30 name">{{item.name}}</div>
+            <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{item.runners}}</div>
+            <div class="infinite-td flex-20 platform"><span class="mobile-description">Platform: </span>{{item.platform}}</div>
+            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.estimate}}</div>
+            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Video: </span><video-button :url="item.video"></video-button></div>
+            <div class="infinite-td flex-10 estimate"><span class="mobile-description">Decisions: </span>
+              <div class="layout-row">
+                <div class="layout-column flex-none">
+                  <div class="layout-row flex-none">
+                    <md-button v-for="button in currentRound.buttons" :key="button.value" @click="decide(item, button.value)"
+                    class="md-icon-button decision-button flex-none" :class="{'active-decision': item.decision[currentRoundName] === button.value}">
+                      <md-icon :style="{color: item.decision[currentRoundName] === button.value ? button.color : 'white'}">{{button.icon}}</md-icon>
+                      <md-tooltip md-direction="bottom">{{button.title}}</md-tooltip>
+                    </md-button>
+                  </div>
+                  <div class="layout-row flex-none">
+                    Other decisions here...
+                  </div>
+                </div>
+                <md-field class="flex explanation-field compact">
+                  <md-textarea md-autogrow placeholder="Explanation" v-model="item.explanation[currentRoundName]" @change="decide(item)"></md-textarea>
+                </md-field>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </RecycleScroller>
+    <md-dialog :md-active.sync="showDialog" class="big-dialog">
+      <md-dialog-title>Run details</md-dialog-title>
+      <md-dialog-content ref="dialog">
+        <submission-details :submission="selectedRun"></submission-details>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-accent" @click="showDialog = false">Close</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+  <!-- </div>
   <div class="layout-column" v-if="currentEvent">
     <h1>Runs submitted to {{currentEvent.name}}</h1>
     <div class="layout-row layout-between-start">
@@ -32,25 +94,8 @@
         <md-table-cell v-if="showColumns['Estimate']" md-label="Estimate" md-sort-by="estimate" class="textbreak">{{item.data.estimate}}</md-table-cell>
         <md-table-cell v-if="showColumns['Runners']" md-label="Runners">{{item.data.runners}}</md-table-cell>
         <md-table-cell v-if="showColumns['Comment']" md-label="Comment" class="textbreak">{{item.data.comment}}</md-table-cell>
-        <md-table-cell v-if="showColumns['Video']" md-label="Video"><video-button :url="item.data.video"></video-button></md-table-cell>
+        <md-table-cell v-if="showColumns['Video']" md-label="Video"></md-table-cell>
         <md-table-cell v-if="showColumns['Decision']" md-label="Decision">
-          <div class="layout-row">
-            <div class="layout-column flex-none">
-              <div class="layout-row flex-none">
-                <md-button v-for="button in currentRound.buttons" :key="button.value" @click="decide(item, button.value)"
-                class="md-icon-button decision-button flex-none" :class="{'active-decision': item.decision[currentRoundName] === button.value}">
-                  <md-icon :style="{color: item.decision[currentRoundName] === button.value ? button.color : 'white'}">{{button.icon}}</md-icon>
-                  <md-tooltip md-direction="bottom">{{button.title}}</md-tooltip>
-                </md-button>
-              </div>
-              <div class="layout-row flex-none">
-                Other decisions here...
-              </div>
-            </div>
-            <md-field class="flex explanation-field compact">
-              <md-textarea md-autogrow placeholder="Explanation" v-model="item.explanation[currentRoundName]" @change="decide(item)"></md-textarea>
-            </md-field>
-          </div>
         </md-table-cell>
       </md-table-row>
     </md-table>
@@ -64,7 +109,7 @@
       </md-dialog-actions>
     </md-dialog>
     <submission-edit :selectedSubmission="selectedRun2" @submit="saveRun" @cancel="showDialog2=false" :showDialog.sync="showDialog2"></submission-edit>
-  </div>
+  </div> -->
 </template>
 
 <script src="./runs.js">

@@ -23,7 +23,7 @@ export default {
     showDialog: false,
     selectedRun: null,
     searchTerm: '',
-    orders: [['name', 'asc']],
+    orders: [['createdAt', 'asc']],
   }),
   created() {
     this.updateRuns();

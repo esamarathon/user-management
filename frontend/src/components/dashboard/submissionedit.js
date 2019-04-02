@@ -200,7 +200,7 @@ export default {
       twitchGame: {
         required,
         minLength: minLength(1),
-        maxLength: maxLength(50),
+        maxLength: maxLength(150),
       },
       leaderboards: {
         required,

@@ -15,7 +15,8 @@
             <label>Twitch game name</label>
             <template slot="md-autocomplete-item" slot-scope="{ item }" @click="selectGame(item)"><span><img :src="twitchGameCache[item].box.small" class=""> {{ item }}</span></template>
             <span class="md-error" v-if="!$v.selectedSubmission.twitchGame.required">The twitch game name is required</span>
-            <span class="md-error" v-else-if="!$v.selectedSubmission.twitchGame.minLength">Invalid twitch game name</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.twitchGame.minLength">Twitch game name too short!</span>
+            <span class="md-error" v-else-if="!$v.selectedSubmission.twitchGame.maxLength">Twitch game name too long!</span>
           </md-autocomplete>
           <md-field class="large-field flex-50" :class="getValidationClass('leaderboards')">
             <label for="leaderboards">Leaderboards</label>

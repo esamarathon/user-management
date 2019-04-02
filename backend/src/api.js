@@ -707,12 +707,12 @@ export async function getSubmissions(req, res) {
   let runs = [];
   if (hasPermission(user, req.query.event, runDecisionPermission)) {
     console.log('Has permission');
-    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game category platform estimate runType runners video comment decisions')
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'createdAt event user game category platform estimate runType runners video comment decisions')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
     .exec();
   } else {
     console.log('Doesnt have permission');
-    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'event user game category platform estimate runType runners')
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'createdAt event user game category platform estimate runType runners')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
     .exec();
   }
