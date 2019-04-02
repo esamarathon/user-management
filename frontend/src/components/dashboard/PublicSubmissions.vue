@@ -1,21 +1,27 @@
 <template>
   <div class="layout-column flex-100 content-holder" v-if="currentEvent">
     <h1>Runs submitted to {{currentEvent.name}}</h1>
+    <div class="flex-none layout-row">
+      <md-field class="flex-10">
+        <md-icon>search</md-icon>
+        <md-input v-model="searchTerm"></md-input>
+      </md-field>
+    </div>
     <div class="table-header layout-row">
       <div class="infinite-td flex-10 view"></div>
-      <div class="infinite-td flex-30 name">Name</div>
-      <div class="infinite-td flex-30 runners">Runner(s)</div>
-      <div class="infinite-td flex-20 estimate">Platform</div>
-      <div class="infinite-td flex-10 platform">Estimate</div>
+      <div class="infinite-td flex-30 name orderable" :class="'order-'+(orderDirections.name || 'none')" @click="toggleOrder('name')">Name</div>
+      <div class="infinite-td flex-30 runners orderable" :class="'order-'+(orderDirections.runners || 'none')" @click="toggleOrder('runners')">Runner(s)</div>
+      <div class="infinite-td flex-20 platform orderable" :class="'order-'+(orderDirections.platform || 'none')" @click="toggleOrder('platform')">Platform</div>
+      <div class="infinite-td flex-10 estimate orderable" :class="'order-'+(orderDirections.estimate || 'none')" @click="toggleOrder('estimate')">Estimate</div>
     </div>
-    <RecycleScroller class="infinite-table flex-100" :items="runs" :item-size="itemSize" key-field="_id">
+    <RecycleScroller class="infinite-table flex-100" :items="runList" :item-size="itemSize" key-field="_id">
       <template v-slot="{ item }">
         <div class="infinite-tr run layout-row layout-start-center">
           <div class="infinite-td flex-10 view">
             <md-button class="md-icon-button" @click="selectRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
           </div>
           <div class="flex info-items layout-row">
-            <div class="infinite-td flex-30 name">{{item.game}} ({{item.category}}{{item.runType === 'solo' ? '' : ' '+item.runType}})</div>
+            <div class="infinite-td flex-30 name">{{item.name}}</div>
             <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{item.runners}}</div>
             <div class="infinite-td flex-20 platform"><span class="mobile-description">Platform: </span>{{item.platform}}</div>
             <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.estimate}}</div>
@@ -58,6 +64,27 @@
       background-color: rgba(255,255,255,0.1);
     }
     border-top: 1px solid rgba(255,255,255,0.12);
+  }
+}
+
+.table-header .infinite-td.orderable {
+  cursor: pointer;
+  &:before {
+    content: 'arrow_upward';
+    font-family: 'Material Icons';
+    position: relative;
+    top: 2px;
+    margin-right: 8px;
+    transition: transform 0.25s;
+    display: inline-block;
+  }
+  &.order-none:before {
+    visibility: hidden;
+  }
+  &.order-asc:before {
+    transform: rotate(180deg);
+  }
+  &.order-desc:before {
   }
 }
 
