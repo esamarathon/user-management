@@ -57,13 +57,13 @@ export function getVideoData(url) {
         embedUrl: `https://www.youtube-nocookie.com/embed/${urlObj.searchParams.get('v')}`,
       };
     }
-    if (match = /twitch.tv\/videos\/(\d+)/g.exec(url)) { // eslint-disable-line no-cond-assign
+    if (match = /(?:twitch.tv\/videos|twitch.tv\/\w+\/video)\/(\d+)/g.exec(url)) { // eslint-disable-line no-cond-assign
       return {
         type: 'twitch',
         embedUrl: `https://player.twitch.tv/?autoplay=false&video=v${match[1]}`,
       };
     }
-    if ((match = /clips.twitch.tv\/(\w+)/g.exec(url)) || (match = /twitch.tv\/\w+\/clip\/(\w+)/g.exec(url))) { // eslint-disable-line no-cond-assign
+    if ((match = /(?:clips.twitch.tv|twitch.tv\/\w+\/clip)\/(\w+)/g.exec(url))) { // eslint-disable-line no-cond-assign
       return {
         type: 'twitch',
         embedUrl: `https://clips.twitch.tv/embed?clip=${match[1]}`,
