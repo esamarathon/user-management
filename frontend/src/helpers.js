@@ -51,10 +51,16 @@ export function getVideoData(url) {
   if (url) {
     const urlObj = new URL(url);
     let match;
-    if (/(youtube.com|youtu.be)/g.test(urlObj.hostname)) {
+    if (/youtube.com/g.test(urlObj.hostname)) {
       return {
         type: 'youtube',
         embedUrl: `https://www.youtube-nocookie.com/embed/${urlObj.searchParams.get('v')}`,
+      };
+    }
+    if (match = /youtu.be\/([\w-]+)/g.exec(url)) { // eslint-disable-line no-cond-assign
+      return {
+        type: 'youtube',
+        embedUrl: `https://www.youtube-nocookie.com/embed/${match[1]}`,
       };
     }
     if (match = /(?:twitch.tv\/videos|twitch.tv\/\w+\/video)\/(\d+)/g.exec(url)) { // eslint-disable-line no-cond-assign
