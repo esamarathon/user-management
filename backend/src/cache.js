@@ -36,16 +36,13 @@ class Cache {
     const currentVal = this.cached.get(key);
     if (currentVal) {
       if (!options || !options.maxAge || currentVal.time + options.maxAge > Date.now()) {
-        console.log('Returning cached');
         return currentVal.value;
       }
       if ((!options || options.lazyRevalidate !== false) && _.isFunction(defaultOrRecalculate)) {
-        console.log('Returning cached, lazy reevaluating');
         this.recalculate(key, defaultOrRecalculate);
         return currentVal.value;
       }
     }
-    console.log('Returning evaluated');
     return _.isFunction(defaultOrRecalculate) ? this.recalculate(key, defaultOrRecalculate) : options.default;
   }
 }
