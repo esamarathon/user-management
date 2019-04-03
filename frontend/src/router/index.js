@@ -15,8 +15,9 @@ import AdminRuns from '../components/dashboard/admin/Runs.vue';
 import AdminVolunteers from '../components/dashboard/admin/Volunteers.vue';
 import AdminEvents from '../components/dashboard/admin/Events.vue';
 import AdminFeed from '../components/dashboard/admin/Feed.vue';
+import PublicSubmissions from '../components/dashboard/PublicSubmissions.vue';
+import NoLoginSubmissions from '../components/Public.vue';
 import settings from '../settings';
-import publicsubmissions from '../components/dashboard/PublicSubmissions.vue';
 
 Vue.use(Router);
 
@@ -37,6 +38,11 @@ export default new Router({
       component: Login,
     },
     {
+      path: '/submissions',
+      name: 'NoLoginSubmissions',
+      component: NoLoginSubmissions,
+    },
+    {
       path: '/dashboard',
       name: 'Dashboard',
       component: Dashboard,
@@ -54,7 +60,7 @@ export default new Router({
         {
           path: 'submissions/public',
           name: 'PublicSubmissions',
-          component: publicsubmissions,
+          component: PublicSubmissions,
         },
         {
           path: 'submissions/:id',

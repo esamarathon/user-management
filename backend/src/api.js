@@ -15,6 +15,7 @@ import {
 import {
   sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion
 } from './discordWebhooks';
+import cache from './cache';
 
 
 const historySep = settings.vue.mode === 'history' ? '' : '#/';
@@ -449,6 +450,7 @@ export async function updateUserSubmission(req, res) {
     });
     if (submission.status === 'saved') changeType = 'new';
   }
+  cache.clear(`publicSubmissions/${submission.event}`);
   await submission.save();
 
   if (changeType) {
@@ -700,27 +702,27 @@ export async function setUser(req, res) {
 const runDecisionPermission = 'Approve Submissions';
 
 export async function getSubmissions(req, res) {
-  if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.query.event) return res.status(400).end('Missing query parameter event');
-  const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
+  const user = req.jwt ? await models.User.findById(req.jwt.user.id).populate('roles.role').exec() : null;
 
   let runs = [];
-  if (hasPermission(user, req.query.event, runDecisionPermission)) {
+  if (user && hasPermission(user, req.query.event, runDecisionPermission)) {
     console.log('Has permission');
     runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'createdAt event user game category platform estimate runType runners video comment decisions')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
     .exec();
   } else {
     console.log('Doesnt have permission');
-    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'createdAt event user game category platform estimate runType runners')
-    .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
-    .exec();
+    runs = await cache.get(`publicSubmissions/${req.query.event}`,
+      async () => models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } },
+        'createdAt event user game category platform estimate runType runners')
+      .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
+      .exec());
   }
   return res.json(runs);
 }
 
 export async function getSubmission(req, res) {
-  if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.params.id) return res.status(400).end('Missing query parameter id');
   return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams runners invitations video comment status incentives')
   .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
