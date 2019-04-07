@@ -279,7 +279,8 @@ img.profilepic {
 
 @media (min-width: 600px) {
   .md-dialog {
-    transform: translateX(-50%) translateY(calc(-50% - .5px)); /* fixes https://github.com/esamarathon/user-management/issues/12, hopefully */
+    /* transform: translateX(-50%) translateY(calc(-50% - .5px));  fixes https://github.com/esamarathon/user-management/issues/12, hopefully */
+    filter: blur(0.0000001px);
   }
 }
 @media (max-width: 600px) {

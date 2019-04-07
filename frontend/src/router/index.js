@@ -17,6 +17,7 @@ import AdminEvents from '../components/dashboard/admin/Events.vue';
 import AdminFeed from '../components/dashboard/admin/Feed.vue';
 import PublicSubmissions from '../components/dashboard/PublicSubmissions.vue';
 import NoLoginSubmissions from '../components/Public.vue';
+import ErrorPage from '../components/ErrorPage.vue';
 import settings from '../settings';
 
 Vue.use(Router);
@@ -116,6 +117,11 @@ export default new Router({
           ],
         },
       ],
+    },
+    {
+      path: '*',
+      name: 'Error',
+      component: ErrorPage,
     },
   ],
 });

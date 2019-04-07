@@ -37,12 +37,12 @@ function hasPermission(user, eventID, permission) {
 }
 
 export async function handleLogin(req, res) {
-  const [csrf, redirect] = req.query.state.split(':');
+  const [csrf, redirect] = req.query.state.split(' ');
   const redirectUrl = decodeURIComponent(redirect || '') || settings.frontend.baseurl;
   const parsedRedirectUrl = URL.parse(redirectUrl);
   const domainFilter = new RegExp(settings.auth.domainFilter);
   if (!domainFilter.test(parsedRedirectUrl.hostname)) {
-    res.status(403).end('Invalid redirect URL!');
+    res.status(403).end(`Invalid redirect URL: ${parsedRedirectUrl.hostname}!`);
     return;
   }
   try {
@@ -127,7 +127,7 @@ export async function handleLogin(req, res) {
       res.redirect(redirectUrl);
       return;
     }
-    res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?discord_linked=0&error=CSRF%20Token%20invalid`);
+    res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?twitch_linked=0&error=CSRF%20Token%20invalid`);
     return;
   } catch (err) {
     console.error(err);

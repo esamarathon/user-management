@@ -15,7 +15,7 @@ export default {
     collapseNavMobile: false,
   }),
   async created() {
-    if (!jwt) this.$router.push({ name: 'Login' });
+    if (!jwt) this.$router.push({ name: 'Login', query: { redirect: window.location.href } });
 
     this.$store.dispatch('getEvents');
     this.$store.dispatch('getUser');
