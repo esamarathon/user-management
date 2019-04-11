@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import VueScreenSize from 'vue-screen-size';
 import { RecycleScroller } from 'vue-virtual-scroller';
+import Papa from 'papaparse';
 import { getUserName, emptySubmission } from '../../../helpers';
 import { getRuns, updateDecision, getSubmission } from '../../../api';
 import SubmissionDetails from '../SubmissionDetails.vue';
@@ -98,6 +99,49 @@ function search(items, string) {
     || item.data.runners.toLowerCase().includes(needle));
 }
 
+function formatJSONExport(runs, event) {
+  return _.map(runs, run => ({
+    _id: run.data._id,
+    date: run.data.createdAt,
+    game: run.data.game,
+    leaderboards: run.data.leaderboards,
+    runner: run.userName,
+    runnerSpeedrunDotCom: run.data.user.connections.srdotcom.name,
+    runnerTwitch: run.data.user.connections.twitch.name,
+    category: run.data.category,
+    runType: run.data.runType,
+    platform: run.data.platform,
+    estimate: run.data.estimate,
+    video: run.data.video,
+    comment: run.data.comment,
+    participants: run.data.runners,
+    availabilityFrom: run.data.user.availability.length > 0 ? run.data.user.availability[0].start : event.startDate,
+    availabilityUntil: run.data.user.availability.length > 0 ? run.data.user.availability[0].end : event.endDate,
+  }));
+}
+
+function dateStrToCSVTime(date) {
+  return `=DATEVALUE("${date.substring(0, 10)}") + TIMEVALUE("${date.substring(11, 19)}")`;
+}
+
+function convertCSV(data) {
+  const rows = _.map(data, run => ({
+    _id: run._id,
+    Runner: `=HYPERLINK("https://www.speedrun.com/user/${run.runnerSpeedrunDotCom}", "${run.runner} (${run.runnerTwitch})")`,
+    Game: `=HYPERLINK("${run.leaderboards}", "${run.game.replace('"', '""')}")`, // sanitize game name so formula remains valid
+    Category: run.category,
+    'Run Type': run.runType,
+    Participants: (run.runType && run.runType.toLowerCase() !== 'solo') ? run.participants : null,
+    Estimate: run.estimate,
+    Platform: run.platform,
+    Video: `=HYPERLINK("${run.video}")`,
+    Comment: run.comment,
+    'Available From': run.availabilityFrom ? dateStrToCSVTime(run.availabilityFrom) : null,
+    'Available Until': run.availabilityUntil ? dateStrToCSVTime(run.availabilityUntil) : null,
+  }));
+  return Papa.unparse(rows);
+}
+
 export default {
   name: 'Admin',
   async created() {
@@ -142,6 +186,15 @@ export default {
         _.each(columns, (column) => { res[column] = this.activeColumns.includes(column); });
         return res;
       },
+    },
+    exportJSON() {
+      return formatJSONExport(this.runs, this.currentEvent);
+    },
+    downloadURIJSON() {
+      return `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(this.exportJSON, null, 2))}`;
+    },
+    downloadURICSV() {
+      return `data:text/csv;charset=utf-8,${encodeURIComponent(convertCSV(this.exportJSON))}`;
     },
   },
   methods: {
