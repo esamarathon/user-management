@@ -7,7 +7,7 @@ export default {
   data: () => ({
     searchTimeout: null,
   }),
-  props: ['info'],
+  props: ['info', 'disabled'],
   created() {
     // this.ensureEmptyRow();
   },

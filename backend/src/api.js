@@ -16,6 +16,7 @@ import {
   sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion
 } from './discordWebhooks';
 import cache from './cache';
+import { sendNotification } from './notifications';
 
 
 const historySep = settings.vue.mode === 'history' ? '' : '#/';
@@ -202,7 +203,7 @@ export async function handleDiscordLogout(req, res) {
 export async function getUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user with ID ', req.jwt.user.id);
-  const user = await models.User.findById(req.jwt.user.id, 'flag connections roles phone_display availability')
+  const user = await models.User.findById(req.jwt.user.id, 'flag connections roles phone_display availability notificationSettings')
   .populate('roles.role')
   .exec();
   if (user) {
@@ -308,7 +309,7 @@ export function parseDuration(duration) {
   return parseInt(hours, 10) * 3600 * 1000 + parseInt(minutes, 10) * 60 * 1000;
 }
 
-const allowedUserModifications = new Map([
+const allowedUserModifications = [
   ['flag', _.set],
   ['connections.twitter.handle', _.set],
   ['connections.srdotcom.name', _.set],
@@ -317,18 +318,19 @@ const allowedUserModifications = new Map([
     obj.phone_display = maskPhone(val);
   }],
   ['connections.discord.public', _.set],
-  ['availability', _.set]
-]);
+  ['availability', _.set],
+  ['notificationSettings.', _.set]
+];
 export async function updateUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (user) {
     console.log('Request body: ', req.body);
     const badChanges = _.filter(await Promise.all(_.map(req.body, async (value, property) => {
-      const mutator = allowedUserModifications.get(property);
+      const mutator = _.find(allowedUserModifications, item => item[0] === property || (item[0][item[0].length - 1] === '.' && property.startsWith(item[0])));
       if (mutator) {
         try {
-          await mutator(user, property, value, user);
+          await mutator[1](user, property, value, user);
         } catch (err) {
           console.error('Mutation error:', err);
           return property;
@@ -354,14 +356,43 @@ export async function updateUser(req, res) {
   return res.status(404).end('User not found.');
 }
 
+export async function unsubscribe(req, res) {
+  try {
+    const jwt = decodeToken(req.body.jwt);
+    const email = jwt.email;
+    if (email) {
+      logger.debug(`Unsubscribing ${email} from all emails.`);
+      const allUsers = await Promise.all(_.map(await models.User.find({ 'connections.twitch.email': email }, 'notificationSettings'), user => {
+        _.each(user.notificationSettings.toObject(), (notifications, key) => {
+          user.notificationSettings[key].email = false;
+        });
+        return user.save();
+      }));
+      res.json({ ok: true, usersAffected: allUsers.length });
+    }
+  } catch (err) {
+    res.status(400).end(`Invalid JWT: ${err}`);
+  }
+}
+
 function mergeNonArray(item, data) {
   return _.mergeWith(item, data, (obj, src) => (_.isArray(src) ? src : undefined));
 }
 
+function isInSubmissionsPeriod(event) {
+  const now = new Date();
+  return now > event.submissionsStart && now < event.submissionsEnd;
+}
+
+function isInApplicationsPeriod(event) {
+  const now = new Date();
+  return now > event.applicationsStart && now < event.applicationsEnd;
+}
+
 export async function updateUserApplication(req, res) {
-  // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  let application = await models.Application.findById(req.body._id).exec();
+  let application = await models.Application.findById(req.body._id).populate('event').exec();
+  if (!isInApplicationsPeriod(application.event)) return res.status(400).end('Application period has ended!');
   const validChanges = _.pick(req.body, ['role', 'questions', 'comment']);
   if (req.body.status && req.body.status === 'saved' || req.body.status === 'saved') validChanges.status = req.body.status;
   if (application) {
@@ -381,20 +412,23 @@ export async function updateUserApplication(req, res) {
 }
 
 export async function updateUserSubmission(req, res) {
-  // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   let submission = await models.Submission.findById(req.body._id)
   .populate({ path: 'user', select: 'connections.twitch.displayName connections.twitch.name' })
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.name' } })
   .exec();
-  // console.log(`Found existing submission for ${req.body._id}:`, submission);
-  const validChanges = _.pick(req.body, ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives']);
+  const event = await models.Event.findById((submission && submission.event) || req.body.event);
+  if (!event) req.status(404).end('Event not found.');
+  console.log('Event:', event);
+  const user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
+  // during the submissions period, all these values can be edited. Outside, only run editors can edit everything, otherwise just the alwaysEditable fields can be edited
+  const validChanges = _.pick(req.body, isInSubmissionsPeriod(event) || hasPermission(user, req.body.event, 'Edit Runs')
+    ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'] : event.alwaysEditable);
   if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
   if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
   const oldVals = {};
-  const user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
   if (submission) {
     // users can only edit their own runs (unless they have the Edit Runs permission)
     if (!submission.user.equals(req.jwt.user.id) && !hasPermission(user, req.body.event, 'Edit Runs')) return res.status(403).end(`Access denied to user ${req.jwt.user.id}`);
@@ -457,7 +491,16 @@ export async function updateUserSubmission(req, res) {
     await submission.populate('user', 'connections.twitch.displayName connections.twitch.name connections.discord.id connections.discord.name connections.discord.discriminator connections.srdotcom.name')
     .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
     .execPopulate();
-    if (changeType === 'new') sendDiscordSubmission(user || submission.user, submission);
+    if (changeType === 'new') {
+      sendDiscordSubmission(user || submission.user, submission);
+      sendNotification(user, {
+        type: 'submissions',
+        subject: 'Run submission recorded!',
+        data: {
+          message: `Your run ${submission.game} (${submission.category} ${submission.runType}) was successfully received.`
+        }
+      });
+    }
     if (changeType === 'updated') sendDiscordSubmissionUpdate(user || submission.user, submission, oldVals);
     if (changeType === 'deleted' || changeType === 'undeleted') sendDiscordSubmissionDeletion(user || submission.user, submission, changeType);
   }
@@ -465,11 +508,14 @@ export async function updateUserSubmission(req, res) {
 }
 
 export async function inviteUser(req, res) {
-  // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
-  const submission = await models.Submission.findById(req.body.submission).exec();
+  const submission = await models.Submission.findById(req.body.submission).populate('event').exec();
+  if (!isInSubmissionsPeriod(submission.event) && !submission.event.alwaysEditable('invitations') && !hasPermission(submission.user, submission.event._id, 'Edit Runs')) {
+    return res.status(400).end('Can only invite people during the submission period!');
+  }
+  const inviter = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
   if (submission) {
-    if (submission.user.toString() === req.jwt.user.id) {
+    if (submission.user.equals(req.jwt.user.id) || !hasPermission(inviter, submission.event._id, 'Edit Runs')) {
       console.log(`Found existing submission for ${req.body.submission}:`, submission);
       // see if an invite already exists
       // see if a user with this id already exists
@@ -528,7 +574,6 @@ export async function inviteUser(req, res) {
 }
 
 export async function respondToInvitation(req, res) {
-  // TODO: verify event
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const user = await models.User.findById(req.jwt.user.id);
   const invitation = await models.Invitation.findById(req.body.invitation).populate('submission')

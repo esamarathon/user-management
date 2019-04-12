@@ -109,5 +109,9 @@
   "defaultAdmins": ["21018440"],
   "vue": {
     "mode": "history"
+  },
+  "email": {
+    "postUrl": "",
+    "options": {}
   }
 }

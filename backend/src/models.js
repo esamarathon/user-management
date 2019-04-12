@@ -11,6 +11,8 @@ const TwitchConnection = new mongoose.Schema({
   oauthToken: String,
   refreshToken: String,
   expiresAt: String
+}, {
+  timestamps: true
 });
 
 const DiscordConnection = new mongoose.Schema({
@@ -22,6 +24,8 @@ const DiscordConnection = new mongoose.Schema({
   oauthToken: String,
   refreshToken: String,
   expiresAt: String
+}, {
+  timestamps: true
 });
 
 const SrDotComConnection = new mongoose.Schema({
@@ -58,6 +62,21 @@ const UserAvailability = new mongoose.Schema({
   end: Date
 });
 
+// is set for each user that a notification is set for.
+const Notification = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  name: String
+}, {
+  timestamps: true
+});
+
+const NotificationSetting = new mongoose.Schema({
+  discord: Boolean,
+  email: Boolean,
+  mobile: Boolean,
+  browser: Boolean
+});
+
 const User = new mongoose.Schema({
   flag: String,
   connections: {
@@ -69,7 +88,19 @@ const User = new mongoose.Schema({
   phone_display: String, // first and last characters from the phone number
   phone_encrypted: String, // SHA-256 encrypted phone number
   roles: [UserRole],
-  availability: [UserAvailability]
+  availability: [UserAvailability],
+  notificationSettings: {
+    product: { type: NotificationSetting, default: {} },
+    submissions: { type: NotificationSetting, default: { } },
+    invitations: { type: NotificationSetting, default: { email: true } },
+    volunteering: { type: NotificationSetting, default: { email: true } },
+    tickets: { type: NotificationSetting, default: { email: true } },
+    donations: { type: NotificationSetting, default: { email: true } },
+    onsite: { type: NotificationSetting, default: { email: true, discord: true } },
+    favourites: { type: NotificationSetting, default: {} }
+  }
+}, {
+  timestamps: true
 });
 User.index({ 'connections.twitch.id': 1 });
 
@@ -180,7 +211,8 @@ const Event = new mongoose.Schema({
   submissionsEnd: Date,
   applicationsStart: Date,
   applicationsEnd: Date,
-  volunteersNeeded: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }]
+  volunteersNeeded: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }],
+  alwaysEditable: [String]
 }, {
   timestamps: true
 });
@@ -217,7 +249,7 @@ const Migration = new mongoose.Schema({
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation, Notification
 };
 export const models = {
   Migration: mongoose.model('migration', Migration),
@@ -228,5 +260,6 @@ export const models = {
   Application: mongoose.model('application', Application),
   Activity: mongoose.model('activity', Activity),
   Invitation: mongoose.model('invitation', Invitation),
-  FeedItem: mongoose.model('feeditem', FeedItem)
+  FeedItem: mongoose.model('feeditem', FeedItem),
+  Notification: mongoose.model('notification', Notification)
 };

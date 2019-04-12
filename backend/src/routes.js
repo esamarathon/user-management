@@ -15,7 +15,7 @@ import {
   getUsers, getUserApplications, getUserSubmissions,
   updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission,
   updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser, getFeed,
-  getFeedForEvent, updateFeed, deleteFeed
+  getFeedForEvent, updateFeed, deleteFeed, unsubscribe
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
@@ -59,6 +59,7 @@ app.use('/user/invite', rateLimit({
 }));
 
 app.get('/login', handleLogin);
+app.post('/unsubscribe', unsubscribe);
 app.get('/discord', handleDiscordLogin);
 app.delete('/discord', handleDiscordLogout);
 app.ws('/socket', handleWebsocket);

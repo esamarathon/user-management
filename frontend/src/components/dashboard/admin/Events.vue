@@ -58,7 +58,19 @@
                 <label>Submissions end</label>
               </md-datepicker>
             </div>
-
+            <div class="flex-100 layout-row">
+              <div class="medium-field flex-50 layout-row layout-start-center">
+                <span>Submission properties that can be changed after submissions end:</span>
+              </div>
+              <md-field class="medium-field flex-50">
+                <label>Allowed edits</label>
+                <md-select multiple v-model="selectedEvent.alwaysEditable">
+                  <md-option v-for="field in selectableFields" :key="field" :value="field">
+                    {{field}}
+                  </md-option>
+                </md-select>
+              </md-field>
+            </div>
             <div class="flex-100 layout-row">
               <md-datepicker class="medium-field" v-model="selectedEvent.applicationsStart">
                 <label>Volunteer applications start</label>
@@ -78,64 +90,7 @@
   </div>
 </template>
 
-<script>
-import _ from 'lodash';
-import { generateID } from '../../../helpers';
-import { mapState, mapGetters } from 'vuex';
-
-export default {
-  name: 'Events',
-  data: () => ({
-    selectedEvent: null,
-    showDialog: false
-  }),
-  computed: {
-    ...mapState(['user', 'events', 'roles']),
-    ...mapGetters(['currentEvent']),
-    eventList: {
-      get() {
-        return _.filter(this.events, x => x.status !== "deleted");
-      }
-    },
-    roleList: {
-      get() {
-        return _.filter(this.$store.state.roles, role => !role.special);
-      },
-    },
-  },
-  created() {
-    this.$store.dispatch('getRoles');
-  },
-  methods: {
-    newEvent() {
-      const newEvent = {
-        _id: generateID(),
-        name: "",
-        status: "unpublished",
-        volunteersNeeded: _.map(this.roleList, role => role._id)
-      }
-      this.selectedEvent = newEvent;
-      this.showDialog = true;
-    },
-    selectEvent(event) {
-      this.selectedEvent = _.merge({}, event);
-      this.showDialog = true;
-    },
-    duplicateEvent(event) {
-      this.selectedEvent = _.merge({}, event, {id: generateID()});
-      this.showDialog = true;
-    },
-    deleteEvent(event) {
-      event.status = "deleted";
-      this.$store.dispatch('saveEvent', event);
-    },
-    saveEvent() {
-      this.$store.dispatch('saveEvent', this.selectedEvent);
-      this.showDialog = false;
-    }
-  }
-};
-</script>
+<script src="./events.js"></script>
 
 <style lang="scss" scoped>
 .event-item {
@@ -147,5 +102,8 @@ export default {
   .event-header {
     font-size: large;
   }
+}
+
+.text-wrap{
 }
 </style>
