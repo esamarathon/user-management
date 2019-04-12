@@ -11,6 +11,18 @@
           <md-input v-model="searchTerm"></md-input>
         </md-field>
       </div>
+      <div class="flex-10">
+        <md-button class="md-button export-button" :href="downloadURICSV" :download="`${currentEvent.name}_submissions.csv`" target='_blank'>
+          Export as CSV
+          <md-icon>table_chart</md-icon>
+        </md-button>
+      </div>
+      <div class="flex-10">
+        <md-button class="md-button export-button" :href="downloadURIJSON" :download="`${currentEvent.name}_submissions.json`" target='_blank'>
+          Export as JSON
+          <span class="text-icon">{ }</span>
+        </md-button>
+      </div>
     </div>
     <div class="table-header layout-row">
       <div class="infinite-td flex-5 view"></div>
@@ -218,6 +230,17 @@
 
 .mobile-description {
   display: none;
+}
+
+.export-button {
+  font-size: 12px;
+}
+
+.text-icon {
+  font-size: 20px;
+  font-weight: bold;
+  display: inline-flex;
+  vertical-align: middle;
 }
 
 @media (max-width: 1600px) {
