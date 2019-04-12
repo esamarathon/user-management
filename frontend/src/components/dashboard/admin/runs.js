@@ -106,7 +106,7 @@ function formatJSONExport(runs, event) {
     game: run.data.game,
     leaderboards: run.data.leaderboards,
     runner: run.userName,
-    runnerSpeedrunDotCom: run.data.user.connections.srdotcom.name,
+    runnerSpeedrunDotCom: run.data.user.connections.srdotcom && run.data.user.connections.srdotcom.name,
     runnerTwitch: run.data.user.connections.twitch.name,
     category: run.data.category,
     runType: run.data.runType,
