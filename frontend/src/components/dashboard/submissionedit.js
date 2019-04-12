@@ -182,7 +182,7 @@ export default {
       this.selectedSubmission.incentives.splice(this.selectedSubmission.incentives.indexOf(incentive), 1);
     },
     editable(field) {
-      const editable = this.submissionsOpen || this.currentEvent.alwaysEditable.includes(field);
+      const editable = this.submissionsOpen || this.currentEvent.alwaysEditable.includes(field) || this.hasAnyPermission('Edit Runs', 'Admin');
       console.log(`Field ${field} is ${editable ? 'editable' : 'not editable'}`);
       return editable;
     },

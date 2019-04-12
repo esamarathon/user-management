@@ -422,9 +422,9 @@ export async function updateUserSubmission(req, res) {
   console.log('Event:', event);
   const user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
   // during the submissions period, all these values can be edited. Outside, only run editors can edit everything, otherwise just the alwaysEditable fields can be edited
-  const validChanges = _.pick(req.body, isInSubmissionsPeriod(event) || hasPermission(user, req.body.event, 'Edit Runs')
-    ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'] : event.alwaysEditable);
-  if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
+  const fullyEditable = isInSubmissionsPeriod(event) || hasPermission(user, req.body.event, 'Edit Runs');
+  const validChanges = _.pick(req.body, fullyEditable ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'] : event.alwaysEditable);
+  if (['stub', 'saved', 'deleted'].includes(req.body.status) && fullyEditable) validChanges.status = req.body.status;
 
   if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
@@ -465,6 +465,7 @@ export async function updateUserSubmission(req, res) {
     });
     mergeNonArray(submission, validChanges);
   } else {
+    if (!isInSubmissionsPeriod(event)) return res.status(400).end('The submissions period for this event has ended.');
     // maximum of 5 submissions per user
     const submissionAggregation = await models.Submission.aggregate([{ $match: { event: mongoose.Types.ObjectId(req.body.event), user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
     console.log('Submission aggregation:', submissionAggregation);
