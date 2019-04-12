@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import fetch from 'node-fetch';
 import { models } from './models';
+import settings from './settings';
+import logger from './logger';
 
 export function throttleAsync(func, duration) {
   let lastInitiated = 0;
@@ -33,7 +35,15 @@ export function notify(user, data) {
 
 export async function httpReq(url, params) {
   const result = await fetch(url, params);
-  if (result) return result.json();
+  if (result) {
+    const body = await result.text();
+    try {
+      return JSON.parse(body);
+    } catch (err) {
+      logger.error('Invalid JSON response:', body);
+      return body;
+    }
+  }
   throw new Error(result);
 }
 
@@ -55,4 +65,13 @@ export function httpPost(url, params) {
 
 export function teamsToString(teams) {
   return _.map(teams, team => _.map(team.members, member => member.user && member.user.connections.twitch.displayName).join(', ')).join(' vs ');
+}
+
+export function renderTemplate(template, data) {
+  return template.replace(/{{([^}]+)}}/g, (match, group) => _.get(data, group));
+}
+
+const historySep = settings.vue.mode === 'history' ? '' : '#/';
+export function frontendUrl(path) {
+  return `${settings.frontend.baseurl}${historySep}${path}`;
 }

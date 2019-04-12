@@ -181,9 +181,19 @@ export default {
     deleteIncentive(incentive) {
       this.selectedSubmission.incentives.splice(this.selectedSubmission.incentives.indexOf(incentive), 1);
     },
+    editable(field) {
+      const editable = this.submissionsOpen || this.currentEvent.alwaysEditable.includes(field);
+      console.log(`Field ${field} is ${editable ? 'editable' : 'not editable'}`);
+      return editable;
+    },
   },
   computed: {
     ...mapState(['user']),
+    ...mapGetters(['currentEvent']),
+    submissionsOpen() {
+      const today = new Date();
+      return new Date(this.currentEvent.submissionsStart) < today && new Date(this.currentEvent.submissionsEnd) > today;
+    },
   },
   components: {
     team: Team,

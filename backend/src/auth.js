@@ -3,7 +3,6 @@ import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import settings from './settings';
 
-// TODO: make these dynamic
 export const privateKey = fs.readFileSync('../private.pem');
 export const publicKey = fs.readFileSync('../public.pem');
 
@@ -17,4 +16,8 @@ export function encodeToken(payload) {
 
 export function generateToken(token, user) {
   return encodeToken({ auth: { token }, user });
+}
+
+export function generateUnsubscribeToken(user) {
+  return encodeToken({ uid: user._id, email: user.connections.twitch.email });
 }

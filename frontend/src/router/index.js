@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Loading from '../components/Loading.vue';
 import Login from '../components/Login.vue';
+import Unsubscribe from '../components/Unsubscribe.vue';
 import Dashboard from '../components/Dashboard.vue';
 import DashboardHome from '../components/dashboard/Home.vue';
 import DashboardProfile from '../components/dashboard/Profile.vue';
@@ -37,6 +38,11 @@ export default new Router({
       path: '/login',
       name: 'Login',
       component: Login,
+    },
+    {
+      path: '/unsubscribe',
+      name: 'Unsubscribe',
+      component: Unsubscribe,
     },
     {
       path: '/submissions',

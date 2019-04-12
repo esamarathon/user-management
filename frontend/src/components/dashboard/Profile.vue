@@ -77,6 +77,23 @@
       <div class="details-row layout-row button-equivalent">
         <md-button class="md-dark" :href="discordInvite"><img class="logo" src="../../assets/discord_logo.png"> Join Discord server</md-button>
       </div>
+      <h3>Notification settings</h3>
+      <div class="details-row button-equivalent layout-row">
+        <div class="flex-10">Invites and invitation related messages</div>
+        <div class="flex"><md-switch v-model="user.notificationSettings.invitations.email" v-on:change="notificationsUpdated('invitations.email')">E-mail</md-switch></div>
+      </div>
+      <div class="details-row button-equivalent layout-row">
+        <div class="flex-10">Submissions and submission related messages</div>
+        <div class="flex"><md-switch v-model="user.notificationSettings.submissions.email" v-on:change="notificationsUpdated('submissions.email')">E-mail</md-switch></div>
+      </div>
+      <div class="details-row button-equivalent layout-row">
+        <div class="flex-10">Volunteering and volunteer related messages</div>
+        <div class="flex"><md-switch v-model="user.notificationSettings.volunteering.email" v-on:change="notificationsUpdated('volunteering.email')">E-mail</md-switch></div>
+      </div>
+      <div class="details-row button-equivalent layout-row">
+        <div class="flex-10">Donations and donation related messages</div>
+        <div class="flex"><md-switch v-model="user.notificationSettings.donations.email" v-on:change="notificationsUpdated('donations.email')">E-mail</md-switch></div>
+      </div>
     </form>
   </div>
 </template>

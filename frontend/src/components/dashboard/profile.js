@@ -38,6 +38,9 @@ export default {
     discordPublicUpdated() {
       this.$store.dispatch('updateUser', { connections: { discord: { public: this.user.connections.discord.public } } });
     },
+    notificationsUpdated(path) {
+      this.$store.dispatch('updateUser', { [`notificationSettings.${path}`]: _.get(this.user.notificationSettings, path) });
+    },
   },
   computed: {
     ...mapState(['user']),

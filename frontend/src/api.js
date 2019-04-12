@@ -171,3 +171,7 @@ export function updateFeed(data) {
 export function deleteFeed(data) {
   return makePOST(`${settings.api.baseurl}feed`, data, { method: 'DELETE' });
 }
+
+export function unsubscribe(data) {
+  return makePOST(`${settings.api.baseurl}unsubscribe`, data);
+}
