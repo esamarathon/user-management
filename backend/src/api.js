@@ -424,7 +424,7 @@ export async function updateUserSubmission(req, res) {
   // during the submissions period, all these values can be edited. Outside, only run editors can edit everything, otherwise just the alwaysEditable fields can be edited
   const fullyEditable = isInSubmissionsPeriod(event) || hasPermission(user, req.body.event, 'Edit Runs');
   const validChanges = _.pick(req.body, fullyEditable ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'] : event.alwaysEditable);
-  if (['stub', 'saved', 'deleted'].includes(req.body.status) && fullyEditable) validChanges.status = req.body.status;
+  if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
 
   if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
