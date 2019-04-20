@@ -511,7 +511,7 @@ export async function updateUserSubmission(req, res) {
 export async function inviteUser(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   const submission = await models.Submission.findById(req.body.submission).populate('event').exec();
-  if (!isInSubmissionsPeriod(submission.event) && !submission.event.alwaysEditable('invitations') && !hasPermission(submission.user, submission.event._id, 'Edit Runs')) {
+  if (!isInSubmissionsPeriod(submission.event) && !submission.event.alwaysEditable.includes('invitations') && !hasPermission(submission.user, submission.event._id, 'Edit Runs')) {
     return res.status(400).end('Can only invite people during the submission period!');
   }
   const inviter = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
