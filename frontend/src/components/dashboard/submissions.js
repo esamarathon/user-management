@@ -64,7 +64,7 @@ export default {
     submissionList() {
       return _.filter(this.submissions, (sub) => {
         console.log('Events', sub.event, this.currentEvent._id, 'are');
-        return sub.status === 'saved' && sub.event === this.currentEvent._id;
+        return ['saved', 'accepted', 'rejected'].includes(sub.status) && sub.event === this.currentEvent._id;
       });
     },
     submissionsOpen() {

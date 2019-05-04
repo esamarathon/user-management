@@ -2,9 +2,9 @@
   <div class="layout-column flex-100 content-holder" v-if="currentEvent">
     <h1>Runs submitted to {{currentEvent.name}}</h1>
     <div class="flex-none layout-row layout-start-center">
-      <md-tabs class="transparent-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
+      <!--<md-tabs class="transparent-tabs flex-none" :md-active-tab="currentRoundName" @md-changed="updateCurrentRound">
         <md-tab v-for="round in rounds" :key="round.name" :md-label="round.name" :id="round.name"></md-tab>
-      </md-tabs>
+      </md-tabs>-->
       <div class="flex-10">
         <md-field class="very-compact">
           <md-icon>search</md-icon>
@@ -35,7 +35,7 @@
     </div>
     <RecycleScroller class="infinite-table flex-100" :items="runList" :item-size="itemSize" key-field="_id">
       <template v-slot="{ item }">
-        <div class="infinite-tr run layout-row layout-start-center" :class="{ 'run-accepted': item.cutTotals[currentRoundName] > 0, 'run-declined': item.cutTotals[currentRoundName] < 0 }">
+        <div class="infinite-tr run layout-row layout-start-center" :class="`run-${item.data.status}`">
           <div class="infinite-td flex-5 view">
             <md-button class="md-icon-button" @click="viewRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
           </div>
@@ -45,9 +45,11 @@
             <div class="infinite-td flex-10 platform"><span class="mobile-description">Platform: </span>{{item.data.platform}}</div>
             <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.data.estimate}}</div>
             <div class="infinite-td flex-5 video layout-row layout-start-center"><span class="mobile-description">Video: </span><video-button :url="item.data.video"></video-button></div>
-            <div class="infinite-td flex-35 decisions"><span class="mobile-description">Decisions: </span>
+            <div class="infinite-td flex-20 decisions"><span class="mobile-description">Decision: </span>
               <div class="layout-row">
-                <div class="layout-column flex-none">
+                <md-button @click="setRunStatus(item.data, 'accepted')" class="md-icon-button"><md-icon :style="{color: item.data.status === 'accepted' ? '#33ff00' : 'white'}">check</md-icon></md-button>
+                <md-button @click="setRunStatus(item.data, 'rejected')" class="md-icon-button"><md-icon :style="{color: item.data.status === 'rejected' ? '#aa0000' : 'white'}">close</md-icon></md-button>
+                <!--<div class="layout-column flex-none">
                   <div class="layout-row flex-none">
                     <md-button v-for="button in currentRound.buttons" :key="button.value" @click="decide(item, button.value)"
                     class="md-icon-button decision-button flex-none" :class="{'active-decision': item.decision[currentRoundName] === button.value}">
@@ -61,7 +63,7 @@
                 </div>
                 <md-field class="flex explanation-field compact">
                   <md-textarea md-autogrow placeholder="Explanation" v-model="item.explanation[currentRoundName]" @change="decide(item)"></md-textarea>
-                </md-field>
+                </md-field>-->
               </div>
             </div>
           </div>
@@ -187,7 +189,7 @@
     &.run-accepted {
       border-left-color: #33cc33;
     }
-    &.run-declined {
+    &.run-rejected {
       border-left-color: #cc3333;
     }
   }

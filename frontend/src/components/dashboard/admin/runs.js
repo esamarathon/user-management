@@ -62,7 +62,7 @@ const finalButtons = [
   {
     title: 'Decline',
     icon: 'delete',
-    value: 'declined',
+    value: 'rejected',
     color: '#aa0000',
   },
 ];
@@ -325,6 +325,10 @@ export default {
         this.orders.unshift(item);
         item[1] = item[1] === 'asc' ? 'desc' : 'asc';
       } else this.orders.unshift([name, 'asc']);
+    },
+    setRunStatus(run, status) {
+      run.status = status;
+      this.$store.dispatch('saveSubmission', run);
     },
   },
   watch: {

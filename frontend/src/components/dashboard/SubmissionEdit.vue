@@ -31,7 +31,7 @@
               <md-option value="saved">Saved</md-option>
               <md-option value="deleted">Deleted</md-option>
               <md-option value="accepted" disabled>Accepted</md-option>
-              <md-option value="denied" disabled>Denied</md-option>
+              <md-option value="rejected" disabled>Rejected</md-option>
             </md-select>
           </md-field>
           <div class="spacer flex-10" v-if="hasAnyPermission('Edit Runs', 'Admin')"></div>

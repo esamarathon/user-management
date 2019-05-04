@@ -13,7 +13,7 @@ import {
   notify, httpPost, httpReq, teamsToString
 } from './helpers';
 import {
-  sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion
+  sendDiscordSubmission, sendDiscordSubmissionUpdate, sendDiscordSubmissionDeletion, sendDiscordSubmissionDecision
 } from './discordWebhooks';
 import cache from './cache';
 import { sendNotification } from './notifications';
@@ -424,7 +424,7 @@ export async function updateUserSubmission(req, res) {
   // during the submissions period, all these values can be edited. Outside, only run editors can edit everything, otherwise just the alwaysEditable fields can be edited
   const fullyEditable = isInSubmissionsPeriod(event) || hasPermission(user, req.body.event, 'Edit Runs');
   const validChanges = _.pick(req.body, fullyEditable ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'] : event.alwaysEditable);
-  if (['stub', 'saved', 'deleted'].includes(req.body.status)) validChanges.status = req.body.status;
+  if (['stub', 'saved', 'deleted'].includes(req.body.status) || (req.body.status && hasPermission(user, req.body.event, 'Edit Runs'))) validChanges.status = req.body.status;
 
   if (!req.body.event) return res.status(400).end('Invalid event ID');
   let changeType;
@@ -457,9 +457,11 @@ export async function updateUserSubmission(req, res) {
       validChanges.invitations = _.map(validChanges.invitations, invite => invite && (invite._id || invite));
     }
     if (submission.status === 'stub' && validChanges.status === 'saved') changeType = 'new';
-    if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
-    if (submission.status === 'deleted' && validChanges.status !== 'deleted') changeType = 'undeleted';
-    if (submission.status === 'saved' && validChanges.status === 'saved') changeType = 'updated';
+    else if (submission.status !== 'deleted' && validChanges.status === 'deleted') changeType = 'deleted';
+    else if (submission.status === 'deleted' && validChanges.status !== 'deleted') changeType = 'undeleted';
+    else if (submission.status === validChanges.status) changeType = 'updated';
+    else if (submission.status !== validChanges.status && validChanges.status === 'accepted') changeType = 'accepted';
+    else if (submission.status !== validChanges.status && validChanges.status === 'rejected') changeType = 'rejected';
     _.each(validChanges, (val, key) => {
       if (!isDeepStrictEqual(submission[key], val)) oldVals[key] = submission[key];
     });
@@ -504,6 +506,7 @@ export async function updateUserSubmission(req, res) {
     }
     if (changeType === 'updated') sendDiscordSubmissionUpdate(user || submission.user, submission, oldVals);
     if (changeType === 'deleted' || changeType === 'undeleted') sendDiscordSubmissionDeletion(user || submission.user, submission, changeType);
+    if (changeType === 'accepted' || changeType === 'rejected') sendDiscordSubmissionDecision(user || submission.user, submission, changeType);
   }
   return res.json(submission);
 }
@@ -754,15 +757,15 @@ export async function getSubmissions(req, res) {
   let runs = [];
   if (user && hasPermission(user, req.query.event, runDecisionPermission)) {
     console.log('Has permission');
-    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } }, 'createdAt event user game twitchGame leaderboards category platform estimate runType runners video comment decisions')
+    runs = await models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'rejected'] } }, 'status createdAt event user game twitchGame leaderboards category platform estimate runType runners video comment decisions')
     .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name availability')
     .exec();
     _.each(runs, run => { run.user.availability = _.filter(run.user.availability, availability => availability.event.toString() === req.query.event); });
   } else {
     console.log('Doesnt have permission');
     runs = await cache.get(`publicSubmissions/${req.query.event}`,
-      async () => models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'declined'] } },
-        'createdAt event user game category platform estimate runType runners')
+      async () => models.Submission.find({ event: req.query.event, status: { $in: ['saved', 'accepted', 'rejected'] } },
+        'status createdAt event user game category platform estimate runType runners')
       .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
       .exec());
   }
