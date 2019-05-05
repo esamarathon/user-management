@@ -11,6 +11,7 @@ import SubmissionDetails from './SubmissionDetails.vue';
 function search(items, string) {
   const needle = string.toLowerCase();
   return _.filter(items, item => item.name.toLowerCase().includes(needle)
+    || item.status.toLowerCase().includes(needle)
     || item.platform.toLowerCase().includes(needle)
     || item.runType.toLowerCase().includes(needle)
     || item.runners.toLowerCase().includes(needle));

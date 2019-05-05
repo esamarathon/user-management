@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="table-header layout-row">
-      <div class="infinite-td flex-5 view"></div>
+      <div class="infinite-td flex-5 view orderable" :class="'order-'+(orderDirections['data.status'] || 'none')" @click="toggleOrder('data.status')">Status</div>
       <div class="infinite-td flex-20 name orderable" :class="'order-'+(orderDirections.name || 'none')" @click="toggleOrder('name')">Name</div>
       <div class="infinite-td flex-20 runners orderable" :class="'order-'+(orderDirections['data.runners'] || 'none')" @click="toggleOrder('data.runners')">Runner(s)</div>
       <div class="infinite-td flex-10 platform orderable" :class="'order-'+(orderDirections['data.platform'] || 'none')" @click="toggleOrder('data.platform')">Platform</div>

@@ -96,7 +96,8 @@ function search(items, string) {
   return _.filter(items, item => item.name.toLowerCase().includes(needle)
     || item.data.platform.toLowerCase().includes(needle)
     || item.data.runType.toLowerCase().includes(needle)
-    || item.data.runners.toLowerCase().includes(needle));
+    || item.data.runners.toLowerCase().includes(needle)
+    || item.data.status.toLowerCase().includes(needle));
 }
 
 function formatJSONExport(runs, event) {
