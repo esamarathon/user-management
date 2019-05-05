@@ -24,6 +24,7 @@ export default {
     selectedRun: null,
     searchTerm: '',
     orders: [['createdAt', 'asc']],
+    statusIcon: { accepted: 'check', rejected: 'close' },
   }),
   created() {
     this.updateRuns();

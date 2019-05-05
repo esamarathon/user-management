@@ -9,20 +9,22 @@
     </div>
     <div class="table-header layout-row">
       <div class="infinite-td flex-10 view"></div>
+      <div class="infinite-td flex-10 status orderable" :class="'order-'+(orderDirections.status || 'none')" @click="toggleOrder('status')">Status</div>
       <div class="infinite-td flex-30 name orderable" :class="'order-'+(orderDirections.name || 'none')" @click="toggleOrder('name')">Name</div>
-      <div class="infinite-td flex-30 runners orderable" :class="'order-'+(orderDirections.runners || 'none')" @click="toggleOrder('runners')">Runner(s)</div>
+      <div class="infinite-td flex-20 runners orderable" :class="'order-'+(orderDirections.runners || 'none')" @click="toggleOrder('runners')">Runner(s)</div>
       <div class="infinite-td flex-20 platform orderable" :class="'order-'+(orderDirections.platform || 'none')" @click="toggleOrder('platform')">Platform</div>
       <div class="infinite-td flex-10 estimate orderable" :class="'order-'+(orderDirections.estimate || 'none')" @click="toggleOrder('estimate')">Estimate</div>
     </div>
     <RecycleScroller class="infinite-table flex-100" :items="runList" :item-size="itemSize" key-field="_id">
       <template v-slot="{ item }">
-        <div class="infinite-tr run layout-row layout-start-center">
+        <div class="infinite-tr run layout-row layout-start-center" :class="`run-${item.status}`">
           <div class="infinite-td flex-10 view">
             <md-button class="md-icon-button" @click="selectRun(item)"><md-icon>remove_red_eye</md-icon></md-button>
           </div>
           <div class="flex info-items layout-row">
+            <div class="infinite-td flex-10 name"><md-icon v-if="statusIcon[item.status]">{{statusIcon[item.status]}}</md-icon></div>
             <div class="infinite-td flex-30 name">{{item.name}}</div>
-            <div class="infinite-td flex-30 runners"><span class="mobile-description">Runners: </span>{{item.runners}}</div>
+            <div class="infinite-td flex-10 runners"><span class="mobile-description">Runners: </span>{{item.runners}}</div>
             <div class="infinite-td flex-20 platform"><span class="mobile-description">Platform: </span>{{item.platform}}</div>
             <div class="infinite-td flex-10 estimate"><span class="mobile-description">Estimate: </span>{{item.estimate}}</div>
           </div>
@@ -85,6 +87,16 @@
     transform: rotate(180deg);
   }
   &.order-desc:before {
+  }
+}
+
+.infinite-tr {
+    border-left: 2px solid transparent;
+  &.run-accepted {
+    border-left-color: #33cc33;
+  }
+  &.run-rejected {
+    border-left-color: #cc3333;
   }
 }
 
