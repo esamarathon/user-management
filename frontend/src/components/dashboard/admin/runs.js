@@ -105,6 +105,7 @@ function formatJSONExport(runs, event) {
     _id: run.data._id,
     date: run.data.createdAt,
     game: run.data.game,
+    status: run.data.status,
     leaderboards: run.data.leaderboards,
     runner: run.userName,
     runnerSpeedrunDotCom: run.data.user.connections.srdotcom && run.data.user.connections.srdotcom.name,
@@ -130,6 +131,7 @@ function convertCSV(data) {
     _id: run._id,
     Runner: `=HYPERLINK("https://www.speedrun.com/user/${run.runnerSpeedrunDotCom}", "${run.runner} (${run.runnerTwitch})")`,
     Game: `=HYPERLINK("${run.leaderboards}", "${run.game.replace('"', '""')}")`, // sanitize game name so formula remains valid
+    Status: run.status,
     Category: run.category,
     'Run Type': run.runType,
     Participants: (run.runType && run.runType.toLowerCase() !== 'solo') ? run.participants : null,
