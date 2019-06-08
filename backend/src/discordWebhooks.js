@@ -186,3 +186,19 @@ export function sendDiscordSubmissionDecision(user, submission, changeType) {
     });
   }
 }
+
+export function sendDiscordVolunteerDecision(user, application, role, changeType) {
+  const submitterTwitchUser = application.user.connections.twitch;
+  const userTwitchUser = user.connections.twitch;
+  const submitterTwitchName = submitterTwitchUser.displayName.toLowerCase() === submitterTwitchUser.name ? submitterTwitchUser.displayName : `${submitterTwitchUser.displayName} (${submitterTwitchUser.name})`;
+  const userTwitchName = userTwitchUser.displayName.toLowerCase() === userTwitchUser.name ? userTwitchUser.displayName : `${userTwitchUser.displayName} (${userTwitchUser.name})`;
+  const discordUser = application.user.connections.discord;
+  const roleName = role.name;
+  privateWebhook({
+    title: `A volunteer application for ${roleName} has been ${changeType}!`,
+    url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/admin/volunteers/${encodeURIComponent(roleName)}`,
+    description: `${userTwitchName} has just ${changeType} a volunteer application!\n\n` // eslint-disable-line prefer-template
+    + `**Submit by:** ${submitterTwitchName}\n`
+    + (discordUser ? `**Discord user:** <@${discordUser.id}> (${discordUser.name}#${discordUser.discriminator})\n` : '')
+  });
+}

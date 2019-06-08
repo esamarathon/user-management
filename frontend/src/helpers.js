@@ -125,6 +125,11 @@ export function formatTime(time) {
     year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric',
   });
 }
+export function formatDate(time) {
+  return new Date(time).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'numeric', day: 'numeric',
+  });
+}
 
 export const emptySubmission = {
   game: '',

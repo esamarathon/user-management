@@ -6,6 +6,7 @@ import jwt from 'express-jwt';
 import expressWs from 'express-ws';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
+import multer from 'multer';
 
 import settings from './settings';
 import {
@@ -13,17 +14,27 @@ import {
   updateUser, getEvent, updateEvent,
   requestSensitiveData, getRoles, updateRole,
   getUsers, getUserApplications, getUserSubmissions,
-  updateUserApplication, updateUserSubmission, getApplications, getSubmissions, getSubmission,
+  updateUserApplication, updateUserSubmission, uploadApplicationSoundFile, getUploadedApplicationSoundFile,
+  getApplications, getSubmissions, getSubmission,
   updateRunDecision, inviteUser, getActivities, respondToInvitation, setUser, getFeed,
   getFeedForEvent, updateFeed, deleteFeed, unsubscribe
 } from './api';
 import { handleWebsocket } from './websocket';
 import { publicKey } from './auth';
 import db from './db';
+import { generateID } from './helpers';
 
 
 const app = express();
 const server = http.Server(app);
+
+const storage = multer.diskStorage({
+  destination: 'uploads',
+  filename(req, file, cb) {
+    cb(null, `${generateID()}.mp3`);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
 
 expressWs(app, server);
 app.use(bodyParser.json());
@@ -72,6 +83,8 @@ app.get('/user/applications', getUserApplications);
 app.get('/user/submissions', getUserSubmissions);
 app.post('/user', updateUser);
 app.post('/user/application', updateUserApplication);
+app.post('/user/application/upload', upload.single('fileInput'), uploadApplicationSoundFile);
+app.get('/user/application/upload/:fileName', getUploadedApplicationSoundFile);
 app.post('/user/submission', updateUserSubmission);
 app.post('/user/invite', inviteUser);
 app.post('/invitation/respond', respondToInvitation);

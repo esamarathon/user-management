@@ -135,6 +135,18 @@ export function updateApplication(changes) {
   return makePOST(`${settings.api.baseurl}user/application`, changes);
 }
 
+export function uploadApplicationSoundFile(file) {
+  const data = new FormData();
+  data.append('fileInput', file);
+  data.append('application', '6969696969');
+  return makeRequest(`${settings.api.baseurl}user/application/upload`, {
+    method: 'POST',
+    body: data,
+    headers: {
+    },
+  });
+}
+
 export function updateSubmission(changes) {
   console.log('Saving submission (3)', changes);
   return makePOST(`${settings.api.baseurl}user/submission`, changes);

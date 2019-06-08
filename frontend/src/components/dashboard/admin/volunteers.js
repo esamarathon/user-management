@@ -38,9 +38,9 @@ export default {
     eventRoles: {
       get() {
         if (!this.roleMap) return [];
-        return this.currentEvent.volunteersNeeded.map(
+        return _.filter(this.currentEvent.volunteersNeeded.map(
           roleID => this.roleMap.get(roleID),
-        );
+        ));
       },
     },
   },

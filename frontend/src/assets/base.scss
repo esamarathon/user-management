@@ -305,3 +305,35 @@ h1, h2, h3 {
   color: rgba(255,255,255,0.5) !important;
   -webkit-text-fill-color: initial !important;
 }
+
+.md-ripple {
+  /* fixes white menu items */
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+.md-tab.brokentabs {
+  width: 0;
+
+  .md-table-head-container {
+    padding: 0;
+  }
+
+  .md-table-head-container, .md-table-head-label {
+    overflow: visible;
+    white-space: normal;
+  }
+
+}
+.compact-table-cell .md-table-cell-container {
+  padding: 0;
+}
+
+.volunteer-application {
+  .accepted .md-icon {
+    color: #33ff00;
+  }
+  .rejected .md-icon {
+    color: #aa0000;
+  }
+}

@@ -1,36 +1,12 @@
 import _ from 'lodash';
-import MultipleChoice from './MultipleChoice.vue';
-import ListEdit from './ListEdit.vue';
-import Dropdown from './Dropdown.vue';
-import ShortText from './ShortText.vue';
-import LongText from './LongText.vue';
+import { questionTypes, components } from './questiontypes';
 
 export default {
   name: 'FormEdit',
   data: () => ({
-    questionTypes: [{
-      name: 'Short text',
-      value: 'ShortText',
-    }, {
-      name: 'Long text',
-      value: 'LongText',
-    }, {
-      name: 'Multiple choice',
-      value: 'MultipleChoice',
-      lists: [{
-        name: 'options',
-      }],
-    }, {
-      name: 'Dropdown',
-      value: 'Dropdown',
-      lists: [{
-        name: 'options',
-      }],
-    }],
+    questionTypes,
   }),
-  components: {
-    MultipleChoice, ListEdit, Dropdown, ShortText, LongText,
-  },
+  components,
   props: ['question'],
   created() {
     if (!this.question.options) this.question.options = {};

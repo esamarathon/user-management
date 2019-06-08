@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import fetch from 'node-fetch';
+import crypto from 'crypto';
 import { models } from './models';
 import settings from './settings';
 import logger from './logger';
@@ -74,4 +75,16 @@ export function renderTemplate(template, data) {
 const historySep = settings.vue.mode === 'history' ? '' : '#/';
 export function frontendUrl(path) {
   return `${settings.frontend.baseurl}${historySep}${path}`;
+}
+
+
+export function bufferToHex(buffer) {
+  return Array
+  .from(new Uint8Array(buffer))
+  .map(b => b.toString(16).padStart(2, '0'))
+  .join('');
+}
+
+export function generateID() {
+  return crypto.randomBytes(12).toString('hex');
 }
