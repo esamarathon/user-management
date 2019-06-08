@@ -34,12 +34,45 @@ export default {
         status: 'unpublished',
         volunteersNeeded: _.map(this.roleList, role => role._id),
         selectableFields: [],
+        meta: {
+          theme: '',
+          horaro: '',
+          twitchChannel: 'esamarathon',
+          cause: {
+            name: '',
+            link: '',
+            logo: '',
+          },
+          venue: {
+            name: '',
+            country: '',
+            city: '',
+            address: '',
+          },
+        },
       };
       this.selectedEvent = newEvent;
       this.showDialog = true;
     },
     selectEvent(event) {
-      this.selectedEvent = _.merge({}, event);
+      this.selectedEvent = _.merge({
+        meta: {
+          theme: '',
+          horaro: '',
+          twitchChannel: 'esamarathon',
+          cause: {
+            name: '',
+            link: '',
+            logo: '',
+          },
+          venue: {
+            name: '',
+            country: '',
+            city: '',
+            address: '',
+          },
+        },
+      }, event);
       this.showDialog = true;
     },
     duplicateEvent(event) {

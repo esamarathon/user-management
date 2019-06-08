@@ -219,7 +219,23 @@ const Event = new mongoose.Schema({
   applicationsStart: Date,
   applicationsEnd: Date,
   volunteersNeeded: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }],
-  alwaysEditable: [String]
+  alwaysEditable: [String],
+  meta: {
+    theme: String,
+    horaro: String,
+    twitchChannel: String,
+    cause: {
+      name: String,
+      link: String,
+      logo: String
+    },
+    venue: {
+      name: String,
+      country: String,
+      city: String,
+      address: String
+    }
+  }
 }, {
   timestamps: true
 });

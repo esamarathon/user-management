@@ -79,6 +79,54 @@
                 <label>Volunteer applications end</label>
               </md-datepicker>
             </div>
+            <h3>Event meta</h3>
+            <div class="flex-100">
+              <md-field class="medium-field flex-50">
+                <label>Theme</label>
+                <md-select v-model="selectedEvent.meta.theme">
+                  <md-option value="summer">Summer</md-option>
+                  <md-option value="winter">Winter</md-option>
+                </md-select>
+              </md-field>
+            </div>
+            <md-field class="large-field">
+              <label for="horaro">Horaro url</label>
+              <md-input name="horaro" id="horaro" v-model="selectedEvent.meta.horaro" />
+            </md-field>
+            <md-field class="large-field">
+              <label for="twitchChannel">Twitch channel</label>
+              <md-input name="twitchChannel" id="twitchChannel" v-model="selectedEvent.meta.twitchChannel" />
+            </md-field>
+            <div class="flex-100"><h4>Cause</h4></div>
+            <md-field class="large-field">
+              <label for="causeName">Name</label>
+              <md-input name="causeName" id="causeName" v-model="selectedEvent.meta.cause.name" />
+            </md-field>
+            <md-field class="large-field">
+              <label for="causeLink">Link</label>
+              <md-input name="causeLink" id="causeLink" v-model="selectedEvent.meta.cause.link" />
+            </md-field>
+            <md-field class="large-field">
+              <label for="causeLogo">Logo</label>
+              <md-input name="causeLogo" id="causeLogo" v-model="selectedEvent.meta.cause.logo" />
+            </md-field>
+            <div class="flex-100"><h4>Venue</h4></div>
+            <md-field class="large-field">
+              <label for="venueName">Name</label>
+              <md-input name="venueName" id="venueName" v-model="selectedEvent.meta.venue.name" />
+            </md-field>
+            <md-field class="large-field">
+              <label for="venueCountry">Country</label>
+              <md-input name="venueCountry" id="venueCountry" v-model="selectedEvent.meta.venue.country" />
+            </md-field>
+            <md-field class="large-field">
+              <label for="venueCity">City</label>
+              <md-input name="venueCity" id="venueCity" v-model="selectedEvent.meta.venue.city" />
+            </md-field>
+            <md-field class="large-field">
+              <label for="venueAddress">Address</label>
+              <md-input name="venueAddress" id="venueAddress" v-model="selectedEvent.meta.venue.address" />
+            </md-field>
           </div>
         </form>
       </md-dialog-content>
