@@ -7,6 +7,7 @@
           <md-input v-model="question.title" class="flex-100"></md-input>
         </md-field>
       </div>
+      <md-switch v-model="question.required">Required</md-switch>
       <md-field>
         <label>Question description</label>
         <md-textarea md-autogrow v-model="question.description"></md-textarea>

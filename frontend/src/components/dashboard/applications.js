@@ -27,10 +27,28 @@ export default {
       this.selectedApplication = newApplication;
       this.showDialog = true;
     },
+    validateForm() {
+      if (!this.selectedApplication) return null;
+      const questions = this.selectedApplicationRole.form;
+      const answers = this.selectedApplication.questions;
+      for (let i = 0; i < questions.length; ++i) {
+        if (questions[i].required === true) {
+          if (!answers[questions[i]._id]) {
+            return `Missing required answer for question "${questions[i].title}"`;
+          }
+        }
+      }
+      return null;
+    },
     saveApplication() {
-      this.selectedApplication.status = 'saved';
-      this.$store.dispatch('saveApplication', this.selectedApplication);
-      this.showDialog = false;
+      const formValidation = this.validateForm();
+      if (formValidation) {
+        this.$toasted.error(formValidation);
+      } else {
+        this.selectedApplication.status = 'saved';
+        this.$store.dispatch('saveApplication', this.selectedApplication);
+        this.showDialog = false;
+      }
     },
     selectApplication(application) {
       this.selectedApplication = _.merge({ questions: {} }, application);

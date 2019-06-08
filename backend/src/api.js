@@ -394,6 +394,12 @@ export async function uploadApplicationSoundFile(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (req.file) {
     console.log('File uploaded to', req.file);
+    const uploadLog = new models.AudioUpload({
+      user: req.jwt.user.id,
+      fileName: req.file.filename,
+      size: req.file.size
+    });
+    await uploadLog.save();
     return res.json({
       url: `${settings.api.baseurl}user/application/upload/${req.file.filename}`
     });

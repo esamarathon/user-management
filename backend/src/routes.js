@@ -34,7 +34,8 @@ const storage = multer.diskStorage({
     cb(null, `${generateID()}.mp3`);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 1024 * 1024 } });
+const megabyte = 1024 * 1024;
+const upload = multer({ storage, limits: { fileSize: 5 * megabyte } });
 
 expressWs(app, server);
 app.use(bodyParser.json());

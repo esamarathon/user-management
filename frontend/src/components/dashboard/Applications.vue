@@ -49,7 +49,7 @@
       </md-dialog-content>
       <md-dialog-actions>
         <md-button class="md-accent" @click="showDialog = false">Cancel</md-button>
-        <md-button class="md-primary" @click="saveApplication()">Save</md-button>
+        <md-button class="md-primary" @click="saveApplication()" :disabled="!!validateForm()">Save</md-button>
       </md-dialog-actions>
     </md-dialog>
   </div>

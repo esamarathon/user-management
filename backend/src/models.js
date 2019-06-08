@@ -38,6 +38,7 @@ const TwitterConnection = new mongoose.Schema({
 
 const Question = new mongoose.Schema({
   title: String,
+  required: Boolean,
   description: String,
   type: String,
   options: Object
@@ -197,6 +198,12 @@ const Application = new mongoose.Schema({
 });
 Application.index({ user: 1 });
 
+const AudioUpload = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'user' },
+  fileName: String,
+  size: Number
+});
+
 const Link = new mongoose.Schema({
   name: String,
   params: Object
@@ -249,7 +256,7 @@ const Migration = new mongoose.Schema({
 });
 
 export const schemas = {
-  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation, Notification
+  User, Role, Submission, Event, TwitchConnection, DiscordConnection, SrDotComConnection, Invitation, Notification, AudioUpload
 };
 export const models = {
   Migration: mongoose.model('migration', Migration),
@@ -261,5 +268,6 @@ export const models = {
   Activity: mongoose.model('activity', Activity),
   Invitation: mongoose.model('invitation', Invitation),
   FeedItem: mongoose.model('feeditem', FeedItem),
-  Notification: mongoose.model('notification', Notification)
+  Notification: mongoose.model('notification', Notification),
+  AudioUpload: mongoose.model('audioupload', AudioUpload)
 };

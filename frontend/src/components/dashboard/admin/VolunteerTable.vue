@@ -9,7 +9,7 @@
         </md-table-cell>
         <md-table-cell md-label="Name" md-sort-by="name">{{item.name}}</md-table-cell>
         <md-table-cell v-for="question in role.form" :key="question._id" :md-label="question.title" :md-sort-by="'questions.'+question._id">
-          <pretty-format :val="getAnswer(item, question)" :type="typeof(getAnswer(item, question))"></pretty-format>
+          <pretty-format :val="getAnswer(item, question)" :type="question.type"></pretty-format>
         </md-table-cell>
         <md-table-cell md-label="Comment" md-sort-by="comment">
           {{item.comment}}
@@ -26,7 +26,7 @@
           <div>
             <div v-for="question in role.form" :key="question._id">
               <h3>{{question.title}}</h3>
-              <pretty-format :val="getAnswer(selectedVolunteer, question)" :type="typeof(getAnswer(selectedVolunteer, question))"></pretty-format>
+              <pretty-format :val="getAnswer(selectedVolunteer, question)" :type="question.type"></pretty-format>
             </div>
           </div>
         </div>
@@ -41,6 +41,3 @@
 <script src="./volunteerTable.js">
 </script>
 
-<style lang="scss">
-
-</style>

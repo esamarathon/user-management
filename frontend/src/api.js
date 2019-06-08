@@ -138,7 +138,6 @@ export function updateApplication(changes) {
 export function uploadApplicationSoundFile(file) {
   const data = new FormData();
   data.append('fileInput', file);
-  data.append('application', '6969696969');
   return makeRequest(`${settings.api.baseurl}user/application/upload`, {
     method: 'POST',
     body: data,

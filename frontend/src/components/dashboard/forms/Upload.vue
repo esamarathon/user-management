@@ -11,7 +11,7 @@
       </div>
     </div>
     <div v-if="chosenValue">
-      <audio controls :src="chosenValue"></audio>
+      <audio controls :src="chosenValue" preload="metadata"></audio>
     </div>
   </div>
 </template>
@@ -33,5 +33,9 @@
   .upload-failed {
     color: darkred;
   }
+}
+
+audio {
+  height: 54px;
 }
 </style>
