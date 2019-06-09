@@ -2,7 +2,7 @@
   <div class="form-display layout-padding">
     <div class="form-question">
       <h2>{{question.title}}<span class="required" v-if="question.required">*</span></h2>
-      <p>{{question.description}}</p>
+      <p class="description">{{question.description}}</p>
       <div :is="question.type" v-model="chosenValue" :options="question.options" @input="updateValue()"></div>
     </div>
   </div>
@@ -17,6 +17,10 @@
   .required {
     margin-left: 8px;
     color: #FF5500;
+  }
+
+  .description {
+    white-space: pre-line;
   }
 }
 </style>
