@@ -29,7 +29,7 @@ export default {
     },
     validateForm() {
       if (!this.selectedApplication) return null;
-      if (!this.selectedApplicationRole) return null;
+      if (!this.selectedApplicationRole || !this.selectedApplicationRole.form) return null;
       const questions = this.selectedApplicationRole.form;
       const answers = this.selectedApplication.questions;
       for (let i = 0; i < questions.length; ++i) {
