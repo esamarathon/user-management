@@ -3,9 +3,9 @@
     <h1>Your volunteer applications for {{currentEvent.name}}</h1>
 
     <div class="flex-none layout-row" v-if="applicationsOpen">
-      <md-button class="md-primary md-raised" @click="newApplication()" v-if="user.connections.discord && user.connections.srdotcom && user.connections.srdotcom.name">Submit application</md-button>
-      <div class="no-discord flex-100" v-if="!user.connections.discord || !user.connections.srdotcom || !user.connections.srdotcom.name">
-        <md-icon>warning</md-icon> Please link your discord account to the users tool, provide your speedrun.com user name and check your availability to be able to submit volunteer applications. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
+      <md-button class="md-primary md-raised" @click="newApplication()" v-if="user.connections.discord">Submit application</md-button>
+      <div class="no-discord flex-100" v-if="!user.connections.discord">
+        <md-icon>warning</md-icon> Please link your discord account to the users tool and check your availability to be able to submit volunteer applications. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
         This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
       </div>
     </div>
