@@ -845,7 +845,7 @@ export async function getApplications(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   if (!req.query.event) return res.status(400).end('Missing query parameter event');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
-  if (hasPermission(user, req.query.event, runDecisionPermission)) {
+  if (hasPermission(user, req.query.event, 'Approve Volunteers')) {
     return res.json(await models.Application.find({ event: req.query.event })
     .populate('user', 'availability connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.discord.name connections.discord.discriminator')
     .exec());
@@ -858,7 +858,7 @@ export async function updateRunDecision(req, res, next) {
   if (!req.body.run) return res.status(400).end('Missing run ID');
   if (!req.body.cut) return res.status(400).end('Missing cut');
   const user = await models.User.findById(req.jwt.user.id).populate('roles.role').exec();
-  if (hasPermission(user, req.body.event, runDecisionPermission)) {
+  if (hasPermission(user, req.body.event, 'Approve Volunteers')) {
     const run = await models.Submission.findById(req.body.run, 'event decisions');
     if (!run) return res.status(404).end(`Run ${req.body.run} not found`);
     let decision = _.find(run.decisions, { cut: req.body.cut, user: user._id });
