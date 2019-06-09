@@ -1,8 +1,13 @@
 <template>
   <div class="layout-column" v-if="applications && roles">
     <h1>Your volunteer applications for {{currentEvent.name}}</h1>
-    <div class="flex-none" v-if="applicationsOpen">
-      <md-button class="md-primary md-raised" @click="newApplication()">Submit application</md-button>
+
+    <div class="flex-none layout-row" v-if="applicationsOpen">
+      <md-button class="md-primary md-raised" @click="newApplication()" v-if="user.connections.discord && user.connections.srdotcom && user.connections.srdotcom.name">Submit application</md-button>
+      <div class="no-discord flex-100" v-if="!user.connections.discord || !user.connections.srdotcom || !user.connections.srdotcom.name">
+        <md-icon>warning</md-icon> Please link your discord account to the users tool, provide your speedrun.com user name and check your availability to be able to submit volunteer applications. Go to <router-link :to="{name: 'Profile'}">your profile</router-link> to get started!<br>
+        This is necessary so we can contact you in any case. Please also make sure to join our <a :href="discordInvite">discord server</a>
+      </div>
     </div>
     <div class="flex-none layout-row" v-else>
       <div class="applications-closed flex-none">
@@ -86,7 +91,7 @@
 }
 
 
-.applications-closed {
+.applications-closed, .no-discord {
   padding: 8px;
   margin: 8px;
   background-color: rgba(255, 0, 0, 0.4);
