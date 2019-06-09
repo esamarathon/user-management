@@ -3,27 +3,10 @@ import _ from 'lodash';
 import settings from './settings';
 import logger from './logger';
 
-async function publicWebhook(data) {
+async function sendWebhook(webhook, data) {
   try {
     logger.debug('Sending public webhook', data);
-    const response = await fetch(settings.discord.webhooks.public.url, {
-      method: 'post',
-      body: JSON.stringify({
-        embeds: [data]
-      }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    if (response.status === 204) logger.debug('Discord webhook succesfully placed!');
-  } catch (err) {
-    logger.error(err);
-  }
-}
-async function privateWebhook(data) {
-  try {
-    logger.debug('Sending private webhook', data);
-    const response = await fetch(settings.discord.webhooks.private.url, {
+    const response = await fetch(webhook.url, {
       method: 'post',
       body: JSON.stringify({
         embeds: [data]
@@ -49,7 +32,7 @@ export function sendDiscordSubmission(user, submission) {
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
   bidwars = _.map(bidwars, 'name').join(', ');
-  publicWebhook({
+  sendWebhook(settings.discord.webhooks.public, {
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
     description: `${submitterTwitchName} has just submitted a new run!\n\n`
@@ -57,7 +40,7 @@ export function sendDiscordSubmission(user, submission) {
     + `**Category:** ${category}\n`
     + `**Platform:** ${submission.platform}`
   });
-  privateWebhook({
+  sendWebhook(settings.discord.webhooks.private, {
     title: 'A new run has been submitted!',
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
     description: `${submitterTwitchName} has just submitted a new run!\n\n` // eslint-disable-line prefer-template
@@ -112,7 +95,7 @@ export function sendDiscordSubmissionUpdate(user, submission, changes) {
   console.log('Updates:', updates);
 
   if (updates.length > 0) {
-    privateWebhook({
+    sendWebhook(settings.discord.webhooks.private, {
       title: 'A run has been updated!',
       url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
       description: `${userTwitchName} has just updated an existing run!\n\n\n**Submit by:** ${submitterTwitchName}\n`
@@ -135,7 +118,7 @@ export function sendDiscordSubmissionDeletion(user, submission, changeType) {
   let { incentive: incentives, bidwar: bidwars } = _.groupBy(submission.incentives, 'type');
   incentives = _.map(incentives, 'name').join(', ');
   bidwars = _.map(bidwars, 'name').join(', ');
-  privateWebhook({
+  sendWebhook(settings.discord.webhooks.private, {
     title: `A run has been ${changeType}!`,
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
     description: `${userTwitchName} has just ${changeType} a run!\n\n` // eslint-disable-line prefer-template
@@ -162,7 +145,7 @@ export function sendDiscordSubmissionDecision(user, submission, changeType) {
   if (submission.runType !== 'solo') {
     category += ` (${submission.runType})`;
   }
-  privateWebhook({
+  sendWebhook(settings.discord.webhooks.private, {
     title: `A run has been ${changeType}!`,
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
     description: `${userTwitchName} has just ${changeType} a run!\n\n` // eslint-disable-line prefer-template
@@ -175,7 +158,7 @@ export function sendDiscordSubmissionDecision(user, submission, changeType) {
     + `**Runners:** ${submission.runners}\n`
   });
   if (changeType === 'accepted') {
-    publicWebhook({
+    sendWebhook(settings.discord.webhooks.public, {
       title: `A run has been ${changeType}!`,
       url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/submissions/${submission._id}`,
       description: `**Submit by:** ${submitterTwitchName}\n`
@@ -194,7 +177,7 @@ export function sendDiscordVolunteerDecision(user, application, role, changeType
   const userTwitchName = userTwitchUser.displayName.toLowerCase() === userTwitchUser.name ? userTwitchUser.displayName : `${userTwitchUser.displayName} (${userTwitchUser.name})`;
   const discordUser = application.user.connections.discord;
   const roleName = role.name;
-  privateWebhook({
+  sendWebhook(settings.discord.webhooks.volunteers, {
     title: `A volunteer application for ${roleName} has been ${changeType}!`,
     url: `${settings.frontend.baseurl}${settings.vue.mode === 'history' ? '' : '#/'}dashboard/admin/volunteers/${encodeURIComponent(roleName)}`,
     description: `${userTwitchName} has just ${changeType} a volunteer application!\n\n` // eslint-disable-line prefer-template
