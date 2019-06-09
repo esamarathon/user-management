@@ -29,6 +29,7 @@ export default {
     },
     validateForm() {
       if (!this.selectedApplication) return null;
+      if (!this.selectedApplicationRole) return null;
       const questions = this.selectedApplicationRole.form;
       const answers = this.selectedApplication.questions;
       for (let i = 0; i < questions.length; ++i) {
