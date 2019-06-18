@@ -12,8 +12,14 @@
         </md-field>
       </div>
       <div class="flex-10">
-        <md-button class="md-button export-button" :href="downloadURICSV" :download="`${currentEvent.name}_submissions.csv`" target='_blank'>
-          Export as CSV
+        <md-button class="md-button export-button" :href="downloadURIRunCSV" :download="`${currentEvent.name}_submissions.csv`" target='_blank'>
+          Export Runs as CSV
+          <md-icon>table_chart</md-icon>
+        </md-button>
+      </div>
+      <div class="flex-10">
+        <md-button class="md-button export-button" :href="downloadURIIncentiveCSV" :download="`${currentEvent.name}_incentives.csv`" target='_blank'>
+          Export Incentives as CSV
           <md-icon>table_chart</md-icon>
         </md-button>
       </div>
