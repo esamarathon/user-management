@@ -119,6 +119,7 @@ function formatJSONExport(runs, event) {
     participants: run.data.runners,
     availabilityFrom: run.data.user.availability.length > 0 ? run.data.user.availability[0].start : event.startDate,
     availabilityUntil: run.data.user.availability.length > 0 ? run.data.user.availability[0].end : event.endDate,
+    incentives: run.data.incentives,
   }));
 }
 
@@ -126,7 +127,7 @@ function dateStrToCSVTime(date) {
   return `=DATEVALUE("${date.substring(0, 10)}") + TIMEVALUE("${date.substring(11, 19)}")`;
 }
 
-function convertCSV(data) {
+function convertRunCSV(data) {
   const rows = _.map(data, run => ({
     _id: run._id,
     Runner: `=HYPERLINK("https://www.speedrun.com/user/${run.runnerSpeedrunDotCom}", "${run.runner} (${run.runnerTwitch})")`,
@@ -142,6 +143,46 @@ function convertCSV(data) {
     'Available From': run.availabilityFrom ? dateStrToCSVTime(run.availabilityFrom) : null,
     'Available Until': run.availabilityUntil ? dateStrToCSVTime(run.availabilityUntil) : null,
   }));
+  return Papa.unparse(rows);
+}
+
+function formatIncentiveOptions(incentive) {
+  if (incentive.type.toLowerCase() === 'bidwar') {
+    if (incentive.bidwarType === 'freeform') return `Freeform: ${incentive.freeformMin} - ${incentive.freeformMax} characters`;
+    return incentive.options; // .replace('\n', ';');
+  }
+  return null;
+}
+
+function convertIncentiveCSV(data) {
+  const rows = _.flatMap(data, run => (run.incentives.length > 0 ? _.map(run.incentives, incentive => ({
+    _id: incentive._id,
+    _run_id: run._id,
+    Game: `=HYPERLINK("${run.leaderboards}", "${run.game.replace('"', '""')}")`, // sanitize game name so formula remains valid
+    Status: run.status,
+    Runners: (run.runType && run.runType.toLowerCase() !== 'solo') ? run.participants : `=HYPERLINK("https://www.speedrun.com/user/${run.runnerSpeedrunDotCom}", "${run.runner} (${run.runnerTwitch})")`,
+    Category: run.category,
+    Estimate: run.estimate,
+    Platform: run.platform,
+    Type: _.capitalize(incentive.type),
+    Incentive: incentive.name,
+    Description: incentive.description,
+    Options: formatIncentiveOptions(incentive),
+  })) : [{
+    _id: null,
+    _run_id: run._id,
+    Game: `=HYPERLINK("${run.leaderboards}", "${run.game.replace('"', '""')}")`, // sanitize game name so formula remains valid
+    Status: run.status,
+    Runners: (run.runType && run.runType.toLowerCase() !== 'solo') ? run.participants : `=HYPERLINK("https://www.speedrun.com/user/${run.runnerSpeedrunDotCom}", "${run.runner} (${run.runnerTwitch})")`,
+    Category: run.category,
+    Estimate: run.estimate,
+    Platform: run.platform,
+    Type: 'N/A',
+    Incentive: null,
+    Description: null,
+    Options: null,
+  }]));
+  console.log(rows);
   return Papa.unparse(rows);
 }
 
@@ -196,8 +237,11 @@ export default {
     downloadURIJSON() {
       return `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(this.exportJSON, null, 2))}`;
     },
-    downloadURICSV() {
-      return `data:text/csv;charset=utf-8,${encodeURIComponent(convertCSV(this.exportJSON))}`;
+    downloadURIRunCSV() {
+      return `data:text/csv;charset=utf-8,${encodeURIComponent(convertRunCSV(this.exportJSON))}`;
+    },
+    downloadURIIncentiveCSV() {
+      return `data:text/csv;charset=utf-8,${encodeURIComponent(convertIncentiveCSV(this.exportJSON))}`;
     },
   },
   methods: {
