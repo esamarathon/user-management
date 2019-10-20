@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from 'util';
 import _ from 'lodash';
-import { Mongoose } from 'mongoose';
+import mongoose from 'mongoose';
 import { isInSubmissionsPeriod, hasPermission, mergeNonArray } from './helpers';
 import { models } from '../models';
 import { teamsToString } from '../helpers';
@@ -76,7 +76,7 @@ export async function updateUserSubmission(req, res) {
   } else {
     if (!isInSubmissionsPeriod(event)) return res.status(400).end('The submissions period for this event has ended.');
     // maximum of 5 submissions per user
-    const submissionAggregation = await models.Submission.aggregate([{ $match: { event: Mongoose.Types.ObjectId(req.body.event), user: Mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
+    const submissionAggregation = await models.Submission.aggregate([{ $match: { event: mongoose.Types.ObjectId(req.body.event), user: mongoose.Types.ObjectId(req.jwt.user.id), status: 'saved' } }, { $count: 'submissions' }]);
     console.log('Submission aggregation:', submissionAggregation);
     if (submissionAggregation[0] && submissionAggregation[0].submissions >= 5) return res.status(400).end('Maximum number of submissions exceeded.');
 

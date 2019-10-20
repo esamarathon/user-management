@@ -78,6 +78,10 @@ export default {
         });
       }
     },
+    deleteTeam(index) {
+      console.log('Deleting team', index);
+      this.selectedSubmission.teams.splice(index, 1);
+    },
     async inviteUser() {
       // TODO: send invite user request
       /* this.inviteList.push({

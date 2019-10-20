@@ -1,3 +1,4 @@
+import URL from 'url';
 import settings from '../settings';
 import { httpPost } from '../helpers';
 import logger from '../logger';
