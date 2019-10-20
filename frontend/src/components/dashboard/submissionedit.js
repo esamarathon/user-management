@@ -239,6 +239,14 @@ export default {
         minLength: minLength(100),
         maxLength: maxLength(1000),
       },
+      teams: {
+        $each: {
+          members: {
+            required,
+            minLength: minLength(1),
+          },
+        },
+      },
       incentives: {
         $each: {
           name: {

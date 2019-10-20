@@ -86,8 +86,9 @@
             </draggable>
 
             <div class="layout-wrap layout-row" v-if="selectedSubmission.teams">
-              <div class="team-wrapper flex-50" v-for="team in selectedSubmission.teams" :key="team._id">
+              <div class="team-wrapper flex-50" v-for="(team, index) in selectedSubmission.teams" :key="team._id">
                 <team :info="team" :disabled="!editable('teams')"></team>
+                <span class="md-error" v-if="!$v.selectedSubmission.teams.$each[index].members.required || !$v.selectedSubmission.teams.$each[index].members.minLength">Teams cannot be empty!</span>
               </div>
               <div class="team-wrapper flex-50 layout-row layout-center-center" v-if="editable('teams')">
                 <div class="flex-none">

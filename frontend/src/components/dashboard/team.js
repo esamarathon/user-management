@@ -12,6 +12,9 @@ export default {
     // this.ensureEmptyRow();
   },
   methods: {
+    deleteTeam() {
+      this.emit('delete', this.info);
+    },
   },
   components: {
     draggable,
