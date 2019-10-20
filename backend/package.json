@@ -12,13 +12,16 @@
     "express-pino-logger": "^4.0.0",
     "express-rate-limit": "^3.4.0",
     "express-ws": "^4.0.0",
+    "irc-prefix-parser": "^1.0.1",
+    "iso8601-convert": "^1.0.0",
     "jsonwebtoken": "^8.3.0",
     "lodash": "^4.17.10",
     "mongoose": "^5.2.15",
     "multer": "^1.4.1",
     "node-fetch": "^2.3.0",
     "pino": "^5.5.0",
-    "pino-pretty": "^2.2.0"
+    "pino-pretty": "^2.2.0",
+    "through2": "^3.0.1"
   },
   "scripts": {
     "build": "babel src --source-maps -d dist",
