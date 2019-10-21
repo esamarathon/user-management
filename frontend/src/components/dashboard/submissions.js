@@ -15,6 +15,12 @@ export default {
   }),
   created() {
     this.$store.dispatch('getSubmissions');
+
+    const storedSubmission = localStorage.getItem('esa-submission-draft');
+    if (storedSubmission) {
+      this.selectedSubmission = JSON.parse(storedSubmission);
+      this.showDialog = true;
+    }
   },
   methods: {
     async newSubmission() {

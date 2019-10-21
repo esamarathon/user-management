@@ -1,8 +1,8 @@
 <template>
-  <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false">
+  <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false" @md-closed="cancelSubmission()">
     <md-dialog-title>Submit run</md-dialog-title>
     <md-dialog-content ref="dialog">
-      <form v-if="selectedSubmission" class="layout-padding" autocomplete="off">
+      <form v-if="selectedSubmission" class="layout-padding" autocomplete="off" @change="onChange()">
         <div class="layout-row layout-wrap">
           <md-field class="large-field flex-none" :class="getValidationClass('game')">
             <label for="game">Game</label>
@@ -126,6 +126,12 @@
                     <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].name.required">An {{incentive.type}} name is required</span>
                     <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].name.minLength">Invalid {{incentive.type}} name</span>
                   </md-field>
+                  <md-field class="small-field flex-none" :class="getValidationClass(`incentives.$each.${index}.estimate`)">
+                    <label for="estimate">Estimate [minutes]</label>
+                    <md-input name="incentive-estimate" type="number" v-model="incentive.estimate" :disabled="!editable('incentives')" />
+                    <span class="md-error" v-if="!$v.selectedSubmission.incentives.$each[index].estimate.required">The estimate is required</span>
+                    <span class="md-error" v-else-if="!$v.selectedSubmission.incentives.$each[index].estimate.between">The estimate should be not more than 5 minutes.</span>
+                  </md-field>
                   <md-button class="md-icon-button flex-none" @click="deleteIncentive(incentive)" v-if="editable('incentives')"><md-icon>delete</md-icon></md-button>
                 </div>
                 <md-field class="large-field flex-none" :class="getValidationClass(`incentives.$each.${index}.description`)">
@@ -169,7 +175,7 @@
       </form>
     </md-dialog-content>
     <md-dialog-actions>
-      <md-button class="md-accent" @click="$emit('cancel')">Cancel</md-button>
+      <md-button class="md-accent" @click="cancelSubmission()">Cancel</md-button>
       <md-button class="md-primary" @click="saveSubmission()">Save</md-button>
     </md-dialog-actions>
   </md-dialog>

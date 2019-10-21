@@ -146,6 +146,7 @@ const RunDecision = new mongoose.Schema({
 
 const Incentive = new mongoose.Schema({
   name: String,
+  estimate: String,
   description: String,
   type: String,
   bidwarType: String,
