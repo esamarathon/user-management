@@ -163,14 +163,12 @@ export default {
     },
     saveSubmission() {
       this.$v.$touch();
-      localStorage.removeItem('esa-submission-draft');
       if (!this.$v.$invalid) {
         if (this.selectedSubmission.status === 'stub') this.selectedSubmission.status = 'saved';
         this.$emit('submit', this.selectedSubmission.status);
       }
     },
     cancelSubmission() {
-      localStorage.removeItem('esa-submission-draft');
       this.$emit('cancel');
     },
     addIncentive(type) {
