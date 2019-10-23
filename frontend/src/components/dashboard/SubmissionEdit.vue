@@ -2,7 +2,7 @@
   <md-dialog :md-active.sync="showDialog" class="big-dialog" :md-click-outside-to-close="false" :md-close-on-esc="false" @md-closed="cancelSubmission()">
     <md-dialog-title>Submit run</md-dialog-title>
     <md-dialog-content ref="dialog">
-      <form v-if="selectedSubmission" class="layout-padding" autocomplete="off" @change="onChange()">
+      <form v-if="selectedSubmission" class="layout-padding" autocomplete="off" @keyup="onChange()" @change="onChange()">
         <div class="layout-row layout-wrap">
           <md-field class="large-field flex-none" :class="getValidationClass('game')">
             <label for="game">Game</label>
