@@ -1,10 +1,13 @@
 <template>
   <div class="team layout-column">
-    <div class="header">
+    <div class="header layout-row">
       <md-field class="small-field flex-none">
         <label for="teamname">Team name</label>
         <md-input name="teamname" id="teamname" v-model="info.name" @change="update()" :disabled="disabled" />
       </md-field>
+      <md-button class="md-icon-button" @click="deleteTeam()" v-if="candelete">
+        <md-icon>delete</md-icon>
+      </md-button>
     </div>
     <div class="members layout-column">
       <span class="compact-title">Members:</span>

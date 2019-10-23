@@ -27,7 +27,7 @@
     "import/prefer-default-export": "off",
     "max-len": [
       1,
-      150
+      250
     ],
     "linebreak-style": [1,"unix"],
     "indent": [
@@ -37,6 +37,7 @@
         "SwitchCase": 1,
         "MemberExpression": 0
       }
-    ]
+    ],
+    "no-console": "off"
   }
 }

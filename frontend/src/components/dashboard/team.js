@@ -7,11 +7,15 @@ export default {
   data: () => ({
     searchTimeout: null,
   }),
-  props: ['info', 'disabled'],
+  props: ['info', 'disabled', 'candelete'],
   created() {
     // this.ensureEmptyRow();
   },
   methods: {
+    deleteTeam() {
+      console.log('Requesting deletion', this.info);
+      this.$emit('delete-team');
+    },
   },
   components: {
     draggable,

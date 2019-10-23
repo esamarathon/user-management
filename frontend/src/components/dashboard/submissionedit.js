@@ -8,6 +8,7 @@ import {
   minLength,
   maxLength,
   helpers,
+  between,
 } from 'vuelidate/lib/validators';
 import Team from './Team.vue';
 import settings from '../../settings';
@@ -77,6 +78,10 @@ export default {
           members: [],
         });
       }
+    },
+    deleteTeam(index) {
+      console.log('Deleting team', index);
+      this.selectedSubmission.teams.splice(index, 1);
     },
     async inviteUser() {
       // TODO: send invite user request
@@ -163,11 +168,15 @@ export default {
         this.$emit('submit', this.selectedSubmission.status);
       }
     },
+    cancelSubmission() {
+      this.$emit('cancel');
+    },
     addIncentive(type) {
       this.selectedSubmission.incentives.push({
         _id: generateID(),
         type,
         name: '',
+        estimate: '',
         description: '',
         bidwarType: 'freeform',
         freeformMin: 5,
@@ -183,8 +192,12 @@ export default {
     },
     editable(field) {
       const editable = this.submissionsOpen || this.currentEvent.alwaysEditable.includes(field) || this.hasAnyPermission('Edit Runs', 'Admin');
-      console.log(`Field ${field} is ${editable ? 'editable' : 'not editable'}`);
+      // console.log(`Field ${field} is ${editable ? 'editable' : 'not editable'}`);
       return editable;
+    },
+    onChange() {
+      console.log('Something changed!');
+      localStorage.setItem('esa-submission-draft', JSON.stringify(this.selectedSubmission));
     },
   },
   computed: {
@@ -239,11 +252,23 @@ export default {
         minLength: minLength(100),
         maxLength: maxLength(1000),
       },
+      teams: {
+        $each: {
+          members: {
+            required,
+            minLength: minLength(1),
+          },
+        },
+      },
       incentives: {
         $each: {
           name: {
             required,
             minLength: minLength(5),
+          },
+          estimate: {
+            required,
+            between: between(0, 15),
           },
           description: {
             required,

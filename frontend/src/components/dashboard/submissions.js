@@ -15,6 +15,12 @@ export default {
   }),
   created() {
     this.$store.dispatch('getSubmissions');
+
+    const storedSubmission = localStorage.getItem('esa-submission-draft');
+    if (storedSubmission) {
+      this.selectedSubmission = JSON.parse(storedSubmission);
+      this.showDialog = true;
+    }
   },
   methods: {
     async newSubmission() {
@@ -30,6 +36,7 @@ export default {
       console.log('Saving submission', this.selectedSubmission);
       try {
         await this.$store.dispatch('saveSubmission', this.selectedSubmission);
+        localStorage.removeItem('esa-submission-draft');
         this.showDialog = false;
       } catch (err) {
         console.log(err);
@@ -37,6 +44,10 @@ export default {
         return false;
       }
       return true;
+    },
+    cancelSubmission() {
+      localStorage.removeItem('esa-submission-draft');
+      this.showDialog = false;
     },
     selectSubmission(submission) {
       this.selectedSubmission = _.merge(_.cloneDeep(emptySubmission), _.cloneDeep(submission));
