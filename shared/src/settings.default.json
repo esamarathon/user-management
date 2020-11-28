@@ -91,22 +91,48 @@
     "Admin"
   ],
   "platforms": [
-    "SNES", "NES", "Nintendo 64", "Nintendo DS", "Nintendo Wii", "Nintendo Switch", 
-    "Nintendo WiiU", "Nintendo Gamecube", "GameBoy", "GameBoy Color", "GameBoy Advance",
-    "Nintendo GameBoy Player", "Philips CD-i", "Nintendo Wii VC", "Nintendo Wii U VC",
-
-    "PlayStation", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation Vita",
-    "PlayStation Portable", "PlayStation TV",
-
-    "Sega Genesis", "Sega Game Gear", "Sega Master System", "Sega Saturn", "Dreamcast", "Sega Megadrive",
-
-    "Xbox", "Xbox360", "Xbox One",
-
-    "Atari 2500", "Atari Lynx", "Atari 5200",
-
-    "PC", "Paper", "Arcade"
+    "Arcade",
+    "Atari 2500",
+    "Atari 5200",
+    "Atari Lynx",
+    "Dreamcast",
+    "GameBoy Advance",
+    "GameBoy Color",
+    "GameBoy",
+    "NES",
+    "Nintendo 3DS",
+    "Nintendo 64",
+    "Nintendo DS",
+    "Nintendo GameBoy Player",
+    "Nintendo Gamecube",
+    "Nintendo Switch",
+    "Nintendo Wii U VC",
+    "Nintendo Wii VC",
+    "Nintendo Wii",
+    "Nintendo WiiU",
+    "Paper",
+    "PC",
+    "Philips CD-i",
+    "PlayStation 2",
+    "PlayStation 3",
+    "PlayStation 4",
+    "PlayStation Portable",
+    "PlayStation TV",
+    "PlayStation Vita",
+    "PlayStation",
+    "Sega Game Gear",
+    "Sega Genesis",
+    "Sega Master System",
+    "Sega Megadrive",
+    "Sega Saturn",
+    "SNES",
+    "Xbox One",
+    "Xbox",
+    "Xbox360"
   ],
-  "defaultAdmins": ["21018440"],
+  "defaultAdmins": [
+    "21018440"
+  ],
   "vue": {
     "mode": "history"
   },

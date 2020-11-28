@@ -15,7 +15,7 @@
     </div>
     <div class="flex-none layout-row">
       <div class="submissions-closed flex-none" v-if="!submissionsOpen">
-        <md-icon>lock</md-icon> Sumissions are currently closed.
+        <md-icon>lock</md-icon> Submissions are currently closed.
       </div>
       <div class="submissions-closed flex-none" v-if="submissionList.length >= 5">
         <md-icon>lock</md-icon> You have reached the maximum number of submissions for this event.
