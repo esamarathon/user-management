@@ -4,23 +4,35 @@
     <form class="profile-details layout-column" v-if="user">
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Name</div>
-        <div class="flex">{{user.connections.twitch.displayName}}</div>
+        <div class="flex">{{ user.connections.twitch.displayName }}</div>
       </div>
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">E-Mail</div>
-        <div class="flex">{{user.connections.twitch.email}}</div>
+        <div class="flex">{{ user.connections.twitch.email }}</div>
       </div>
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Twitter handle</div>
         <md-field class="flex-20 very-compact md-dark normal-input">
           <span class="md-prefix">@</span>
-          <md-input v-model="twitterHandle" v-on:change="twitterUpdated"></md-input>
+          <md-input
+            v-model="twitterHandle"
+            v-on:change="twitterUpdated"
+          ></md-input>
         </md-field>
       </div>
       <div class="details-row button-equivalent layout-row">
-        <div class="flex-10"><a href="https://speedrun.com">s<span class="hide-xs">peed</span>r<span class="hide-xs">un</span>.com</a> user name</div>
+        <div class="flex-10">
+          <a href="https://speedrun.com"
+            >s<span class="hide-xs">peed</span>r<span class="hide-xs">un</span
+            >.com</a
+          >
+          user name
+        </div>
         <md-field class="flex-20 very-compact md-dark normal-input">
-          <md-input v-model="srdotcomName" v-on:change="srdotcomUpdated"></md-input>
+          <md-input
+            v-model="srdotcomName"
+            v-on:change="srdotcomUpdated"
+          ></md-input>
         </md-field>
       </div>
       <!--<div class="details-row button-equivalent layout-row">
@@ -36,63 +48,133 @@
       </div>-->
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Flag</div>
-        <div class="flex"><flags-dropdown :selected="user.flag" v-on:change="flagSelected"></flags-dropdown></div>
+        <div class="flex">
+          <flags-dropdown
+            :selected="user.flag"
+            v-on:change="flagSelected"
+          ></flags-dropdown>
+        </div>
       </div>
       <div class="details-row button-equivalent layout-row layout-wrap">
-        <div class="flex-10 availability-title">Availability for {{currentEvent.name}}</div>
+        <div class="flex-10 availability-title">
+          Availability for {{ currentEvent.name }}
+        </div>
         <div class="layout-row flex layout-wrap">
           <div class="flex-none">
-            <md-datepicker class="medium-field" v-model="availabilityStart" :md-disabled-dates="disabledDatesFrom">
+            <md-datepicker
+              class="medium-field"
+              v-model="availabilityStart"
+              :md-disabled-dates="disabledDatesFrom"
+            >
               <label>From</label>
             </md-datepicker>
           </div>
           <div class="flex-none">
-            <md-datepicker class="medium-field" v-model="availabilityEnd" :md-disabled-dates="disabledDatesTo">
+            <md-datepicker
+              class="medium-field"
+              v-model="availabilityEnd"
+              :md-disabled-dates="disabledDatesTo"
+            >
               <label>Until</label>
             </md-datepicker>
           </div>
+          <div class="flex note">
+            <strong>Note</strong>: Please enter the days during which you are
+            FULLY available, do NOT count days you are arriving/leaving on.
+          </div>
         </div>
       </div>
-      <div class="details-row layout-row button-equivalent" v-if="!user.connections.discord">
-        <md-button class="md-dark" :href="discordAuthUrl"><img class="logo" src="../../assets/discord_logo.png"> Connect with Discord</md-button>
+      <div
+        class="details-row layout-row button-equivalent"
+        v-if="!user.connections.discord"
+      >
+        <md-button class="md-dark" :href="discordAuthUrl"
+          ><img class="logo" src="../../assets/discord_logo.png" /> Connect with
+          Discord</md-button
+        >
       </div>
-      <div class="details-row layout-row button-equivalent" v-if="user.connections.discord">
-        <div class="layout-column discord-connection md-elevation-2 layout-padding flex-100">
+      <div
+        class="details-row layout-row button-equivalent"
+        v-if="user.connections.discord"
+      >
+        <div
+          class="layout-column discord-connection md-elevation-2 layout-padding flex-100"
+        >
           <div class="layout-row layout-between-center">
             <div class="flex-none">
-              <img class="big-logo" src="../../assets/discord_logo_blue.png"><span class="discord-username">{{user.connections.discord.name}}</span><span class="discord-discriminator">#{{user.connections.discord.discriminator}}</span>
+              <img
+                class="big-logo"
+                src="../../assets/discord_logo_blue.png"
+              /><span class="discord-username">{{
+                user.connections.discord.name
+              }}</span
+              ><span class="discord-discriminator"
+                >#{{ user.connections.discord.discriminator }}</span
+              >
             </div>
             <div class="flex-none">
-              <md-button class="md-dark md-icon-button" @click="discordLogout()"><md-icon>close</md-icon></md-button>
+              <md-button class="md-dark md-icon-button" @click="discordLogout()"
+                ><md-icon>close</md-icon></md-button
+              >
             </div>
           </div>
           <div class="layout-row layout-between-center">
             <span>Display on profile</span>
             <div>
-              <md-switch v-model="user.connections.discord.public" @change="discordPublicUpdated()"></md-switch>
+              <md-switch
+                v-model="user.connections.discord.public"
+                @change="discordPublicUpdated()"
+              ></md-switch>
             </div>
           </div>
         </div>
       </div>
       <div class="details-row layout-row button-equivalent">
-        <md-button class="md-dark" :href="discordInvite"><img class="logo" src="../../assets/discord_logo.png"> Join Discord server</md-button>
+        <md-button class="md-dark" :href="discordInvite"
+          ><img class="logo" src="../../assets/discord_logo.png" /> Join Discord
+          server</md-button
+        >
       </div>
       <h3>Notification settings</h3>
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Invites and invitation related messages</div>
-        <div class="flex"><md-switch v-model="user.notificationSettings.invitations.email" v-on:change="notificationsUpdated('invitations.email')">E-mail</md-switch></div>
+        <div class="flex">
+          <md-switch
+            v-model="user.notificationSettings.invitations.email"
+            v-on:change="notificationsUpdated('invitations.email')"
+            >E-mail</md-switch
+          >
+        </div>
       </div>
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Submissions and submission related messages</div>
-        <div class="flex"><md-switch v-model="user.notificationSettings.submissions.email" v-on:change="notificationsUpdated('submissions.email')">E-mail</md-switch></div>
+        <div class="flex">
+          <md-switch
+            v-model="user.notificationSettings.submissions.email"
+            v-on:change="notificationsUpdated('submissions.email')"
+            >E-mail</md-switch
+          >
+        </div>
       </div>
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Volunteering and volunteer related messages</div>
-        <div class="flex"><md-switch v-model="user.notificationSettings.volunteering.email" v-on:change="notificationsUpdated('volunteering.email')">E-mail</md-switch></div>
+        <div class="flex">
+          <md-switch
+            v-model="user.notificationSettings.volunteering.email"
+            v-on:change="notificationsUpdated('volunteering.email')"
+            >E-mail</md-switch
+          >
+        </div>
       </div>
       <div class="details-row button-equivalent layout-row">
         <div class="flex-10">Donations and donation related messages</div>
-        <div class="flex"><md-switch v-model="user.notificationSettings.donations.email" v-on:change="notificationsUpdated('donations.email')">E-mail</md-switch></div>
+        <div class="flex">
+          <md-switch
+            v-model="user.notificationSettings.donations.email"
+            v-on:change="notificationsUpdated('donations.email')"
+            >E-mail</md-switch
+          >
+        </div>
       </div>
     </form>
   </div>
@@ -102,13 +184,13 @@
 </script>
 
 <style lang="scss">
-@import url('../../../node_modules/flags-dropdown-vue/css/custom.css');
-@import url('../../../node_modules/flags-dropdown-vue/css/flags.min.css');
+@import url("../../../node_modules/flags-dropdown-vue/css/custom.css");
+@import url("../../../node_modules/flags-dropdown-vue/css/flags.min.css");
 
 .lang-dropdown {
   .flag-box {
     border: none !important;
-    background-image: url('../../assets/dropdown-arrow.png') !important;
+    background-image: url("../../assets/dropdown-arrow.png") !important;
   }
 
   .lang-dropdown-content {
@@ -185,8 +267,11 @@ img.big-logo {
     }
   }
 
-  &.md-field.md-theme-default, &.md-field.md-theme-default.md-focused, &.md-field.md-theme-default.md-has-value {
-    .md-prefix, .md-input {
+  &.md-field.md-theme-default,
+  &.md-field.md-theme-default.md-focused,
+  &.md-field.md-theme-default.md-has-value {
+    .md-prefix,
+    .md-input {
       color: white;
       -webkit-text-fill-color: initial;
     }
@@ -196,11 +281,16 @@ img.big-logo {
 .discord-connection {
   min-width: 20%;
   max-width: 400px;
-  background-color: #2C2F33;
+  background-color: #2c2f33;
 }
 
 .discord-discriminator {
-  color: rgba(255,255,255,0.5);
+  color: rgba(255, 255, 255, 0.5);
   font-size: small;
+}
+
+.note {
+  max-width: 500px;
+  margin-left: 8px;
 }
 </style>
