@@ -169,6 +169,7 @@ const Submission = new mongoose.Schema({
   runners: String, // this is a cached version of the team or just the runner display name in case of solo runs
   video: String,
   comment: String,
+  commentators: String,
   status: String,
   notes: [Note],
   decisions: [RunDecision],
@@ -220,6 +221,7 @@ const Event = new mongoose.Schema({
   applicationsStart: Date,
   applicationsEnd: Date,
   volunteersNeeded: [{ type: mongoose.Schema.Types.ObjectId, ref: 'role' }],
+  commentatorsNeeded: Boolean,
   alwaysEditable: [String],
   meta: {
     theme: String,

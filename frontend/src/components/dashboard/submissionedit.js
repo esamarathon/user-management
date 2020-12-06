@@ -262,9 +262,11 @@ export default {
         },
       },
       commentators: {
-        required: requiredIf(() => {
-          return this.currentEvent.needsCommentators == true && this.selectedSubmission.runType === "race";
-        }),
+        required: requiredIf(
+          function () {
+            return this.currentEvent.commentatorsNeeded === true && this.selectedSubmission.runType === 'race';
+          },
+        ),
         minLength: minLength(3),
         maxLength: maxLength(1000),
       },
