@@ -40,6 +40,9 @@
                 <md-option v-for="role in roleList" :key="role._id" :value="role._id">{{role.name}}</md-option>
               </md-select>
             </md-field>
+            <md-checkbox name="role" id="role" v-model="selectedEvent.commentatorsNeeded">
+              Enable commentators
+            </md-checkbox>
 
             <div class="flex-100 layout-row">
               <md-datepicker class="medium-field" v-model="selectedEvent.startDate">

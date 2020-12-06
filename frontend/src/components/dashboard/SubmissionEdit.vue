@@ -97,6 +97,13 @@
               </div>
             </div>
           </div>
+          <div class="flex-100 layout-column" v-if="currentEvent.needsCommentators !== false">
+            <md-field class="large-field flex-none" :class="getValidationClass('commentators')">
+              <label for="commentators">Commentators</label>
+              <md-input name="commentators" id="commentators" v-model="selectedSubmission.commentators" :disabled="!editable('commentators')" />
+              <span class="md-error" v-if="!$v.selectedSubmission.commentators.required">At least one commentator is required</span>
+            </md-field>
+          </div>
           <md-field class="large-field flex-none" :class="getValidationClass('video')">
             <label for="video">Video url</label>
             <md-input name="video" id="video" v-model="selectedSubmission.video" :disabled="!editable('video')" />

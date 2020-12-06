@@ -7,7 +7,7 @@ export default {
   data: () => ({
     selectedEvent: null,
     showDialog: false,
-    selectableFields: ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'],
+    selectableFields: ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'commentators', 'invitations', 'incentives'],
   }),
   computed: {
     ...mapState(['user', 'events', 'roles']),
@@ -33,6 +33,7 @@ export default {
         name: '',
         status: 'unpublished',
         volunteersNeeded: _.map(this.roleList, role => role._id),
+        commentatorsNeeded: false,
         selectableFields: [],
         meta: {
           theme: '',
@@ -56,6 +57,7 @@ export default {
     },
     selectEvent(event) {
       this.selectedEvent = _.merge({
+        commentatorsNeeded: false,
         meta: {
           theme: '',
           horaro: '',

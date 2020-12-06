@@ -13,7 +13,7 @@ import { sendNotification } from '../notifications';
 export async function getUserSubmissions(req, res) {
   if (!req.jwt) return res.status(401).end('Not authenticated.');
   console.log('Getting user submissions with ID ', req.jwt.user.id);
-  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams runners video comment status notes invitations incentives')
+  return res.json(await models.Submission.find({ user: req.jwt.user.id }, 'event user game twitchGame leaderboards category platform estimate runType teams runners video comment commentators status notes invitations incentives')
   .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } }));
 }
@@ -30,7 +30,7 @@ export async function updateUserSubmission(req, res) {
   const user = await models.User.findById(req.jwt.user.id, 'roles connections.twitch.name connections.twitch.displayName').populate('roles.role').exec();
   // during the submissions period, all these values can be edited. Outside, only run editors can edit everything, otherwise just the alwaysEditable fields can be edited
   const fullyEditable = isInSubmissionsPeriod(event) || hasPermission(user, req.body.event, 'Edit Runs');
-  const validChanges = _.pick(req.body, fullyEditable ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'invitations', 'incentives'] : event.alwaysEditable);
+  const validChanges = _.pick(req.body, fullyEditable ? ['game', 'twitchGame', 'leaderboards', 'category', 'platform', 'estimate', 'runType', 'teams', 'video', 'comment', 'commentators', 'invitations', 'incentives'] : event.alwaysEditable);
   if (['stub', 'saved', 'deleted'].includes(req.body.status) || (req.body.status && hasPermission(user, req.body.event, 'Edit Runs'))) validChanges.status = req.body.status;
 
   if (!req.body.event) return res.status(400).end('Invalid event ID');
@@ -121,7 +121,7 @@ export async function updateUserSubmission(req, res) {
 
 export async function getSubmission(req, res) {
   if (!req.params.id) return res.status(400).end('Missing query parameter id');
-  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams runners invitations video comment status incentives')
+  return res.json(await models.Submission.findById(req.params.id, 'event user game twitchGame leaderboards category platform estimate runType teams runners invitations video comment commentators status incentives')
   .populate('user', 'connections.twitch.name connections.twitch.displayName connections.twitch.logo connections.srdotcom.name')
   .populate({ path: 'teams.members', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })
   .populate({ path: 'invitations', populate: { path: 'user', select: 'connections.twitch.displayName connections.twitch.id connections.twitch.logo' } })

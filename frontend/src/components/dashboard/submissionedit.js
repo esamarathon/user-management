@@ -9,6 +9,7 @@ import {
   maxLength,
   helpers,
   between,
+  requiredIf,
 } from 'vuelidate/lib/validators';
 import Team from './Team.vue';
 import settings from '../../settings';
@@ -259,6 +260,13 @@ export default {
             minLength: minLength(1),
           },
         },
+      },
+      commentators: {
+        required: requiredIf(() => {
+          return this.currentEvent.needsCommentators == true && this.selectedSubmission.runType === "race";
+        }),
+        minLength: minLength(3),
+        maxLength: maxLength(1000),
       },
       incentives: {
         $each: {
