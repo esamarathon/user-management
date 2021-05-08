@@ -16,7 +16,7 @@
     "fuzzysearch": "^1.0.3",
     "is-promise": "^2.1.0",
     "jsonwebtoken": "^8.3.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.21",
     "papaparse": "^4.6.3",
     "vue": "^2.5.17",
     "vue-material": "^1.0.0-beta-10.2",
