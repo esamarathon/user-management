@@ -26,7 +26,7 @@ function calculateEventFeed(event) {
     ret.push({ event: event._id, text: `Submissions are now closed for ${event.name}`, time: event.submissionsEnd });
   }
   if (event.applicationsStart && event.applicationsStart < now) {
-    ret.push({ event: event._id, text: `Volunteer applications have been opened for ${event.name}. \nGo apply [{"name": "Volunteers"}](here)`, time: event.applicationsStart });
+    ret.push({ event: event._id, text: `Volunteer applications have been opened for ${event.name}. \nGo apply [{"name": "Applications"}](here)`, time: event.applicationsStart });
   }
   if (event.applicationsEnd && event.applicationsEnd < now) {
     ret.push({ event: event._id, text: `Volunteer applications are now closed for ${event.name}`, time: event.applicationsEnd });
