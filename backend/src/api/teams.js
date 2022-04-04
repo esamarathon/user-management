@@ -27,15 +27,15 @@ export async function inviteUser(req, res) {
       } else {
         let userResponse;
         try {
-          userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/${req.body.user}`);
+          userResponse = await twitchGet(`https://api.twitch.tv/helix/users?id=${req.body.user}`);
           console.log('User response:', userResponse);
           user = new models.User({
             connections: {
               twitch: {
-                name: userResponse.name,
+                name: userResponse.login,
                 displayName: userResponse.display_name,
-                id: userResponse._id,
-                logo: userResponse.logo
+                id: userResponse.id,
+                logo: userResponse.profile_image_url
               }
             }
           });

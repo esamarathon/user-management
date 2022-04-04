@@ -26,12 +26,12 @@ function findTeamName(teams) {
 }
 
 async function searchForName(search) {
-  const data = await makeTwitchRequest(`https://api.twitch.tv/kraken/search/channels?query=${encodeURIComponent(search)}`);
-  return data.channels;
+  const data = await makeTwitchRequest(`https://api.twitch.tv/helix/search/channels?query=${encodeURIComponent(search)}&first=100`);
+  return data.data;
 }
 async function searchForGame(search) {
-  const data = await makeTwitchRequest(`https://api.twitch.tv/kraken/search/games?query=${encodeURIComponent(search)}`);
-  return data.games;
+  const data = await makeTwitchRequest(`https://api.twitch.tv/helix/search/games?query=${encodeURIComponent(search)}&first=100`);
+  return data.data;
 }
 
 function getDisplayName(user) {

@@ -21,7 +21,7 @@ export async function handleLogin(req, res) {
     if (req.cookies['esa-csrf'] && req.cookies['esa-csrf'] === csrf) {
       res.clearCookie('esa-csrf');
       logger.debug('Logging in...');
-      const tokenResponse = await httpPost('https://api.twitch.tv/kraken/oauth2/token', {
+      const tokenResponse = await httpPost('https://id.twitch.tv/oauth2/token', {
         body: {
           client_id: settings.twitch.clientID,
           client_secret: settings.twitch.clientSecret,
@@ -33,21 +33,26 @@ export async function handleLogin(req, res) {
       });
       const token = tokenResponse.access_token;
       if (!token) throw new Error('Access token could not be received');
-      const userResponse = await twitchGet('https://api.twitch.tv/kraken/user', null, token);
+      const userResponse = await twitchGet('https://api.twitch.tv/helix/users', null, token);
       console.log('User response:', userResponse);
-      if (userResponse && userResponse._id) {
+      if(!userResponse || !userResponse.data || userResponse.data.length === 0) {
+        res.status(404).end(`User not found`);
+        return
+      }
+      const userData = userResponse.data[0];
+      if (userData && userData.id) {
         // get user
-        let user = await models.User.findOne({ 'connections.twitch.id': userResponse._id }).exec();
+        let user = await models.User.findOne({ 'connections.twitch.id': userData.id }).exec();
         if (!user) {
           user = new models.User({
             connections: {
               twitch:
               {
-                name: userResponse.name,
-                displayName: userResponse.display_name,
-                id: userResponse._id,
-                logo: userResponse.logo,
-                email: userResponse.email,
+                name: userData.login,
+                displayName: userData.display_name,
+                id: userData.id,
+                logo: userData.profile_image_url,
+                email: userData.email,
                 oauthToken: token,
                 refreshToken: tokenResponse.refresh_token,
                 expiresAt: Date.now() + tokenResponse.expires_in * 1000
@@ -57,15 +62,15 @@ export async function handleLogin(req, res) {
           });
           console.log('Created new user', user);
         } else {
-          if (user.connections.twitch.name !== userResponse.name) {
-            user.connections.twitch.name = userResponse.name;
-            logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their name to ${userResponse.name}`);
+          if (user.connections.twitch.name !== userData.login) {
+            user.connections.twitch.name = userData.login;
+            logger.info(`User ${user.connections.twitch.name} (id: ${userData.id}) changed their name to ${userData.login}`);
           }
-          user.connections.twitch.displayName = userResponse.display_name;
-          user.connections.twitch.logo = userResponse.logo;
-          if (user.connections.twitch.email !== userResponse.email) {
-            user.connections.twitch.email = userResponse.email;
-            logger.info(`User ${user.connections.twitch.name} (id: ${userResponse._id}) changed their email to ${userResponse.email}`);
+          user.connections.twitch.displayName = userData.display_name;
+          user.connections.twitch.logo = userData.profile_image_url;
+          if (user.connections.twitch.email !== userData.email) {
+            user.connections.twitch.email = userData.email;
+            logger.info(`User ${user.connections.twitch.name} (id: ${userData.id}) changed their email to ${userData.email}`);
           }
           user.connections.twitch.oauthToken = token;
           user.connections.twitch.refreshToken = tokenResponse.refresh_token;
@@ -74,7 +79,7 @@ export async function handleLogin(req, res) {
         }
 
         console.log('Default Admins:', settings.defaultAdmins);
-        if (settings.defaultAdmins.includes(userResponse._id) && user.roles.length === 0) {
+        if (settings.defaultAdmins.includes(userData.id) && user.roles.length === 0) {
           const adminRole = await models.Role.findOne({ permissions: '*' }).exec();
           if (adminRole) {
             logger.info('Making user', user, 'an admin!');
@@ -89,15 +94,15 @@ export async function handleLogin(req, res) {
 
         await user.save();
 
-        const jwt = generateToken(token, { twitchID: userResponse._id, name: user.name, id: user._id });
+        const jwt = generateToken(token, { twitchID: userData.id, name: user.name, id: user._id });
         res.cookie('esa-jwt', jwt, settings.auth.cookieOptions);
 
         console.log('Redirecting to', redirectUrl);
         res.redirect(redirectUrl);
-        return;
+      } else {
+        res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?twitch_linked=0&error=Invalid%20data%20returned%20`);
       }
-      res.redirect(redirectUrl);
-      return;
+      return
     }
     res.redirect(`${settings.frontend.baseurl}${historySep}dashboard/profile?twitch_linked=0&error=CSRF%20Token%20invalid`);
     return;
