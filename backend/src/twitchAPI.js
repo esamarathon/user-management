@@ -7,26 +7,20 @@ import { throttleAsync, httpReq } from './helpers';
 export function twitchGet(url, headers, token, query) {
   if (!headers) headers = {};
   headers['Client-ID'] = settings.twitch.clientID;
-  if (token) headers.authorization = `OAuth ${token}`;
-  if (!headers.accept) headers.accept = 'application/vnd.twitchtv.v5+json';
-  logger.debug(`Getting ${url}`);
+  if (token) headers.authorization = `Bearer ${token}`;
+  if (!headers.accept) headers.accept = 'application/json';
+  if(token) logger.debug(`Getting ${url} with token`);
+  else logger.debug(`Getting ${url}`);
   return httpReq(url, { headers, query });
 }
 
 export function twitchPost(url, headers, token, body) {
   if (!headers) headers = {};
   headers['Client-ID'] = settings.twitch.clientID;
-  if (token) headers.authorization = `OAuth ${token}`;
-  if (!headers.accept) headers.accept = 'application/vnd.twitchtv.v5+json';
+  if (token) headers.authorization = `Bearer ${token}`;
+  if (!headers.accept) headers.accept = 'application/json';
   logger.debug(`Posting to ${url}`);
   return httpReq(url, { headers, body });
-}
-const userIDByName = {};
-export async function twitchGetIDByName(userName) {
-  if (userIDByName[userName]) return userIDByName[userName];
-  const userResponse = await twitchGet(`https://api.twitch.tv/kraken/users/?login=${userName}`);
-  userIDByName[userName] = userResponse.users[0]._id;
-  return userIDByName[userName];
 }
 
 export async function twitchGQL(query, variables) {
